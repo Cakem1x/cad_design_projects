@@ -2,3 +2,4 @@
 # Generated meshes
 *.stl
 *.3mf
+__pycache__/

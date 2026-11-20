@@ -5,13 +5,14 @@ Usage: python3 tools/sun_elevation.py [output.svg]
 Time axis: local solar time (12:00 = solar noon). The spring and autumn
 equinoxes have the same declination (0°) and therefore the same curve.
 """
-import math
 import sys
 
 import matplotlib
 
 matplotlib.use("svg")
 import matplotlib.pyplot as plt  # noqa: E402
+
+from solar import elevation_deg  # noqa: E402
 
 LATITUDE_DEG = 50.0
 HIGHLIGHT_HOURS = (6, 9, 12, 15, 18, 21)
@@ -28,13 +29,6 @@ SURFACE = "#fcfcfb"
 TEXT_PRIMARY = "#0b0b0b"
 TEXT_SECONDARY = "#52514e"
 GRID = "#e4e3df"
-
-
-def elevation_deg(lat_deg, decl_deg, solar_hour):
-    lat, decl = math.radians(lat_deg), math.radians(decl_deg)
-    hour_angle = math.radians(15.0 * (solar_hour - 12.0))
-    s = math.sin(lat) * math.sin(decl) + math.cos(lat) * math.cos(decl) * math.cos(hour_angle)
-    return math.degrees(math.asin(s))
 
 
 def main(out_path):

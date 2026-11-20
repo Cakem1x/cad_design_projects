@@ -21,7 +21,7 @@ Concentration ratio of the full CPC: `C = 1 / sin θa` (aperture width / absorbe
 
 ## Truncation
 The full CPC is too large for this tube. Truncation reduces height and material with a small loss of concentration.
-Values for `r` = 55 mm. `W` = aperture width, `arc` = reflector arc length per branch.
+Values for `r` = 55 mm (absorber Ø 110 mm). `W` = aperture width, `arc` = reflector arc length per branch.
 
 | θa | C full | Full CPC W × H | H = 250: W / C / arc | H = 350: W / C / arc | H = 450: W / C / arc |
 |----|--------|----------------|----------------------|----------------------|----------------------|
@@ -29,6 +29,10 @@ Values for `r` = 55 mm. `W` = aperture width, `arc` = reflector arc length per b
 | 25° | 2.37 | 818 × 1093 | 579 / 1.68 / 426 | 650 / 1.88 / 532 | 702 / 2.03 / 635 |
 | 30° | 2.00 | 691 × 795 | 546 / 1.58 / 416 | 604 / 1.75 / 520 | 643 / 1.86 / 621 |
 | 35° | 1.74 | 602 × 613 | 515 / 1.49 / 407 | 562 / 1.63 / 510 | 588 / 1.70 / 611 |
+
+![Full CPC and truncation heights for θa = 20–35°, same scale](img/cpc_truncation.svg)
+
+![Truncated CPC profiles at H = 350 mm for θa = 20–35°](img/cpc_acceptance_angles.svg)
 
 Conclusions:
 - At a fixed height, a smaller `θa` adds little concentration. A larger `θa` gives a wider acceptance range.
@@ -44,6 +48,13 @@ Options, to decide in CAD:
 - G2: Design the involute for a virtual absorber with a larger radius. Lower concentration, no cut.
 - G3: Modified cusp shape (literature: "gap loss" designs, Rabl / McIntire).
 
+![Cusp region: ideal involute, G1 cut with bridge arc, G2 virtual absorber](img/cpc_cusp_gap.svg)
+
+At θa = 30° and 2.5 mm clearance, G1 removes the cusp only within 4.4 mm of the centre line. A bridge arc of 8.8 mm width at r = 65 mm joins the branches.
+G2 moves the profile approx. 15 mm (bottom) to 40 mm (sides) outwards and lowers the concentration onto the real absorber.
+
+Regenerate the CPC plots: `python3 tools/plot_reflector_options.py` (requires matplotlib). Profile maths: `tools/cpc.py`.
+
 ## Tracking
 The tube axis is horizontal. Two sun movements are relevant:
 
@@ -54,7 +65,20 @@ The tube axis is horizontal. Two sun movements are relevant:
 
 Elevation:
 - Rate of change: up to approx. 10°/h in the morning and afternoon. Near 0°/h at noon.
-- With θa = 30° and aiming ahead: one reflector adjustment per several hours.
+- A setting covers the day if 2·θa ≥ the daily elevation range. At 50° N with `min_sun_elevation` = 10°, the range is 53.4° in summer (10–63.4°), 30° at equinox and 6.6° in winter.
+
+Reflector settings per day (rough estimate, `tools/adjustment.py`; unit turned to face the sun azimuth):
+
+| θa | Summer | Equinox | Winter |
+|----|--------|---------|--------|
+| 20° | 3 | 1 | 1 |
+| 25° | 3 | 1 | 1 |
+| 30° | 1 | 1 | 1 |
+| 35° | 1 | 1 | 1 |
+
+Limits of the estimate:
+- The acceptance edge of a truncated CPC is gradual. Near the window edges, less radiation reaches the absorber.
+- If the unit does not face the sun azimuth, the sun angle in the cross-section plane is larger than the elevation (`tan p = tan e / cos Δ`, `Δ` = azimuth error).
 
 Azimuth:
 - Rate of change: approx. 15°/h on average. Up to approx. 30°/h near noon in summer at high latitudes.

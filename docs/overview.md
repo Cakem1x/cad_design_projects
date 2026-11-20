@@ -29,9 +29,9 @@ All dimensions in mm unless noted. Values marked "TBD" need a measurement or a d
 
 | Parameter | Value | Note |
 |-----------|-------|------|
-| `tube_od` | 125 | Outer glass diameter. |
-| `tube_id` | 110 | Manufacturer value. Meaning TBD (see open questions). |
-| `absorber_r` | 55–57.5 (TBD) | Radius of the selective coating (outer surface of the inner glass tube). Drives the CPC. |
+| `tube_od` | 125 | Outer diameter of the transparent glass. |
+| `absorber_d` | 110 | Diameter of the glass with the absorber coating. |
+| `absorber_r` | 55 | `absorber_d` / 2. Drives the CPC. |
 | `tube_length` | 750 | Including tray handle. |
 | `useful_length` | 650 | Heated length. Reflector length ≥ this. |
 | `tube_mass` | 2.5 kg | Without food. |
@@ -54,14 +54,13 @@ Verify early (spike):
 - DXF export of a planar part in a format the laser software accepts.
 
 ## Phases
-1. Optics: fix `absorber_r`, `accept_half_angle`, `trunc_height`, gap treatment.
+1. Optics: fix `accept_half_angle`, `trunc_height`, gap treatment.
 2. Visualization model: tube, CPC profile, simple feet, tilt range.
 3. Detail design: pivot and lock, foot structure, sheet mounting.
 4. Prototype: print and cut one end (foot + rib) and test it with the tube.
 5. Full build.
 
 ## Open Questions
-- Q1: Meaning of `tube_id` = 110 mm. Is it the cooking-chamber diameter (inner surface of the inner tube) or the outer diameter of the inner tube? Measure the diameter of the dark coating, if possible.
-- Q2: Laser cutter bed size and available sheet materials and thicknesses.
-- Q3: Reflective material: self-adhesive foil on a carrier sheet, or pre-mirrored aluminium sheet.
-- Q4: Required tray access: the tray end must stay free. Which end is closed and rounded?
+- Q1: Laser cutter bed size and available sheet materials and thicknesses.
+- Q2: Reflective material: self-adhesive foil on a carrier sheet, or pre-mirrored aluminium sheet.
+- Q3: Required tray access: the tray end must stay free. Which end is closed and rounded?
