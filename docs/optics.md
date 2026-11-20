@@ -23,12 +23,12 @@ Concentration ratio of the full CPC: `C = 1 / sin θa` (aperture width / absorbe
 The full CPC is too large for this tube. Truncation reduces height and material with a small loss of concentration.
 Values for `r` = 55 mm (absorber Ø 110 mm). `W` = aperture width, `arc` = reflector arc length per branch.
 
-| θa | C full | Full CPC W × H | H = 250: W / C / arc | H = 350: W / C / arc | H = 450: W / C / arc |
+| θa | C full | Full CPC W × H | H = 350: W / C / arc | H = 450: W / C / arc | H = 600: W / C / arc |
 |----|--------|----------------|----------------------|----------------------|----------------------|
-| 20° | 2.92 | 1010 × 1635 | 617 / 1.78 / 438 | 700 / 2.03 / 546 | 765 / 2.21 / 651 |
-| 25° | 2.37 | 818 × 1093 | 579 / 1.68 / 426 | 650 / 1.88 / 532 | 702 / 2.03 / 635 |
-| 30° | 2.00 | 691 × 795 | 546 / 1.58 / 416 | 604 / 1.75 / 520 | 643 / 1.86 / 621 |
-| 35° | 1.74 | 602 × 613 | 515 / 1.49 / 407 | 562 / 1.63 / 510 | 588 / 1.70 / 611 |
+| 20° | 2.92 | 1010 × 1635 | 700 / 2.03 / 546 | 766 / 2.22 / 652 | 841 / 2.43 / 806 |
+| 25° | 2.37 | 818 × 1093 | 650 / 1.88 / 532 | 702 / 2.03 / 635 | 757 / 2.19 / 788 |
+| 30° | 2.00 | 691 × 795 | 604 / 1.75 / 520 | 643 / 1.86 / 622 | 677 / 1.96 / 773 |
+| 35° | 1.74 | 602 × 613 | 562 / 1.63 / 510 | 588 / 1.70 / 611 | 602 / 1.74 / 761 |
 
 ![Full CPC and truncation heights for θa = 20–35°, same scale](img/cpc_truncation.svg)
 
@@ -36,8 +36,17 @@ Values for `r` = 55 mm (absorber Ø 110 mm). `W` = aperture width, `arc` = refle
 
 Conclusions:
 - At a fixed height, a smaller `θa` adds little concentration. A larger `θa` gives a wider acceptance range.
-- Starting point: `θa` = 30°, `H` = 350 mm. Aperture approx. 600 × 650 mm. Arc length approx. 520 mm per branch.
-- Compared with the bare tube (projected width 2·r ≈ 110 mm), the aperture collects approx. 5× more radiation, before reflection losses.
+- Compared with the bare tube (projected width 2·r = 110 mm), the aperture collects 5–8× more radiation, before reflection losses.
+
+Selected design: `θa` = 20°, `H` = 600 mm.
+| Value | Result |
+|-------|--------|
+| Aperture width W | 841 mm |
+| Concentration C | 2.43 |
+| Arc length per branch | 806 mm |
+| Arm length (straight line, cusp to aperture edge) | 707 mm |
+| Aperture edge position (relative to the tube centre) | x = ±420, y = 514 |
+| Lowest profile point | y = −86 |
 
 ## Gap Between Reflector and Absorber
 The ideal involute touches the absorber at the cusp. The glass envelope (`tube_od` / 2 = 62.5 mm) prevents this.

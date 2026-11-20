@@ -9,6 +9,9 @@ import sys
 import matplotlib
 
 matplotlib.use("svg")
+# Deterministic SVG output: fixed element IDs, no date stamp.
+matplotlib.rcParams["svg.hashsalt"] = "solar_cad"
+matplotlib.rcParams["svg.fonttype"] = "path"
 import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.patches import Circle  # noqa: E402
 
@@ -20,8 +23,8 @@ ABSORBER_R = 55.0
 GLASS_R = 62.5
 CLEARANCE = 2.5
 ANGLES = (20, 25, 30, 35)
-TRUNC_HEIGHTS = (250, 350, 450)
-DEFAULT_HEIGHT = 350
+TRUNC_HEIGHTS = (350, 450, 600)
+DEFAULT_HEIGHT = 600
 OUT_DIR = "docs/img"
 
 # Reference palette, categorical slots 1-4 (fixed order).
@@ -63,9 +66,9 @@ def new_fig(w, h, ncols=1):
 
 
 def plot_acceptance_angles():
-    fig = plt.figure(figsize=(9, 7.6), dpi=100)
+    fig = plt.figure(figsize=(9, 9), dpi=100)
     fig.patch.set_facecolor(SURFACE)
-    grid = fig.add_gridspec(2, 1, height_ratios=(3.2, 1))
+    grid = fig.add_gridspec(2, 1, height_ratios=(4, 1))
     ax = fig.add_subplot(grid[0])
     style(ax)
     draw_tube(ax, labels=True)
@@ -77,15 +80,15 @@ def plot_acceptance_angles():
         ax.plot(xl, yl, color=color, linewidth=2, solid_capstyle="round", label=f"θa = {angle}°", zorder=2)
         ax.plot(xr, yr, color=color, linewidth=2, solid_capstyle="round", zorder=2)
         # Ladder of labels above the right branch ends: wider profiles get lower labels.
-        label_y = yr[-1] + 14 + 22 * ANGLES.index(angle)
+        label_y = yr[-1] + 20 + 30 * ANGLES.index(angle)
         ax.plot([xr[-1], xr[-1]], [yr[-1] + 4, label_y - 3], color=color, linewidth=1, zorder=1)
         ax.text(xr[-1], label_y, f"θa = {angle}°: W = {cpc.aperture_width(pts):.0f} mm, C = {cpc.concentration(pts, ABSORBER_R):.2f}",
                 color=TEXT_PRIMARY, fontsize=8, va="bottom", ha="left")
         settings = [len(adjustment.schedule(angle, decl)) for _, decl in adjustment.SEASONS]
         rows.append([f"{angle}°", f"{cpc.aperture_width(pts):.0f} mm", f"{cpc.concentration(pts, ABSORBER_R):.2f}"]
                     + [str(n) for n in settings])
-    ax.set_xlim(-420, 620)
-    ax.set_ylim(-120, 380)
+    ax.set_xlim(-560, 760)
+    ax.set_ylim(-120, 650)
     ax.set_xlabel("x (mm)", color=TEXT_SECONDARY)
     ax.set_ylabel("y (mm)", color=TEXT_SECONDARY)
     ax.set_title(f"Truncated CPC profiles, height {DEFAULT_HEIGHT} mm, absorber r = {ABSORBER_R:.0f} mm",
@@ -112,7 +115,7 @@ def plot_acceptance_angles():
                 "the acceptance edge of a truncated CPC is gradual. Turning the unit for the azimuth (approx. every 30–60 min) is separate.",
                 transform=tab_ax.transAxes, color=TEXT_SECONDARY, fontsize=7.5, va="top")
     fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, "cpc_acceptance_angles.svg"), facecolor=SURFACE)
+    fig.savefig(os.path.join(OUT_DIR, "cpc_acceptance_angles.svg"), facecolor=SURFACE, metadata={"Date": None})
     plt.close(fig)
 
 
@@ -140,15 +143,14 @@ def plot_truncation():
                     ha="center", color=TEXT_SECONDARY, fontsize=7.5,
                     bbox=dict(facecolor=SURFACE, edgecolor="none", pad=1))
         top = pts[-1][1]
-        ax.text(0, top + 15, f"full: C {cpc.concentration(pts, ABSORBER_R):.2f}\nH {top - y0:.0f}",
-                ha="center", va="bottom", color=TEXT_PRIMARY, fontsize=8)
         ax.set_xlim(-xmax, xmax)
         ax.set_ylim(y0 - 30, ymax + 60)
-        ax.set_title(f"θa = {angle}°", color=TEXT_PRIMARY, fontsize=11)
-    fig.suptitle("Full CPC (gray) and truncation heights H (mm); colored: H = 350, same scale",
+        ax.set_title(f"θa = {angle}°\nfull CPC: H {top - y0:.0f}, C {cpc.concentration(pts, ABSORBER_R):.2f}",
+                     color=TEXT_PRIMARY, fontsize=10)
+    fig.suptitle(f"Full CPC (gray) and truncation heights H (mm); colored: H = {DEFAULT_HEIGHT}, same scale",
                  x=0.01, ha="left", color=TEXT_PRIMARY, fontsize=11)
     fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, "cpc_truncation.svg"), facecolor=SURFACE)
+    fig.savefig(os.path.join(OUT_DIR, "cpc_truncation.svg"), facecolor=SURFACE, metadata={"Date": None})
     plt.close(fig)
 
 
@@ -191,7 +193,7 @@ def plot_cusp_gap():
     for t in leg.get_texts():
         t.set_color(TEXT_PRIMARY)
     fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, "cpc_cusp_gap.svg"), facecolor=SURFACE)
+    fig.savefig(os.path.join(OUT_DIR, "cpc_cusp_gap.svg"), facecolor=SURFACE, metadata={"Date": None})
     plt.close(fig)
 
 

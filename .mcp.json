@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "solidcraft": {
+      "command": "nix",
+      "args": ["develop", ".", "-c", "solidcraft-cli", "mcp", "--allow-path", "cad"]
+    }
+  }
+}

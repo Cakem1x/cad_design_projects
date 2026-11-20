@@ -19,3 +19,7 @@ Use technical writing for all documentation, including READMEs, comments, and co
 
 ## Design Documentation
 Read `docs/overview.md` first. It links to the optics and component documents.
+
+## CAD Modelling
+- Use the SolidCraft MCP server (`.mcp.json`) to create and edit models.
+- Store designs and exports in `cad/`. See `cad/README.md` for conventions.

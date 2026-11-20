@@ -20,7 +20,7 @@ Optical design: [optics.md](optics.md).
 - R2: The reflector rotates about the tube axis. Each set position locks.
 - R3: The whole unit rotates on the ground to follow the sun azimuth.
 - R4: The unit disassembles for transport. The reflector sheet rolls up.
-- R5: The unit is stable in moderate wind (aperture area approx. 0.5 m²).
+- R5: The unit is stable in moderate wind (aperture area approx. 0.55 m²).
 - R6: All parts fit the available machines (see parameters).
 - R7: Parts near the tube and in the sun tolerate the temperature. Use PETG or ASA, not PLA. Plywood is acceptable.
 
@@ -35,9 +35,9 @@ All dimensions in mm unless noted. Values marked "TBD" need a measurement or a d
 | `tube_length` | 750 | Including tray handle. |
 | `useful_length` | 650 | Heated length. Reflector length ≥ this. |
 | `tube_mass` | 2.5 kg | Without food. |
-| `accept_half_angle` | 30–35° (to decide in CAD) | See [optics.md](optics.md). |
+| `accept_half_angle` | 20° | Selected. See [optics.md](optics.md). |
 | `min_sun_elevation` | 10° | Target. Increase if the tilt range causes problems. Lowest sun elevation for cooking. Sets the maximum reflector tilt and the tube axis height. See [optics.md](optics.md#tilt-range). |
-| `trunc_height` | approx. 350 (to decide in CAD) | Reflector height, cusp to aperture. |
+| `trunc_height` | 600 | Selected. Reflector height, lowest profile point to aperture. Arm length (straight line, cusp to aperture edge) 707, below the tube length (750) for packing. |
 | `printer_bed` | ≤ 256 × 256 | FDM. |
 | `laser_bed` | TBD | Limits rib size. |
 | `sheet_thickness` | TBD | Plywood for laser-cut parts. |
@@ -54,7 +54,7 @@ Verify early (spike):
 - DXF export of a planar part in a format the laser software accepts.
 
 ## Phases
-1. Optics: fix `accept_half_angle`, `trunc_height`, gap treatment.
+1. Optics: fix gap treatment.
 2. Visualization model: tube, CPC profile, simple feet, tilt range.
 3. Detail design: pivot and lock, foot structure, sheet mounting.
 4. Prototype: print and cut one end (foot + rib) and test it with the tube.

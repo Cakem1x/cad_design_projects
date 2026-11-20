@@ -10,6 +10,9 @@ import sys
 import matplotlib
 
 matplotlib.use("svg")
+# Deterministic SVG output: fixed element IDs, no date stamp.
+matplotlib.rcParams["svg.hashsalt"] = "solar_cad"
+matplotlib.rcParams["svg.fonttype"] = "path"
 import matplotlib.pyplot as plt  # noqa: E402
 
 from solar import elevation_deg  # noqa: E402
@@ -73,7 +76,7 @@ def main(out_path):
     for text in leg.get_texts():
         text.set_color(TEXT_PRIMARY)
     fig.tight_layout()
-    fig.savefig(out_path, facecolor=SURFACE)
+    fig.savefig(out_path, facecolor=SURFACE, metadata={"Date": None})
 
     print("| Time | " + " | ".join(s[0] for s in SEASONS) + " |")
     print("|------|" + "|".join("---" for _ in SEASONS) + "|")

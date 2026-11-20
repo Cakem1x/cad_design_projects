@@ -22,6 +22,8 @@
             # Parametric CAD application (GUI: solidcraft, CLI: solidcraft-cli)
             solidcraft.packages.${system}.solidcraft
             pkgs.glow # look at md
+            # Plot and geometry scripts in tools/
+            (pkgs.python3.withPackages (ps: [ ps.matplotlib ]))
           ];
         };
 

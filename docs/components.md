@@ -9,7 +9,7 @@ Constraints:
 - Tube: Ø 125 mm, 2.5 kg plus food. Soft contact on the glass (silicone, EPDM or cork liner).
 - The outer glass stays near ambient temperature (vacuum insulation). Parts in the focal region can still get hot from concentrated sunlight.
 - The tray end must stay accessible.
-- Tube axis height: set by the tilt range (see [optics.md](optics.md)). Estimate 350–450 mm for a maximum tilt of 80° (`min_sun_elevation` = 10°).
+- Tube axis height: set by the tilt range (see [optics.md](optics.md)). At 80° tilt (`min_sun_elevation` = 10°), the lowest reflector point is 325 mm below the tube axis. Tube axis height: approx. 350–380 mm.
 - Wind: wide footprint, ground pegs or ballast.
 
 Construction options:
@@ -36,13 +36,13 @@ Pivot options:
 
 Locking options: friction clamp (wing nut), index holes every 5°, or both.
 
-Rib material: laser-cut plywood. The profile is planar and approx. 600 × 400 mm. Check against the laser bed size; split into joined segments if necessary.
+Rib material: laser-cut plywood. The profile is planar and approx. 841 × 600 mm (θa = 20°, H = 600). This likely exceeds the laser bed: split each rib into joined segments, or use separate arms per branch (approx. 420 × 600 mm each, straight length 707 mm).
 Sheet mounting on the rib: groove along the profile edge, or printed clips.
 Optional: a middle rib for stiffness, end mirrors on the ribs to reduce end losses.
 
 ## C3: Reflector Sheet
 Function: reflective surface in the CPC profile. Rolls up for transport.
-Size per branch: approx. 520 mm (arc length) × ≥ 650 mm (tube direction). The two branches meet at the cusp below the tube. Use two separate sheets.
+Size per branch: approx. 806 mm (arc length, θa = 20°, H = 600) × ≥ 650 mm (tube direction). The two branches meet at the cusp below the tube. Use two separate sheets.
 
 The sheet bends only in the cross-section plane. It rolls up about an axis parallel to the tube.
 

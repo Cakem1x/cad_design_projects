@@ -19,7 +19,7 @@ def _point(r, theta, theta_a):
             -r * math.cos(theta) - rho * math.sin(theta))
 
 
-def full_profile(r, theta_a_deg, n=2000):
+def full_profile(r, theta_a_deg, n=20000):
     """Right branch of the untruncated CPC, from the cusp to the aperture."""
     theta_a = math.radians(theta_a_deg)
     end = 1.5 * math.pi - theta_a
