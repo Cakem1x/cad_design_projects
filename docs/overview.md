@@ -36,6 +36,7 @@ All dimensions in mm unless noted. Values marked "TBD" need a measurement or a d
 | `useful_length` | 650 | Heated length. Reflector length ≥ this. |
 | `tube_mass` | 2.5 kg | Without food. |
 | `accept_half_angle` | 30–35° (to decide in CAD) | See [optics.md](optics.md). |
+| `min_sun_elevation` | 10° | Target. Increase if the tilt range causes problems. Lowest sun elevation for cooking. Sets the maximum reflector tilt and the tube axis height. See [optics.md](optics.md#tilt-range). |
 | `trunc_height` | approx. 350 (to decide in CAD) | Reflector height, cusp to aperture. |
 | `printer_bed` | ≤ 256 × 256 | FDM. |
 | `laser_bed` | TBD | Limits rib size. |
@@ -63,5 +64,4 @@ Verify early (spike):
 - Q1: Meaning of `tube_id` = 110 mm. Is it the cooking-chamber diameter (inner surface of the inner tube) or the outer diameter of the inner tube? Measure the diameter of the dark coating, if possible.
 - Q2: Laser cutter bed size and available sheet materials and thicknesses.
 - Q3: Reflective material: self-adhesive foil on a carrier sheet, or pre-mirrored aluminium sheet.
-- Q4: Location latitude (sets the elevation range and the tilt range).
-- Q5: Required tray access: the tray end must stay free. Which end is closed and rounded?
+- Q4: Required tray access: the tray end must stay free. Which end is closed and rounded?

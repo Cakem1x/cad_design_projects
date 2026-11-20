@@ -65,5 +65,31 @@ Alternative orientation (not planned, the same hardware supports it): tube axis 
 
 ## Tilt Range
 - The reflector tilt from vertical equals 90° minus the sun elevation in the cross-section plane.
-- Example 50° N: maximum elevation 63.5° (summer solstice). Minimum useful elevation approx. 15–20°. Tilt range approx. 25–75° to one side.
-- At large tilt, the lower aperture rim moves towards the ground. The tube axis height sets the maximum tilt. Determine it in the CAD assembly.
+- The design input is `min_sun_elevation`: the lowest sun elevation for cooking. Maximum tilt = 90° − `min_sun_elevation`.
+- Minimum tilt: 90° minus the highest sun elevation at the site (63.4° at 50° N, summer solstice).
+- At large tilt, the lower aperture rim moves towards the ground. The tube axis height limits the maximum tilt. Determine it in the CAD assembly.
+
+Noon elevation at latitude `φ`: `90° − |φ − δ|`, with the declination `δ` between −23.44° (winter solstice) and +23.44° (summer solstice).
+
+### Example: 50° N
+
+![Sun elevation over the day at 50° N for summer solstice, equinoxes and winter solstice](img/sun_elevation_50N.svg)
+
+Time is local solar time (12:00 = solar noon). In Central Europe, solar noon is at approx. 12:00–12:45 CET (13:00–13:45 CEST), depending on longitude and date.
+The spring and autumn equinoxes have the same curve.
+
+| Time | Summer solstice (Jun 21) | Equinox (Mar 20, Sep 22) | Winter solstice (Dec 21) |
+|------|---|---|---|
+| 06:00 | 17.7° | 0.0° | below horizon |
+| 09:00 | 46.2° | 27.0° | 6.4° |
+| 12:00 | 63.4° | 40.0° | 16.6° |
+| 15:00 | 46.2° | 27.0° | 6.4° |
+| 18:00 | 17.7° | 0.0° | below horizon |
+| 21:00 | below horizon | below horizon | below horizon |
+
+Cooking windows for `min_sun_elevation` = 10° (maximum tilt 80°):
+- Summer: approx. 05:10–18:50. Tilt range 26.6–80°.
+- Equinox: approx. 07:05–16:55. Highest elevation 40°.
+- Winter: approx. 09:35–14:25. Highest elevation 16.6°. Tilt range 73.4–80°.
+
+Regenerate the plot and table: `python3 tools/sun_elevation.py docs/img/sun_elevation_50N.svg` (requires matplotlib).

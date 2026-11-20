@@ -9,7 +9,7 @@ Constraints:
 - Tube: Ø 125 mm, 2.5 kg plus food. Soft contact on the glass (silicone, EPDM or cork liner).
 - The outer glass stays near ambient temperature (vacuum insulation). Parts in the focal region can still get hot from concentrated sunlight.
 - The tray end must stay accessible.
-- Tube axis height: set by the tilt range (see [optics.md](optics.md)). Estimate 350–450 mm for the full range.
+- Tube axis height: set by the tilt range (see [optics.md](optics.md)). Estimate 350–450 mm for a maximum tilt of 80° (`min_sun_elevation` = 10°).
 - Wind: wide footprint, ground pegs or ballast.
 
 Construction options:
