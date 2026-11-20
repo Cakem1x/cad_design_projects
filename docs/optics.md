@@ -1,0 +1,69 @@
+# Optics: Involute CPC for a Tubular Absorber
+
+## Profile
+A CPC (Compound Parabolic Concentrator) for a cylindrical absorber has two sections per branch:
+- Involute section: behind the absorber. Reflects all rays inside the acceptance angle onto the absorber.
+- Parabolic section: from the end of the involute to the aperture.
+
+Notation:
+- `r`: absorber radius (`absorber_r`).
+- `θa`: half-acceptance angle.
+- `θ`: angle of the tangent point on the absorber, measured from the bottom of the absorber.
+- `ρ(θ)`: length of the tangent line from the tangent point to the reflector.
+
+Equations (Rabl, 1976):
+- Involute, `0 ≤ θ ≤ θa + π/2`: `ρ = r·θ`
+- Parabola, `θa + π/2 ≤ θ ≤ 3π/2 − θa`: `ρ = r·(θ + θa + π/2 − cos(θ − θa)) / (1 + sin(θ − θa))`
+- Point, absorber centre at the origin, optical axis +y: `x = r·sin θ − ρ·cos θ`, `y = −r·cos θ − ρ·sin θ`
+- The second branch is the mirror image about the y axis.
+
+Concentration ratio of the full CPC: `C = 1 / sin θa` (aperture width / absorber circumference).
+
+## Truncation
+The full CPC is too large for this tube. Truncation reduces height and material with a small loss of concentration.
+Values for `r` = 55 mm. `W` = aperture width, `arc` = reflector arc length per branch.
+
+| θa | C full | Full CPC W × H | H = 250: W / C / arc | H = 350: W / C / arc | H = 450: W / C / arc |
+|----|--------|----------------|----------------------|----------------------|----------------------|
+| 20° | 2.92 | 1010 × 1635 | 617 / 1.78 / 438 | 700 / 2.03 / 546 | 765 / 2.21 / 651 |
+| 25° | 2.37 | 818 × 1093 | 579 / 1.68 / 426 | 650 / 1.88 / 532 | 702 / 2.03 / 635 |
+| 30° | 2.00 | 691 × 795 | 546 / 1.58 / 416 | 604 / 1.75 / 520 | 643 / 1.86 / 621 |
+| 35° | 1.74 | 602 × 613 | 515 / 1.49 / 407 | 562 / 1.63 / 510 | 588 / 1.70 / 611 |
+
+Conclusions:
+- At a fixed height, a smaller `θa` adds little concentration. A larger `θa` gives a wider acceptance range.
+- Starting point: `θa` = 30°, `H` = 350 mm. Aperture approx. 600 × 650 mm. Arc length approx. 520 mm per branch.
+- Compared with the bare tube (projected width 2·r ≈ 110 mm), the aperture collects approx. 5× more radiation, before reflection losses.
+
+## Gap Between Reflector and Absorber
+The ideal involute touches the absorber at the cusp. The glass envelope (`tube_od` / 2 = 62.5 mm) prevents this.
+The gap between the absorber and the reflector is at least 5–8 mm, plus clearance.
+Rays through the gap miss the absorber (gap loss, typically a few percent).
+Options, to decide in CAD:
+- G1: Cut the profile at the radius `tube_od / 2 + clearance`. Simplest approach.
+- G2: Design the involute for a virtual absorber with a larger radius. Lower concentration, no cut.
+- G3: Modified cusp shape (literature: "gap loss" designs, Rabl / McIntire).
+
+## Tracking
+The tube axis is horizontal. Two sun movements are relevant:
+
+| Movement | Compensation | Tolerance |
+|----------|--------------|-----------|
+| Elevation (sun angle in the tube cross-section plane) | Rotate the reflector about the tube axis (C2). | ±θa. Aim ahead of the sun to use the full window 2·θa. |
+| Azimuth (sun direction along the horizon) | Rotate the whole unit on the ground. | No hard limit. Loss is approx. cosine of the azimuth error plus end losses (see below). |
+
+Elevation:
+- Rate of change: up to approx. 10°/h in the morning and afternoon. Near 0°/h at noon.
+- With θa = 30° and aiming ahead: one reflector adjustment per several hours.
+
+Azimuth:
+- Rate of change: approx. 15°/h on average. Up to approx. 30°/h near noon in summer at high latitudes.
+- An azimuth error of 15° costs approx. 3.5 % (cosine loss). End losses add to this: rays at a longitudinal angle land beyond the tube end. An end mirror or a reflector longer than `useful_length` reduces end losses.
+- Rotate the unit approx. every 30–60 min.
+
+Alternative orientation (not planned, the same hardware supports it): tube axis north–south. The reflector then follows the daily sun movement (15°/h), and the sun elevation becomes a longitudinal angle with high cosine losses at low sun. This mode needs frequent reflector adjustment.
+
+## Tilt Range
+- The reflector tilt from vertical equals 90° minus the sun elevation in the cross-section plane.
+- Example 50° N: maximum elevation 63.5° (summer solstice). Minimum useful elevation approx. 15–20°. Tilt range approx. 25–75° to one side.
+- At large tilt, the lower aperture rim moves towards the ground. The tube axis height sets the maximum tilt. Determine it in the CAD assembly.
