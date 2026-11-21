@@ -140,7 +140,8 @@ The design contains reference bodies for the socket, the nipple and the bulb. Th
 Bill of materials:
 | Item | Count | Source |
 |---|---|---|
-| Panel, 3 mm plywood | 11 | `panel_x11.dxf` |
+| Panel, plain (bottom, lower ring), 3 mm plywood | 6 | `panel_x6.dxf` |
+| Upper panel (organic pattern prototype), 3 mm plywood | 5 | `upper_panel_x5.dxf` |
 | Top plate, 3 mm plywood | 1 | `top_plate_x1.dxf` |
 | Bracket | 25 | `bracket_x25.stl`, laid on its end face, no supports |
 | Top bracket | 5 | `top_bracket_x5.stl`, laid on its end face, no supports |

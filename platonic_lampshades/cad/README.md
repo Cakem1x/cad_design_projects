@@ -14,7 +14,7 @@ Start Claude Code from the repository root. The server resolves the paths relati
 ## Contents
 | Folder | Design | Exports |
 |---|---|---|
-| `dodecahedron/` | `dodecahedron_kit.sc`: panels, brackets, top brackets, top plate, reference solid and reference bodies for socket, nipple and bulb | `panel_x11.dxf` (sketch `PanelLaser`), `top_plate_x1.dxf` (sketch `TopPlateLaser`), `fit_test_x1.dxf` (sketch `FitTestLaser`), `bracket_x25.stl` (body `Bracket`), `top_bracket_x5.stl` (body `TopBracket`) |
+| `dodecahedron/` | `dodecahedron_kit.sc`: panels, upper panels with pattern, brackets, top brackets, top plate, reference solid and reference bodies for socket, nipple and bulb | `panel_x6.dxf` (sketch `PanelLaser`), `upper_panel_x5.dxf` (sketch `UpperPanelLaser`), `top_plate_x1.dxf` (sketch `TopPlateLaser`), `fit_test_x1.dxf` (sketch `FitTestLaser`), `bracket_x25.stl` (body `Bracket`), `top_bracket_x5.stl` (body `TopBracket`) |
 
 Export the DXFs with `sketch.export_dxf {"sketch": ..., "path": ..., "layers": "roles"}`: outline on layer `OUTLINE`, holes on layer `CUT`.
 Export the STLs with `file.export {"path": ..., "bodies": [...], "lay_on_print_faces": true}`: each bracket is laid on its end face.
