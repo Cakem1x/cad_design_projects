@@ -1,4 +1,4 @@
-# solar_cad
+# CAD Design Projects
 
 Parametric CAD projects for 3D printing and laser cutting.
 
