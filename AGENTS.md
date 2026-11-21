@@ -14,6 +14,7 @@ Shared at the root: `flake.nix`, `.mcp.json`, `.gitignore`, `LICENSE`.
 The Nix flake (`flake.nix`) defines the development shell.
 - Inside an active direnv shell (`use flake`), run tools directly.
 - Otherwise, prefix commands with `nix develop -c`.
+- If you need additional tools to work effectively, ask user whether to add it to nix flake devshell.
 
 ## Documentation Style
 Use technical writing for all documentation, including READMEs, comments, and commit messages.
