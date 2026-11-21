@@ -22,4 +22,5 @@ Read `docs/overview.md` first. It links to the optics and component documents.
 
 ## CAD Modelling
 - Use the SolidCraft MCP server (`.mcp.json`) to create and edit models.
+- The SolidCraft app listens for agents on `127.0.0.1:27878` (Preferences › AI). The MCP server bridges to it only while the design has no features. Check with `version` (`mode: app`) before modelling.
 - Store designs and exports in `cad/`. See `cad/README.md` for conventions.

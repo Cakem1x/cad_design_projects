@@ -69,7 +69,7 @@ The tube axis is horizontal. Two sun movements are relevant:
 
 | Movement | Compensation | Tolerance |
 |----------|--------------|-----------|
-| Elevation (sun angle in the tube cross-section plane) | Rotate the reflector about the tube axis (C2). | ±θa. Aim ahead of the sun to use the full window 2·θa. |
+| Elevation (sun angle in the tube cross-section plane) | Rotate the arm pairs (C2) about the tube axis. | ±θa. Aim ahead of the sun to use the full window 2·θa. |
 | Azimuth (sun direction along the horizon) | Rotate the whole unit on the ground. | No hard limit. Loss is approx. cosine of the azimuth error plus end losses (see below). |
 
 Elevation:
