@@ -1,6 +1,6 @@
 # Light Patterns
 
-Requirements and design zones for the cutout patterns in the panels. Applies to the dodecahedron prototype (see [overview](overview.md)). Status: zones final. Pattern style chosen (upper ring), in design; other panels plain.
+Requirements and design zones for the cutout patterns in the panels. Applies to the dodecahedron prototype (see [overview](overview.md)). Status: zones final. Pattern style chosen; upper and lower ring patterns in design (2D); bottom panel and top plate plain.
 
 ## Terms
 | Term | Definition |
@@ -24,7 +24,7 @@ Requirements and design zones for the cutout patterns in the panels. Applies to 
 2. **Panel designs.** Each panel can have its own pattern. Identical patterns are allowed.
 3. **Design zones.** Each part of a panel follows the purpose of its design zone (see [Design zones](#design-zones)).
 4. **Structure.** The keys hold the shade together (see [joinery.md](joinery.md)). Keep:
-   - per key: the key slot (3 mm × 6 mm, centred 10 mm from the edge) with a web around it, and the arm footprint on the inner face (3 mm wide, 18 mm from the edge), at ±25 mm from each edge centre;
+   - per key: the key slot (3 mm × 6 mm, centred 10 mm from the edge) with a web around it, and the arm footprint on the inner face (3 mm wide, 18 mm from the edge), at ±22.5 mm from each edge centre;
    - a solid border along the panel edges;
    - a frame on the bottom panel, even when the panel is "almost absent": its 10 keys close the lower ring;
    - webs of at least 3 mm in 3 mm plywood (to be confirmed by a test cut).
@@ -104,13 +104,25 @@ The bulb is not a point source. A cutout at distance `d` from the source casts a
 - The upper ring is closer to the ceiling in some directions and farther in others, so its projections change in size and blur across the ceiling.
 
 ## Pattern
-Style: **Marrakech trellis in log-polar coordinates** (5-fold), on the upper ring panels. Status: in design. The studies that led here are in [../prototypes/](../prototypes/README.md).
+Style: **Marrakech trellis in log-polar coordinates** (5-fold). Status: in design. The studies that led here are in [../prototypes/](../prototypes/README.md).
 
 The SolidCraft design still carries the first prototype (Voronoi) on the upper ring panels.
 
-Generator: `tools/panel_pattern.py` (`just lamp-patterns`; `just lamp-inputs` before importing the DXFs into SolidCraft). It uses the key keep-outs and the panel size of the key design. It writes `cad/dodecahedron/<panel>_pattern.dxf`, `<panel>_pattern_kerf.dxf` (shrunk by `kerf/2`) and the previews, for `<panel>` = `upper` and `lower`. It writes no DXF if a check fails.
+Generator: `tools/panel_pattern.py [upper|lower]` (`just lamp-patterns`; `just lamp-inputs` before importing the DXFs into SolidCraft). Per panel type it writes `cad/dodecahedron/<panel>_pattern.dxf`, `<panel>_pattern_kerf.dxf` (shrunk by `kerf/2`) and the preview `docs/img/<panel>_panel_pattern.svg`. It writes no DXF if a check fails. A second argument overrides the lanterns per ring for studies.
 
-Bridge rule (checked on the output polylines, between holes, to the panel edge and to the keep-outs):
+| Panel | Lanterns per ring | Zones cut | Holes | Open area | Worst bridge margin |
+|---|---|---|---|---|---|
+| Upper ring | 10 | projection zone; complete holes reach down to `e` = −1.1° (see below) | 49, 6 mm to 33 mm | 50 % | +0.29 mm |
+| Lower ring | 20 | all; glare zone needs a diffuser (requirement 5) | 105, 6 mm to 15 mm | 34 % | +0.29 mm |
+
+- Lower ring: more visible from the room. 20 lanterns per ring give smaller holes and less open area. The lanterns shrink towards the centre; below about 31 mm radius they fall under the minimum hole size and the centre stays solid (Ø 62 mm). The solid centre lies on the face normal (`e` = −26.6°), in the line of sight of seated viewers.
+- Lower ring studies (`r0` = 34 mm, before the key alignment): 15 lanterns per ring: 80 holes, 38 % open. 25 lanterns per ring: 105 holes, 24 % open, solid centre about Ø 60 mm.
+- Keep-outs: border 6 mm and the keys (`tk` × `Larm` = 3 mm × 18 mm footprint with the slot, at ±`ek/2` from the edge centre, see [joinery.md](joinery.md)).
+  - Key nodes (both rings). Upper ring: `ek` = 45 mm puts each key on the trellis bar that meets the edge there; the slot sits next to a bar junction. Lower ring: with `ek` fixed, the radial phase `r0` = 27.4 mm (was 34 mm) moves a bar and a junction onto each key. With `r0` = 34 mm the keys sat in the middle of a lantern (79 % of the arm centreline open); now 24 % of the arm band is open before the keep-out. On both rings the bar widens to a rounded node around the slot: 4.3 mm around the slot (bridge rule maximum + 0.3 mm), 1.5 mm around the arm footprint. The lanterns next to a key stay unclipped. The check measures the bridge from each hole to each slot by the bridge rule (slot size 6 mm) and keeps the arm footprints solid.
+- Upper ring, glare zone: the zone does not clip the holes. A hole that reaches below `e` = −1.3° (top of the viewer envelope, no margin) is dropped whole: only the lantern at the bottom tip (lowest point −7.8°). The lanterns next to it stay complete. They reach into the 5° margin of the glare zone: lowest points +1.4° (2 lanterns beside the axis) and −1.1° (2 lanterns at the lower edges). Check: no hole point below −1.3°.
+- Panel size: `ri = t + Dkey + tp + Hs + Lc`. Keep the constants at the top of the script in sync with the design.
+
+Bridge rule (checked on the output polylines, between holes, to the panel edge and to the key footprints):
 
 | Larger adjacent hole | Required bridge |
 |---|---|
@@ -120,8 +132,11 @@ Bridge rule (checked on the output polylines, between holes, to the panel edge a
 
 ![Upper ring panel pattern](img/upper_panel_pattern.svg)
 
+![Lower ring panel pattern](img/lower_panel_pattern.svg)
+
 ## Open points
-- Pattern designs for the bottom panel (table zone: frame only), the lower ring (glare zone) and the top plate (projection zone).
+- Pattern designs for the bottom panel (table zone: frame only) and the top plate (projection zone).
+- Lower ring pattern: import into SolidCraft. Choose the diffuser, or test the glare without one.
 - Test the prototype: cut one upper panel, light it with a clear and a frosted bulb, check the ceiling projection.
 - Minimum web width and minimum cutout size: test cut.
 - Diffuser material and how to attach it, if the glare zone uses one.

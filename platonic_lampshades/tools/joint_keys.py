@@ -48,7 +48,7 @@ H_TAB = 10.0      # tab centre distance from P (= slot centre distance from the 
 W_TAB = 6.0       # tab width along the arm
 TAB_OUT = 0.3     # tab length beyond the outer face (sand flush after gluing)
 R_REL = 1.2       # relief at P: the key does not touch the panel inner corners
-E_KEY = 50.0      # key spacing along the edge (2 keys per edge, centred)
+E_KEY = 45.0      # key spacing along the edge (2 keys per edge, centred)
 
 # Fit parameters, mm (tune with the test coupon; slot = nominal + fit)
 FIT_T = 0.0       # slot along the edge: key thickness + FIT_T

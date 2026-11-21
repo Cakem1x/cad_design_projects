@@ -6,16 +6,22 @@ lanterns point outwards and grow with the radius. The bar width in mm follows th
 
 Pipeline (0.2 mm grid):
 1. Skeleton distance S in map units, converted to mm with the local scale rho / k of the map.
-2. Cutout field F = min(S - w(rho)/2, hub, border, key keep-outs, glare zone), blurred
-   lightly (inner corner radius about 1 mm).
+2. Cutout field F = min(S - w(rho)/2, hub, border, key keep-outs), blurred lightly (inner
+   corner radius about 1 mm).
 3. Cutouts: closed contours F = 0; holes thinner than 2.4 mm or smaller than 15 mm^2 are dropped.
+   Upper ring: the glare zone does not clip the holes. A hole that reaches below E_EYE_TOP (top of
+   the viewer envelope) is dropped whole: only the lantern at the bottom tip. The lanterns next to
+   it stay complete and may reach into the glare zone margin (E_EYE_TOP to E_GLARE_HI).
 4. Check on the output polylines (no DXF if it fails): bridge >= 3.0 mm, rising linearly to
    4.0 mm when the larger adjacent hole measures 15 mm to 35 mm; the same rule to the panel edge
-   and the key footprints; upper ring: all cutouts above the glare zone.
+   and to the key slots; solid arm footprints; upper ring: all hole points above E_EYE_TOP.
 
 Joints: cross-section keys (docs/joinery.md), 2 per edge, 10 per panel. Key footprint on the
 inner face: TK along the edge x L_ARM from the edge, centred E_KEY / 2 from the edge centre. It
-contains the slot (TK x W_TAB, centred H_TAB from the edge).
+contains the slot (TK x W_TAB, centred H_TAB from the edge). E_KEY = 45 mm puts each key on the
+trellis bar that meets the edge there. With key_nodes (PANELS), the keep-out is a rounded node
+around the slot (SLOT_MARGIN, bridge rule) plus ARM_MARGIN around the arm footprint: the bar
+widens locally instead of clipping the lanterns.
 
 Panels (see PANELS):
   upper   upper ring, 10 lanterns per ring, projection zone only (no cutout below e = +4 deg).
@@ -60,7 +66,7 @@ D_KEY = 9.0           # key depth, normal to the inner face
 L_ARM = 18.0          # arm length on the inner face, from the panel edge
 H_TAB = 10.0          # slot centre from the panel edge
 W_TAB = 6.0           # slot length across the edge
-E_KEY = 50.0          # distance between the 2 keys of an edge
+E_KEY = 45.0          # distance between the 2 keys of an edge
 RI = T + D_KEY + TP + HS + LC
 A = RI / (math.sqrt((25 + 11 * math.sqrt(5)) / 10) / 2)
 S_INSET = T / math.tan(math.radians(180 - math.degrees(math.atan(2))) / 2)
@@ -69,13 +75,16 @@ RV = RP / math.cos(math.radians(36))
 RING_N = math.degrees(math.atan(0.5))
 E_GLARE_LO = -46.0                   # table zone below this elevation, deg
 E_GLARE_HI = 4.0                     # projection zone above this elevation, deg
+E_EYE_TOP = -1.3                     # top of the viewer envelope (no zone margin), deg
 
 # Panel types. ring: +1 upper ring (normal at e = +26.6 deg, +x vertex down),
 # -1 lower ring (normal at e = -26.6 deg, +x vertex up).
+# r0 sets the radial phase of the rings. Lower ring: r0 = 27.4 mm puts a bar and a junction on
+# each key (E_KEY is fixed by the upper ring); r0 = 34 mm put the keys inside lanterns.
 PANELS = {
-    "upper": dict(ring=+1, n_ring=10, r0=34.0, r_hub=14.0, glare_keepout=True,
+    "upper": dict(ring=+1, n_ring=10, r0=34.0, r_hub=14.0, glare_keepout=True, key_nodes=True,
                   title="Upper ring panel", tip="bottom tip on +x"),
-    "lower": dict(ring=-1, n_ring=20, r0=34.0, r_hub=16.0, glare_keepout=False,
+    "lower": dict(ring=-1, n_ring=20, r0=27.4, r_hub=16.0, glare_keepout=False, key_nodes=True,
                   title="Lower ring panel", tip="top tip on +x"),
 }
 CFG = PANELS["upper"]  # set in main()
@@ -85,8 +94,9 @@ STRETCH = 1.2         # lantern tile height / width
 BULGE = 0.09          # S-curve amplitude / edge length
 BAR_MARGIN = 0.3      # bar width above the bridge rule, mm
 BORDER = 6.0          # solid border at the panel edge, mm
-KEEP_MARGIN = 4.5     # clearance around the key footprints, mm
-GLARE_CLEAR = 3.0     # clearance to the glare zone line, mm
+KEEP_MARGIN = 4.5     # clearance around the key footprints, mm (panels without key_nodes)
+SLOT_MARGIN = 4.3     # node around the key slot: bridge rule maximum + 0.3 mm (key_nodes)
+ARM_MARGIN = 1.5      # solid wood around the key arm footprint, mm (key_nodes)
 BLUR = 0.5            # Gaussian blur sigma, mm
 GRID = 0.2
 R_HOLE_MIN = 1.2      # drop holes narrower than 2 * R_HOLE_MIN
@@ -153,15 +163,35 @@ def slot_corners(i):
     return _rect(k, off, RP - H_TAB - W_TAB / 2, RP - H_TAB + W_TAB / 2, TK)
 
 
+def _rect_sdf(X, Y, k, off, d_in, d_out, w):
+    """Signed distance to the rectangle of _rect (positive outside)."""
+    ux, uy = EDGE_N[k]
+    tx, ty = -uy, ux
+    s = X * ux + Y * uy - (d_in + d_out) / 2
+    t = X * tx + Y * ty - off
+    qx, qy = np.abs(s) - (d_out - d_in) / 2, np.abs(t) - w / 2
+    return np.hypot(np.maximum(qx, 0), np.maximum(qy, 0)) + np.minimum(np.maximum(qx, qy), 0)
+
+
 def rect_sdf(X, Y, i):
     """Signed distance to key footprint i (positive outside)."""
     k, off = KEYS[i]
-    ux, uy = EDGE_N[k]
-    tx, ty = -uy, ux
-    s = X * ux + Y * uy - (RP - L_ARM / 2)
-    t = X * tx + Y * ty - off
-    qx, qy = np.abs(s) - L_ARM / 2, np.abs(t) - TK / 2
-    return np.hypot(np.maximum(qx, 0), np.maximum(qy, 0)) + np.minimum(np.maximum(qx, qy), 0)
+    return _rect_sdf(X, Y, k, off, RP - L_ARM, RP, TK)
+
+
+def slot_sdf(X, Y, i):
+    """Signed distance to key slot i (positive outside)."""
+    k, off = KEYS[i]
+    return _rect_sdf(X, Y, k, off, RP - H_TAB - W_TAB / 2, RP - H_TAB + W_TAB / 2, TK)
+
+
+def key_keepout(X, Y):
+    """Keep-out field of all keys (positive where cutouts are allowed)."""
+    n = range(len(KEYS))
+    if CFG.get("key_nodes"):
+        return np.minimum(np.min(np.stack([slot_sdf(X, Y, i) for i in n]), axis=0) - SLOT_MARGIN,
+                          np.min(np.stack([rect_sdf(X, Y, i) for i in n]), axis=0) - ARM_MARGIN)
+    return np.min(np.stack([rect_sdf(X, Y, i) for i in n]), axis=0) - KEEP_MARGIN
 
 
 # ---------- lantern trellis ----------
@@ -230,6 +260,14 @@ def polygon_area(p):
     return 0.5 * float(np.dot(p[:, 0], np.roll(p[:, 1], -1)) - np.dot(p[:, 1], np.roll(p[:, 0], -1)))
 
 
+def centroid(p):
+    """Area centroid of a closed polygon."""
+    x, y = p[:, 0], p[:, 1]
+    c = x * np.roll(y, -1) - np.roll(x, -1) * y
+    a6 = 3 * c.sum()
+    return float(((x + np.roll(x, -1)) * c).sum() / a6), float(((y + np.roll(y, -1)) * c).sum() / a6)
+
+
 def simplify(p, tol):
     """Douglas-Peucker on an open polyline."""
     if len(p) < 3:
@@ -249,11 +287,7 @@ def build():
     ys = np.arange(-RV - 2, RV + 2, GRID)
     X, Y = np.meshgrid(xs, ys)
     border = np.min(np.stack([RP - (X * nx + Y * ny) for nx, ny in EDGE_N]), axis=0) - BORDER
-    keep = np.min(np.stack([rect_sdf(X, Y, i) for i in range(len(KEYS))]), axis=0) - KEEP_MARGIN
-    fields = [pattern_field(X, Y), border, keep]
-    if CFG["glare_keepout"]:
-        fields.append((X_GLARE - X) - GLARE_CLEAR)
-    F = blur(np.minimum.reduce(fields), BLUR / GRID)
+    F = blur(np.minimum.reduce([pattern_field(X, Y), border, key_keepout(X, Y)]), BLUR / GRID)
     tmp = plt.figure()
     segs = tmp.add_subplot().contour(xs, ys, F, levels=[0.0]).allsegs[0]
     plt.close(tmp)
@@ -271,6 +305,8 @@ def build():
         sub = F[np.ix_((ys >= y0) & (ys <= y1), (xs >= x0) & (xs <= x1))]
         if sub.size == 0 or sub.max() < R_HOLE_MIN:
             continue
+        if CFG["glare_keepout"] and elevation(p[:, 0], p[:, 1]).min() <= E_EYE_TOP:
+            continue                     # bulb visible to a viewer: drop the hole whole
         h = len(p) // 2
         holes.append(np.vstack([simplify(p[:h + 1], SIMPLIFY)[:-1], simplify(np.vstack([p[h:], p[:1]]), SIMPLIFY)[:-1]]))
     return holes
@@ -297,8 +333,9 @@ def size(p):
 
 
 def check(holes):
-    """Worst margins (actual - required) between holes, to the edge, to the key footprints;
-    lowest elevation."""
+    """Worst margins (actual - required) between holes, to the edge, to the key footprints
+    (key_nodes: to the slots by the bridge rule, to the arm footprints by ARM_MARGIN);
+    lowest elevation of a hole centroid and of any hole point."""
     sizes = [size(p) for p in holes]
     bridge, pair = 1e9, None
     for i in range(len(holes)):
@@ -317,9 +354,16 @@ def check(holes):
         edge = min(edge, float(np.min([RP - (p[:, 0] * nx + p[:, 1] * ny) for nx, ny in EDGE_N])) - req)
         for i in range(len(KEYS)):
             rc = np.array(rect_corners(i))
-            keep = min(keep, seg_point_dist(p, rc, np.roll(rc, -1, axis=0)).min() - req)
+            d_arm = seg_point_dist(p, rc, np.roll(rc, -1, axis=0)).min()
+            if CFG.get("key_nodes"):
+                sc = np.array(slot_corners(i))
+                d_slot = seg_point_dist(p, sc, np.roll(sc, -1, axis=0)).min()
+                keep = min(keep, d_slot - web_req(max(sz, W_TAB)), d_arm - (ARM_MARGIN - 0.1))
+            else:
+                keep = min(keep, d_arm - req)
     allp = np.vstack(holes)
-    return bridge, pair, edge, keep, float(elevation(allp[:, 0], allp[:, 1]).min())
+    e_cent = min(float(elevation(*centroid(p))) for p in holes)
+    return bridge, pair, edge, keep, e_cent, float(elevation(allp[:, 0], allp[:, 1]).min())
 
 
 def dxf(loops, path):
@@ -344,17 +388,17 @@ def preview(holes, path, open_pct):
         ax.add_patch(MplPolygon(slot_corners(i), closed=True, facecolor="#fcfcfb", edgecolor="#3d3c39", linewidth=0.5))
     for p in holes:
         ax.add_patch(MplPolygon(p, closed=True, facecolor="#fcfcfb", edgecolor="#3d3c39", linewidth=0.5))
+    # design zone boundaries (curves of constant elevation), clipped to the panel
+    xs = np.linspace(-RP, RV, 300)
+    ys = np.linspace(-RV, RV, 300)
+    X, Y = np.meshgrid(xs, ys)
+    E = elevation(X, Y)
+    inside = np.min(np.stack([RP - (X * nx + Y * ny) for nx, ny in EDGE_N]), axis=0) > 0
+    E = np.where(inside, E, np.nan)
     if CFG["glare_keepout"]:
-        ax.plot([X_GLARE, X_GLARE], [-RP * 0.75, RP * 0.75], color="#eb6834", linewidth=1, linestyle=(0, (3, 2)))
-        ax.text(X_GLARE + 2, RP * 0.62, f"glare zone\n(e < {E_GLARE_HI:+.0f}°)", fontsize=7, color="#52514e")
+        ax.contour(xs, ys, E, levels=[E_GLARE_HI], colors="#eb6834", linewidths=1, linestyles=[(0, (3, 2))])
+        ax.text(X_GLARE + 4, RP * 0.62, f"glare zone\n(e < {E_GLARE_HI:+.0f}°)", fontsize=7, color="#52514e")
     else:
-        # design zone boundaries (curves of constant elevation), clipped to the panel
-        xs = np.linspace(-RP, RV, 300)
-        ys = np.linspace(-RV, RV, 300)
-        X, Y = np.meshgrid(xs, ys)
-        E = elevation(X, Y)
-        inside = np.min(np.stack([RP - (X * nx + Y * ny) for nx, ny in EDGE_N]), axis=0) > 0
-        E = np.where(inside, E, np.nan)
         ax.contour(xs, ys, E, levels=[E_GLARE_LO, E_GLARE_HI], colors="#eb6834", linewidths=1,
                    linestyles=[(0, (3, 2))])
         ax.text(-RP + 3, RP * 0.92, f"table zone\n(e < {E_GLARE_LO:.0f}°)", fontsize=7, color="#52514e")
@@ -380,7 +424,7 @@ def main():
     if len(sys.argv) > 2:
         CFG["n_ring"] = int(sys.argv[2])
     holes = build()
-    bridge, pair, edge, keep, emin = check(holes)
+    bridge, pair, edge, keep, e_cent, emin = check(holes)
     panel_area = 5 * RP * RP * math.tan(math.radians(36))
     open_area = sum(polygon_area(p) for p in holes)
     sizes = [size(p) for p in holes]
@@ -388,9 +432,10 @@ def main():
     print(f"{len(holes)} holes, {min(sizes):.1f} mm to {max(sizes):.1f} mm, open area {open_area:.0f} mm^2 "
           f"({100 * open_area / panel_area:.0f} %), {sum(len(p) for p in holes)} segments")
     print(f"check: bridge margin {bridge:+.2f} mm (actual {pair[0]:.2f}, required {pair[1]:.2f}), "
-          f"edge margin {edge:+.2f} mm, keep-out margin {keep:+.2f} mm, min elevation {emin:+.2f} deg")
+          f"edge margin {edge:+.2f} mm, key margin {keep:+.2f} mm")
+    print(f"elevation: lowest hole centroid {e_cent:+.2f} deg, lowest hole point {emin:+.2f} deg")
     preview(holes, os.path.join(IMG_DIR, f"{name}_panel_pattern.svg"), 100 * open_area / panel_area)
-    glare_fail = CFG["glare_keepout"] and emin <= E_GLARE_HI
+    glare_fail = CFG["glare_keepout"] and emin <= E_EYE_TOP
     if bridge < 0 or edge < 0 or keep < 0 or glare_fail:
         print("CHECK FAILED: no DXF written")
         sys.exit(1)

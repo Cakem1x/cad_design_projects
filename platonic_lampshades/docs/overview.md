@@ -85,7 +85,7 @@ Design: `cad/dodecahedron/dodecahedron_kit.sc`.
 | `wtab` | 6 mm | Tab width = slot length across the edge |
 | `tabout` | 0.3 mm | Tab length beyond the outer face (sand flush) |
 | `rrel` | 1.2 mm | Key relief at the inner corner |
-| `ek` | 50 mm | Distance between the 2 keys of an edge |
+| `ek` | 50 mm | Distance between the 2 keys of an edge. Target 45 mm (pattern alignment, see [joinery.md](joinery.md#open-points)). |
 | `fitt`, `fitw` | 0 mm | Slot minus key thickness / tab width. Tune with the test coupon. |
 | `hlock` | 14 mm | Lug key lock tab centre from the inner corner |
 | `wlock` | 4 mm | Lug key lock tab width |

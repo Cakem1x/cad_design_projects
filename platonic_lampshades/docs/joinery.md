@@ -28,14 +28,14 @@ Parameters (names as in the SolidCraft design; values in [overview.md](overview.
 | `wtab` | 6 mm | Tab width = slot length across the edge |
 | `tabout` | 0.3 mm | Tab length beyond the outer face, sanded flush after gluing |
 | `rrel` | 1.2 mm | Relief at the inner corner: the key does not touch the panel corners |
-| `ek` | 50 mm | Distance between the 2 keys of an edge |
+| `ek` | 45 mm | Distance between the 2 keys of an edge. Set by the pattern: each key lies on a trellis bar (see [light_patterns.md](light_patterns.md#pattern)). The SolidCraft design still uses 50 mm. |
 | `fitt`, `fitw` | 0 mm | Slot size minus key thickness / tab width. Tune with the test coupon. |
 
 - Key: 30.6 mm × 16.5 mm, 3 mm plywood (same sheet as the panels).
 - Slot: 3 mm (along the edge) × 6 mm (across the edge), centred 10 mm from the panel edge.
 - Each panel edge gets 2 slots. A panel gets 10 slots.
 - The tab ends show on the outer face as 3 mm × 6 mm end-grain rectangles, 2 per edge side.
-- Keys stay 25 mm from the edge ends, so keys of adjacent edges do not meet at the vertices.
+- Keys stay 27.6 mm from the edge ends, so keys of adjacent edges do not meet at the vertices.
 
 Model: sketch `KeySection` (cross-section, 3D keys) and `KeyLaser` (flat, kerf-compensated by `sketch.offset`, export `key_x50.dxf`). `tools/joint_keys.py` draws the figure above and the test coupon; it checks the minimum webs (≥ 3 mm), the clearance between a tab and the other panel and the distance to the edge ends.
 
@@ -69,7 +69,7 @@ The 5 top edges have no panel on the other side. Each carries 2 lug keys: 10 lug
 | Check | Result |
 |---|---|
 | Interference, assembled (panels, 50 keys, 10 lug keys, top plate) | none (145 pairs) |
-| Keys of different edges at a vertex | 19.5 mm apart (vertex test, removed after integration) |
+| Keys of different edges at a vertex | 19.5 mm apart with `ek` = 50 mm (vertex test, removed after integration); farther apart with 45 mm |
 | Bayonet: plate turned 36°, from its seat to above the top opening | no contact |
 | Bayonet: plate turned 18°, below the lug keys | no contact |
 | Negative check: plate not turned, 5 mm up | hits the lug keys |
@@ -87,8 +87,9 @@ Design: `cad/dodecahedron/joint_test.sc`. Two test plates at the dihedral angle 
 
 ## Effect on the other parts
 - No 3D-printed parts in the shade.
-- Pattern keep-outs: per key, a 3 mm × 18 mm arm footprint and a 3 mm × 6 mm slot with a web, at `ek/2` = 25 mm from the edge centre. `tools/panel_pattern.py` uses these keep-outs.
+- Pattern keep-outs: per key, a 3 mm × 18 mm arm footprint and a 3 mm × 6 mm slot with a web, at `ek/2` = 22.5 mm from the edge centre. `tools/panel_pattern.py` uses these keep-outs.
 
 ## Open points
+- Set `ek` = 45 mm in `dodecahedron_kit.sc` (slots, keys, lug keys, `Rpl`). Rerun the interference and bayonet checks. Re-export `panel_x11.dxf`, `top_plate_x1.dxf`.
 - Test cut: coupon for `fitt`, `fitw` and the angle, together with the pattern test pieces.
 - Bayonet test: top plate and lug keys, 36° turn, seat of the lock tabs.
