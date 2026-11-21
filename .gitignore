@@ -14,8 +14,9 @@ __pycache__/
 *.stp
 */cad/**/*.dxf
 
-# SolidCraft lock files (open designs)
+# SolidCraft files
 .~*.lock
+*.bak
 
 # Local agent settings
 .claude/settings.local.json
