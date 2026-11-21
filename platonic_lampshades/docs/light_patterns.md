@@ -169,6 +169,22 @@ Bridge rule (checked on the output polylines, between holes and to the border an
 - The floral style has 5-fold symmetry about the panel centre; the bracket footprints and the glare zone cut its outer ring.
 - Each style writes `cad/dodecahedron/upper_pattern_<style>.dxf` and `..._kerf.dxf` for the import into SolidCraft (see the update steps above).
 
+### Marrakech with 5-fold symmetry
+Quick prototypes: the lantern pattern arranged around the panel centre, with the holes growing outwards. Styles `marrakech_polar10` and `marrakech_rings` in `tools/pattern_styles.py`.
+
+![Marrakech, flat and 5-fold](img/pattern_marrakech_polar.svg)
+
+| Variant | Method | Holes | Open area | Worst bridge margin |
+|---|---|---|---|---|
+| Flat trellis | reference, see above | 43, up to 20 mm | 38 % | +0.74 mm |
+| Log-polar, 10 per ring | trellis in log-polar coordinates (conformal map). Bar width in mm follows the local hole size (bridge rule + 0.3 mm). Solid hub r = 14 mm | 44, 6 mm to 35 mm | 38 % | +0.28 mm |
+| Lantern rings | rings of 10 undistorted lanterns (outline taken from the flat trellis), every second ring turned by 18°. Ring radius × 1.62 per ring (trellis proportions). Width = arc spacing − bridge − 0.4 mm, outline shrunk by 0.7 mm | 42, 5 mm to 31 mm | 36 % | +0.23 mm |
+
+- Both variants have 10-fold rotational symmetry (contains the 5-fold symmetry of the face) and mirror symmetry about the panel axis. The bracket footprints and the glare zone cut the outer ring.
+- Log-polar: with 10 lanterns per ring, the scale changes by a factor of 2 from the inner to the outer tip of one lantern. The lanterns turn into curved teardrops; the trellis bars stay continuous.
+- Lantern rings: each lantern keeps its shape. The bars are no longer continuous trellis bars; the panel reads as a rosette of lanterns, as on pierced Moroccan brass lanterns. Shrinking and blurring round the lantern tips.
+- More lanterns per ring (15, 20) reduce the distortion of the log-polar variant but make the inner holes too small for the bridge rule.
+
 ## Open points
 - Style decision: Voronoi, Marrakech, latticework or floral.
 - Pattern designs for the bottom panel (table zone: frame only), the lower ring (glare zone) and the top plate (projection zone).

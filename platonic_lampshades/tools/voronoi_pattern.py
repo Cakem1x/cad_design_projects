@@ -210,7 +210,8 @@ def simplify(p, tol):
 
 
 def contours(xs, ys, F):
-    cs = plt.contour(xs, ys, F, levels=[0.0])
+    tmp = plt.figure()
+    cs = tmp.add_subplot().contour(xs, ys, F, levels=[0.0])
     loops = []
     for seg in cs.allsegs[0]:
         if len(seg) < 8 or np.hypot(*(seg[0] - seg[-1])) > 1e-6:
@@ -225,7 +226,7 @@ def contours(xs, ys, F):
         q = np.vstack([simplify(np.vstack([p[:h + 1]]), SIMPLIFY)[:-1],
                        simplify(np.vstack([p[h:], p[:1]]), SIMPLIFY)[:-1]])
         loops.append(q)
-    plt.close("all")
+    plt.close(tmp)
     return loops
 
 

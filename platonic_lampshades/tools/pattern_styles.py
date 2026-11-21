@@ -18,6 +18,8 @@ Outputs (relative to platonic_lampshades/):
   docs/img/pattern_styles.svg    (comparison, includes the Voronoi pattern)
 
 Usage: python3 platonic_lampshades/tools/pattern_styles.py [style ...]
+Styles: marrakech, marrakech_polar10, marrakech_polar15, marrakech_rings, lattice, floral (default: all).
+With marrakech, marrakech_polar10 and marrakech_rings: also docs/img/pattern_marrakech_polar.svg.
 """
 import math
 import os
@@ -29,6 +31,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import voronoi_pattern as vp  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402  (backend set in voronoi_pattern)
 from matplotlib.patches import Polygon as MplPolygon  # noqa: E402
+from matplotlib.path import Path  # noqa: E402
 
 GRID = 0.2
 BORDER = 6.0
@@ -56,9 +59,10 @@ def dist_to_points(U, V, P):
     return out.reshape(U.shape)
 
 
-def marrakech(X, Y, U, V, p=22.0, stretch=1.5, bulge=0.07, w=4.0):
-    """Moroccan lantern trellis: diamond tiling with S-curved edges (point-symmetric about the
-    edge midpoints, so the tiles stay congruent). p: tile width, stretch: height / width."""
+def lantern_dist(U, V, p, stretch, bulge):
+    """Distance from (U, V) to the Moroccan lantern trellis: diamond tiling with S-curved edges
+    (point-symmetric about the edge midpoints, so the tiles stay congruent). p: tile width,
+    stretch: height / width. A lantern is centred on the origin."""
     hu, hv = p / 2, p / 2 * stretch
     vt, vr, vl = np.array([0, hv]), np.array([hu, 0]), np.array([-hu, 0])
     t = np.linspace(0, 1, 140)
@@ -88,8 +92,29 @@ def marrakech(X, Y, U, V, p=22.0, stretch=1.5, bulge=0.07, w=4.0):
             pts.append(fam_a + sh)
             pts.append(fam_b + sh)
     P = np.vstack(pts)
-    S = dist_to_points(f[:, 0], f[:, 1], P).reshape(U.shape)
-    return S - w / 2, f"lanterns {p:.0f} x {p * stretch:.0f} mm, bars {w} mm"
+    return dist_to_points(f[:, 0], f[:, 1], P).reshape(U.shape)
+
+
+def marrakech(X, Y, U, V, p=22.0, stretch=1.5, bulge=0.07, w=4.0):
+    """Moroccan lantern trellis, lanterns along the panel axis."""
+    return lantern_dist(U, V, p, stretch, bulge) - w / 2, f"lanterns {p:.0f} x {p * stretch:.0f} mm, bars {w} mm"
+
+
+def marrakech_polar(X, Y, U, V, n=10, r0=34.0, stretch=1.2, bulge=0.09, margin=0.3, r_hub=14.0):
+    """Five-fold Marrakech: the lantern trellis in log-polar coordinates (conformal map).
+    n lanterns per ring (multiple of 5), lanterns point outward and grow with the radius.
+    A lantern sits on the panel axis at radius r0. The bar width in mm follows the local hole
+    size: the bridge rule plus a margin."""
+    p = 10.0                                   # lattice tile width in map units
+    k = n * p / (2 * math.pi)                  # map units per radian
+    rho = np.maximum(np.hypot(X, Y), 0.5)
+    th = np.arctan2(Y, X)
+    Um = k * th
+    Vm = k * np.log(rho / r0)
+    S = lantern_dist(Um, Vm, p, stretch, bulge) * rho / k     # local scale of the map: rho / k
+    hole = 2 * math.pi * rho / n * stretch * 0.9              # approximate local hole length
+    wreq = 3.0 + np.clip((hole - 15.0) / 20.0, 0.0, 1.0) + margin
+    return np.minimum(S - wreq / 2, rho - r_hub), f"log-polar lanterns, {n} per ring, ring growth x{math.exp(math.pi * stretch / n):.2f}"
 
 
 def lattice(X, Y, U, V, s=17.0, angle=36.0, w=3.6):
@@ -119,8 +144,82 @@ def floral(X, Y, U, V, r=26.0, w=3.3, w_out=4.2):
     return D - wf / 2, f"flower of life, 10-fold, circle radius {r:.0f} mm, bars {w} to {w_out} mm"
 
 
+_TEMPLATE = None
+
+
+def lantern_template(p=22.0, stretch=1.5, bulge=0.07, w=4.0):
+    """Outline of one lantern hole of the flat trellis, normalised to width 1 (local u: across,
+    v: along the pointed axis). Returns (polygon (n, 2), height / width)."""
+    global _TEMPLATE
+    if _TEMPLATE is None:
+        u = np.arange(-p * 0.6, p * 0.6, 0.1)
+        v = np.arange(-p * stretch * 0.6, p * stretch * 0.6, 0.1)
+        UU, VV = np.meshgrid(u, v)
+        F = lantern_dist(UU, VV, p, stretch, bulge) - w / 2
+        tmp = plt.figure()
+        cs = tmp.add_subplot().contour(u, v, F, levels=[0.0])
+        plt.close(tmp)
+        loop = min((sg for sg in cs.allsegs[0] if len(sg) > 20),
+                   key=lambda sg: np.hypot(*sg.mean(0)))
+        loop = loop[:-1]
+        width = loop[:, 0].max() - loop[:, 0].min()
+        _TEMPLATE = (loop / width, (loop[:, 1].max() - loop[:, 1].min()) / width)
+    return _TEMPLATE
+
+
+def signed_inside(X, Y, poly):
+    """Signed distance to a closed polygon, positive inside (evaluated in its bounding box only)."""
+    out = np.full(X.shape, -50.0)
+    x0, y0 = poly.min(0) - 1
+    x1, y1 = poly.max(0) + 1
+    xs, ys = X[0], Y[:, 0]
+    ix = np.where((xs >= x0) & (xs <= x1))[0]
+    iy = np.where((ys >= y0) & (ys <= y1))[0]
+    if ix.size == 0 or iy.size == 0:
+        return out
+    sx, sy = np.meshgrid(xs[ix], ys[iy])
+    pts = np.stack([sx.ravel(), sy.ravel()], axis=1)
+    d = np.empty(len(pts))
+    for i in range(0, len(pts), 3000):
+        d[i:i + 3000] = vp.seg_point_dist(pts[i:i + 3000], poly, np.roll(poly, -1, axis=0)).min(axis=1)
+    inside = Path(poly).contains_points(pts)
+    out[np.ix_(iy, ix)] = np.where(inside, d, -d).reshape(sx.shape)
+    return out
+
+
+def marrakech_rings(X, Y, U, V, n=10, r1=16.0, rings=5, margin=0.4, shrink=0.7):
+    """Five-fold Marrakech: rings of undistorted trellis lanterns pointing outward. Ring k has n
+    lanterns, every second ring turned by half a step so the tips interlock as in the trellis.
+    Lantern width = arc spacing - required bridge (+ margin), then every outline is shrunk by
+    `shrink` for the bridges between adjacent rings. The radial step follows the flat
+    trellis proportions (row step / column step = 1.5): growth g = (1 + c/2) / (1 - c/2),
+    c = 1.5 * pi / n."""
+    tpl, asp = lantern_template()
+    c = 1.5 * math.pi / n
+    g = (1 + c / 2) / (1 - c / 2)
+    F = np.full(X.shape, -50.0)
+    for k in range(rings):
+        r = r1 * g ** k
+        arc = 2 * math.pi * r / n
+        hole = (arc - 3.5) * asp
+        wid = arc - (3.0 + float(np.clip((hole - 15.0) / 20.0, 0.0, 1.0)) + margin)
+        if wid < 3:
+            continue
+        for j in range(n):
+            th = 2 * math.pi * (j + 0.5 * (k % 2)) / n
+            rh = np.array([math.cos(th), math.sin(th)])
+            tt = np.array([-math.sin(th), math.cos(th)])
+            poly = r * rh[None] + wid * (tpl[:, :1] * tt[None] + tpl[:, 1:] * rh[None])
+            F = np.maximum(F, signed_inside(X, Y, poly))
+    # shrink every lantern: the diagonal neighbours of adjacent rings need the larger bridge
+    return F - shrink, f"rings of {n} lanterns, radius x{g:.2f} per ring"
+
+
 STYLES = {
     "marrakech": ("Marrakech trellis", marrakech),
+    "marrakech_polar10": ("Marrakech 5-fold, 10 per ring", lambda X, Y, U, V: marrakech_polar(X, Y, U, V, n=10)),
+    "marrakech_polar15": ("Marrakech 5-fold, 15 per ring", lambda X, Y, U, V: marrakech_polar(X, Y, U, V, n=15, r0=40.0, stretch=1.3)),
+    "marrakech_rings": ("Marrakech 5-fold, lantern rings", marrakech_rings),
     "lattice": ("Latticework", lattice),
     "floral": ("Geometric floral", floral),
 }
@@ -139,9 +238,10 @@ def build(style):
     glare = (vp.X_GLARE - X) - GLARE_CLEAR
     F = np.minimum.reduce([F, border, keep, glare])
     F = vp.blur(F, BLUR / GRID)
-    cs = plt.contour(xs, ys, F, levels=[0.0])
+    tmp = plt.figure()
+    cs = tmp.add_subplot().contour(xs, ys, F, levels=[0.0])
     segs = cs.allsegs[0]
-    plt.close("all")
+    plt.close(tmp)
     holes = []
     for seg in segs:
         if len(seg) < 6 or np.hypot(*(seg[0] - seg[-1])) > 1e-6:
@@ -240,14 +340,15 @@ def main():
             vp.dxf([vp.offset_in(p, vp.KERF / 2) for p in holes],
                    os.path.join(vp.CAD_DIR, f"upper_pattern_{st}_kerf.dxf"))
         results[st] = (name, holes, open_pct)
-    if set(STYLES) <= set(results):
+    main_styles = ["marrakech", "lattice", "floral"]
+    if set(main_styles) <= set(results):
         xs, ys, F, _ = vp.field(7)
         vholes = vp.contours(xs, ys, F)
         vopen = 100 * sum(vp.polygon_area(p) for p in vholes) / panel_area()
         fig, axs = plt.subplots(2, 2, figsize=(9, 9))
         fig.patch.set_facecolor("#fcfcfb")
         draw(axs[0, 0], vholes, "Organic Voronoi (seed 7)", vopen)
-        for ax, st in zip([axs[0, 1], axs[1, 0], axs[1, 1]], STYLES):
+        for ax, st in zip([axs[0, 1], axs[1, 0], axs[1, 1]], main_styles):
             name, holes, op = results[st]
             draw(ax, holes, name, op)
         fig.text(0.01, 0.01, "Upper ring panel, outer face. Bottom tip (glare zone) on the right. "
@@ -257,5 +358,20 @@ def main():
         plt.close(fig)
 
 
+def polar_comparison():
+    built = [build(st) for st in ["marrakech", "marrakech_polar10", "marrakech_rings"]]
+    fig, axs = plt.subplots(1, 3, figsize=(12, 4.6))
+    fig.patch.set_facecolor("#fcfcfb")
+    for ax, (name, _, holes) in zip(axs, built):
+        draw(ax, holes, name, 100 * sum(vp.polygon_area(p) for p in holes) / panel_area())
+    fig.text(0.01, 0.01, "Upper ring panel, outer face. Bottom tip (glare zone) on the right. Grey: bracket footprints.",
+             fontsize=8, color="#52514e")
+    fig.tight_layout(rect=(0, 0.03, 1, 0.97))
+    fig.savefig(os.path.join(vp.IMG_DIR, "pattern_marrakech_polar.svg"), facecolor="#fcfcfb")
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     main()
+    if set(sys.argv[1:]) >= {"marrakech", "marrakech_polar10", "marrakech_rings"}:
+        polar_comparison()
