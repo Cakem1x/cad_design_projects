@@ -156,6 +156,6 @@ Bill of materials:
 - Bayonet test: cut the top plate and print the 5 top brackets early. Check the 36° turn and the seat of the lock pins.
 - Top opening: the notches of the top plate are open. Light and heat escape upward. Check the look from below and the heat on the ceiling.
 - Socket and bulb dimensions: `Hs` and `Lc` are typical values. Measure the purchased parts.
-- Light exit: the panels are closed. Define cut-out patterns.
+- Light exit: the panels are closed. Requirements for cutout patterns: [light_patterns.md](light_patterns.md).
 - Heat: use LED bulbs only. Define the maximum power for plywood and the printed brackets.
 - Load: shade mass is about 0.6 kg. Check the rating of the cable strain relief.

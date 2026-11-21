@@ -1,0 +1,108 @@
+# Light Patterns
+
+Requirements and design zones for the cutout patterns in the panels. Applies to the dodecahedron prototype (see [overview](overview.md)). Status: zones final, patterns not yet designed.
+
+## Terms
+| Term | Definition |
+|---|---|
+| Elevation angle `e` | Angle of a direction seen from the lamp centre, measured from the horizontal. Positive upward. |
+| Face zone | Range of `e` covered by one group of faces. Fixed by the geometry. |
+| Design zone | Range of `e` with one pattern purpose: table, glare or projection. Fixed by the room and the lamp height. |
+| Bottom panel | The panel on the bottom face. |
+| Lower ring | The 5 panels next to the bottom panel. Face normals at `e = −26.6°`. |
+| Upper ring | The 5 panels next to the top face. Face normals at `e = +26.6°`. |
+| Top plate | The bayonet plate in the top face (see [overview](overview.md#bulb-change-bayonet)). |
+| Viewer envelope | Range of eye positions (distance from the lamp axis, eye height) for one kind of viewer. |
+| Web | Material left between two cutouts, or between a cutout and the panel edge. |
+
+## Requirements
+1. **Top plate clearance.** Cutouts in the top plate must not change the bayonet. Keep:
+   - the outline: radius `Rpl`, the 5 notches (`Rn`, `wn`);
+   - the 5 seats under the top brackets: radius `Rn` to `Rpl`, ±`Lb/2` around each lock pin, plus the lock pin holes `dlock` with a web around them;
+   - a solid centre for the socket face and the washer: Ø 40 mm or more;
+   - enough material to carry the shade (about 0.6 kg) from the 5 seats to the centre.
+2. **Panel designs.** Each panel can have its own pattern. Identical patterns are allowed.
+3. **Design zones.** Each part of a panel follows the purpose of its design zone (see [Design zones](#design-zones)).
+4. **Structure.** The brackets hold the shade together. Keep:
+   - a solid border under each bracket: `Lf` (16 mm) plus margin from the edge, over `Lb` (30 mm) plus margin around the edge centre, with the pin holes;
+   - a frame on the bottom panel, even when the panel is "almost absent": its 5 brackets close the lower ring;
+   - webs of at least 3 mm in 3 mm plywood (to be confirmed by a test cut).
+5. **Glare alternative.** Glare can also be controlled with a diffuser: matte paper, tracing paper or vellum glued to the inside of a panel. This scatters the light and hides the bulb. The cutouts then show as lit areas, not as sharp beams.
+6. **Bulb.** The design must work with a frosted and with a clear bulb (E27, A60).
+
+## Room and lamp height
+| Item | Value |
+|---|---|
+| Room height | 2.5 m |
+| Table | 0.75 m high, 1.6 m × 0.9 m |
+| Shade bottom above table | **1.00 m** (chosen) |
+| Lamp centre | 1.868 m above floor, 0.632 m below ceiling |
+| Head clearance | Shade bottom at 1.75 m above floor. Hang the lamp over the table only. |
+
+Viewer envelopes (the figures use a room 6 m wide):
+
+| Viewer | Distance from lamp axis | Eye height | Elevation `e` |
+|---|---|---|---|
+| Seated at table | 0.9 m to 1.4 m | 1.10 m to 1.30 m | −40.5° to −22.1° |
+| Seated in room | 1.5 m to 3.0 m | 1.00 m to 1.20 m | −30.1° to −12.6° |
+| Standing | 1.0 m to 3.0 m | 1.45 m to 1.80 m | −22.7° to −1.3° |
+| All | | | **−40.5° to −1.3°** |
+
+- All eyes lie below the lamp centre (eye height ≤ 1.80 m < 1.868 m). The upper limit stays below 0° in any room size.
+- A margin of 5° on both sides covers the size of the shade (the cutouts sit up to 0.15 m off the lamp centre) and taller viewers.
+
+## Design zones
+| Zone | Elevation | Purpose | Pattern goal |
+|---|---|---|---|
+| Table | `e` < −46° | Light the table | Maximum open area. |
+| Glare | −46° ≤ `e` ≤ +4° | Seen by people in the room | No direct view of the bulb: closed, diffuser, or cutouts that block the line of sight. |
+| Projection | `e` > +4° | Light the ceiling and upper walls | Interesting projected patterns. |
+
+The table zone covers the whole table: its ends lie at −54.4°, its corners at −50.6°. The table zone lights a disc of 2.2 m diameter at table height.
+
+Mapping onto the panels:
+
+| Panel | Table zone | Glare zone | Projection zone |
+|---|---|---|---|
+| Bottom panel | all | — | — |
+| Lower ring | bottom band: up to 29 mm above the bottom edge (centre line) | middle | top tip: 18 mm below the top vertex (centre line) |
+| Upper ring | — | bottom tip: up to 39 mm above the bottom vertex (centre line) | rest |
+| Top plate | — | — | all |
+
+Panel height (edge to opposite vertex): 158.9 mm. The zone boundaries are curved on the panels; see the figure below.
+
+![Design zones in the room](img/sight_lines_side_view.svg)
+
+![Design zones on the ring panels](img/panel_zones.svg)
+
+![Elevation of viewers' eyes against shade height](img/sight_lines_elevation.svg)
+
+Regenerate the figures with `python3 platonic_lampshades/tools/plot_sight_lines.py` (inside the Nix shell). The script prints all values in this section. Change `SHADE_BOTTOM`, `ENVELOPES` or `MARGIN` in the script to move the zones.
+
+## Face zones
+| Face zone | Elevation (vertex / edge boundary) |
+|---|---|
+| Bottom panel | −90° to −52.6° / −58.3° |
+| Lower ring | −52.6° to +10.8° |
+| Upper ring | −10.8° to +52.6° |
+| Top plate | +52.6° / +58.3° to +90° |
+
+The rings overlap between −10.8° and +10.8°: the face edges zigzag around the equator.
+
+## Projection sharpness
+The bulb is not a point source. A cutout at distance `d` from the source casts a pattern at distance `L`:
+
+| Quantity | Formula | Top plate (`d` = 0.111 m, `L` = 0.632 m) |
+|---|---|---|
+| Magnification | `L / d` | 5.7× |
+| Blur width | source size × (`L` − `d`) / `d` | 4.7 × source size |
+
+- Frosted A60 bulb (60 mm source): about 280 mm blur. The ceiling shows soft light spots.
+- Clear LED filament bulb (about 25 mm filament): about 120 mm blur. The ceiling shows recognisable shapes.
+- Make projection features large (projected size ≫ blur), so the pattern reads with either bulb.
+- The upper ring is closer to the ceiling in some directions and farther in others, so its projections change in size and blur across the ceiling.
+
+## Open points
+- Pattern designs per zone.
+- Minimum web width and minimum cutout size: test cut.
+- Diffuser material and how to attach it, if the glare zone uses one.
