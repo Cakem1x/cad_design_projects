@@ -78,7 +78,7 @@ Panel height (edge to opposite vertex): 158.9 mm. The zone boundaries are curved
 
 ![Elevation of viewers' eyes against shade height](img/sight_lines_elevation.svg)
 
-Regenerate the figures with `python3 platonic_lampshades/tools/plot_sight_lines.py` (inside the Nix shell). The script prints all values in this section. Change `SHADE_BOTTOM`, `ENVELOPES` or `MARGIN` in the script to move the zones.
+Regenerate the figures with `just lamp-figures` (inside the Nix shell). The script prints all values in this section. Change `SHADE_BOTTOM`, `ENVELOPES` or `MARGIN` in the script to move the zones.
 
 ## Face zones
 | Face zone | Elevation (vertex / edge boundary) |
@@ -108,7 +108,7 @@ Style: **Marrakech trellis in log-polar coordinates** (5-fold), on the upper rin
 
 The SolidCraft design still carries the first prototype (Voronoi) on the upper ring panels.
 
-Generator: `tools/panel_pattern.py`. Its keep-outs and panel size still follow the bracket design (`LF`, `LB`, `TB`); update them to the key slots and `Dkey` before the next pattern version. It writes `cad/dodecahedron/upper_pattern.dxf`, `upper_pattern_kerf.dxf` (shrunk by `kerf/2`) and the preview below. It writes no DXF if a check fails.
+Generator: `tools/panel_pattern.py` (`just lamp-patterns`; `just lamp-inputs` before importing the DXFs into SolidCraft). It uses the key keep-outs and the panel size of the key design. It writes `cad/dodecahedron/<panel>_pattern.dxf`, `<panel>_pattern_kerf.dxf` (shrunk by `kerf/2`) and the previews, for `<panel>` = `upper` and `lower`. It writes no DXF if a check fails.
 
 Bridge rule (checked on the output polylines, between holes, to the panel edge and to the keep-outs):
 

@@ -6,12 +6,16 @@ lanterns point outwards and grow with the radius. The bar width in mm follows th
 
 Pipeline (0.2 mm grid):
 1. Skeleton distance S in map units, converted to mm with the local scale rho / k of the map.
-2. Cutout field F = min(S - w(rho)/2, hub, border, bracket keep-outs, glare zone), blurred
+2. Cutout field F = min(S - w(rho)/2, hub, border, key keep-outs, glare zone), blurred
    lightly (inner corner radius about 1 mm).
 3. Cutouts: closed contours F = 0; holes thinner than 2.4 mm or smaller than 15 mm^2 are dropped.
 4. Check on the output polylines (no DXF if it fails): bridge >= 3.0 mm, rising linearly to
    4.0 mm when the larger adjacent hole measures 15 mm to 35 mm; the same rule to the panel edge
-   and the bracket footprints; all cutouts above the glare zone.
+   and the key footprints; upper ring: all cutouts above the glare zone.
+
+Joints: cross-section keys (docs/joinery.md), 2 per edge, 10 per panel. Key footprint on the
+inner face: TK along the edge x L_ARM from the edge, centred E_KEY / 2 from the edge centre. It
+contains the slot (TK x W_TAB, centred H_TAB from the edge).
 
 Panels (see PANELS):
   upper   upper ring, 10 lanterns per ring, projection zone only (no cutout below e = +4 deg).
@@ -48,10 +52,16 @@ CAD_DIR = os.path.join(ROOT, "cad", "dodecahedron")
 IMG_DIR = os.path.join(ROOT, "docs", "img")
 
 # Design parameters (docs/overview.md), mm. Keep in sync with the design.
-T, TB, TP, HS, LC = 3.0, 4.0, 3.0, 60.0, 48.0
-LF, LB = 16.0, 30.0
+T, TP, HS, LC = 3.0, 3.0, 60.0, 48.0
 KERF = 0.15
-RI = T + TB + TP + HS + LC
+# Key parameters (docs/joinery.md), mm
+TK = 3.0              # key thickness
+D_KEY = 9.0           # key depth, normal to the inner face
+L_ARM = 18.0          # arm length on the inner face, from the panel edge
+H_TAB = 10.0          # slot centre from the panel edge
+W_TAB = 6.0           # slot length across the edge
+E_KEY = 50.0          # distance between the 2 keys of an edge
+RI = T + D_KEY + TP + HS + LC
 A = RI / (math.sqrt((25 + 11 * math.sqrt(5)) / 10) / 2)
 S_INSET = T / math.tan(math.radians(180 - math.degrees(math.atan(2))) / 2)
 RP = A / (2 * math.tan(math.radians(36))) - S_INSET
@@ -75,7 +85,7 @@ STRETCH = 1.2         # lantern tile height / width
 BULGE = 0.09          # S-curve amplitude / edge length
 BAR_MARGIN = 0.3      # bar width above the bridge rule, mm
 BORDER = 6.0          # solid border at the panel edge, mm
-KEEP_MARGIN = 4.5     # clearance around the bracket footprints, mm
+KEEP_MARGIN = 4.5     # clearance around the key footprints, mm
 GLARE_CLEAR = 3.0     # clearance to the glare zone line, mm
 BLUR = 0.5            # Gaussian blur sigma, mm
 GRID = 0.2
@@ -118,22 +128,39 @@ def glare_line_x():
 X_GLARE = glare_line_x()   # upper ring only
 
 
-def rect_corners(k):
-    """Bracket footprint k: flange width LF from edge k, length LB, centred on the edge."""
-    ux, uy = EDGE_N[k]
-    tx, ty = -uy, ux
-    hw, d_in, d_out = LB / 2, RP - LF, RP
-    return [(d_in * ux - hw * tx, d_in * uy - hw * ty), (d_in * ux + hw * tx, d_in * uy + hw * ty),
-            (d_out * ux + hw * tx, d_out * uy + hw * ty), (d_out * ux - hw * tx, d_out * uy - hw * ty)]
+# Key footprints: (edge index, offset along the edge from its centre, mm)
+KEYS = [(k, sgn * E_KEY / 2) for k in range(5) for sgn in (-1, 1)]
 
 
-def rect_sdf(X, Y, k):
-    """Signed distance to bracket footprint k (positive outside)."""
+def _rect(k, off, d_in, d_out, w):
+    """Rectangle from d_in to d_out along the normal of edge k, width w along the edge at off."""
     ux, uy = EDGE_N[k]
     tx, ty = -uy, ux
-    s = X * ux + Y * uy - (RP - LF / 2)
-    t = X * tx + Y * ty
-    qx, qy = np.abs(s) - LF / 2, np.abs(t) - LB / 2
+    a, b = off - w / 2, off + w / 2
+    return [(d_in * ux + a * tx, d_in * uy + a * ty), (d_in * ux + b * tx, d_in * uy + b * ty),
+            (d_out * ux + b * tx, d_out * uy + b * ty), (d_out * ux + a * tx, d_out * uy + a * ty)]
+
+
+def rect_corners(i):
+    """Key footprint i: TK along the edge, L_ARM from the edge into the panel."""
+    k, off = KEYS[i]
+    return _rect(k, off, RP - L_ARM, RP, TK)
+
+
+def slot_corners(i):
+    """Key slot i: TK along the edge, W_TAB across, centred H_TAB from the edge."""
+    k, off = KEYS[i]
+    return _rect(k, off, RP - H_TAB - W_TAB / 2, RP - H_TAB + W_TAB / 2, TK)
+
+
+def rect_sdf(X, Y, i):
+    """Signed distance to key footprint i (positive outside)."""
+    k, off = KEYS[i]
+    ux, uy = EDGE_N[k]
+    tx, ty = -uy, ux
+    s = X * ux + Y * uy - (RP - L_ARM / 2)
+    t = X * tx + Y * ty - off
+    qx, qy = np.abs(s) - L_ARM / 2, np.abs(t) - TK / 2
     return np.hypot(np.maximum(qx, 0), np.maximum(qy, 0)) + np.minimum(np.maximum(qx, qy), 0)
 
 
@@ -222,7 +249,7 @@ def build():
     ys = np.arange(-RV - 2, RV + 2, GRID)
     X, Y = np.meshgrid(xs, ys)
     border = np.min(np.stack([RP - (X * nx + Y * ny) for nx, ny in EDGE_N]), axis=0) - BORDER
-    keep = np.min(np.stack([rect_sdf(X, Y, k) for k in range(5)]), axis=0) - KEEP_MARGIN
+    keep = np.min(np.stack([rect_sdf(X, Y, i) for i in range(len(KEYS))]), axis=0) - KEEP_MARGIN
     fields = [pattern_field(X, Y), border, keep]
     if CFG["glare_keepout"]:
         fields.append((X_GLARE - X) - GLARE_CLEAR)
@@ -270,7 +297,7 @@ def size(p):
 
 
 def check(holes):
-    """Worst margins (actual - required) between holes, to the edge, to the bracket footprints;
+    """Worst margins (actual - required) between holes, to the edge, to the key footprints;
     lowest elevation."""
     sizes = [size(p) for p in holes]
     bridge, pair = 1e9, None
@@ -288,8 +315,8 @@ def check(holes):
     for p, sz in zip(holes, sizes):
         req = web_req(sz)
         edge = min(edge, float(np.min([RP - (p[:, 0] * nx + p[:, 1] * ny) for nx, ny in EDGE_N])) - req)
-        for k in range(5):
-            rc = np.array(rect_corners(k))
+        for i in range(len(KEYS)):
+            rc = np.array(rect_corners(i))
             keep = min(keep, seg_point_dist(p, rc, np.roll(rc, -1, axis=0)).min() - req)
     allp = np.vstack(holes)
     return bridge, pair, edge, keep, float(elevation(allp[:, 0], allp[:, 1]).min())
@@ -312,8 +339,9 @@ def preview(holes, path, open_pct):
     fig.patch.set_facecolor("#fcfcfb")
     ax.set_facecolor("#fcfcfb")
     ax.add_patch(MplPolygon(PANEL, closed=True, facecolor="#d8b07a", edgecolor="#3d3c39", linewidth=1.2))
-    for k in range(5):
-        ax.add_patch(MplPolygon(rect_corners(k), closed=True, facecolor="#a9a8a2", alpha=0.5, edgecolor="none"))
+    for i in range(len(KEYS)):
+        ax.add_patch(MplPolygon(rect_corners(i), closed=True, facecolor="#a9a8a2", alpha=0.6, edgecolor="none"))
+        ax.add_patch(MplPolygon(slot_corners(i), closed=True, facecolor="#fcfcfb", edgecolor="#3d3c39", linewidth=0.5))
     for p in holes:
         ax.add_patch(MplPolygon(p, closed=True, facecolor="#fcfcfb", edgecolor="#3d3c39", linewidth=0.5))
     if CFG["glare_keepout"]:

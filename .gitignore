@@ -12,7 +12,7 @@ __pycache__/
 *.3mf
 *.step
 *.stp
-*/cad/**/*.dxf
+*.dxf
 
 # SolidCraft files
 .~*.lock

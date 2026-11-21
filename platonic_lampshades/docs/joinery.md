@@ -87,9 +87,8 @@ Design: `cad/dodecahedron/joint_test.sc`. Two test plates at the dihedral angle 
 
 ## Effect on the other parts
 - No 3D-printed parts in the shade.
-- Pattern keep-outs: per key, a 3 mm × 18 mm arm footprint and a 3 mm × 6 mm slot with a web, at `ek/2` = 25 mm from the edge centre. `tools/panel_pattern.py` still uses the old bracket footprints.
+- Pattern keep-outs: per key, a 3 mm × 18 mm arm footprint and a 3 mm × 6 mm slot with a web, at `ek/2` = 25 mm from the edge centre. `tools/panel_pattern.py` uses these keep-outs.
 
 ## Open points
 - Test cut: coupon for `fitt`, `fitw` and the angle, together with the pattern test pieces.
 - Bayonet test: top plate and lug keys, 36° turn, seat of the lock tabs.
-- Pattern generator: keep-outs for the key slots and key arms.

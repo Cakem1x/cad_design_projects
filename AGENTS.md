@@ -6,15 +6,21 @@ This repository contains independent parametric CAD projects. Each project is a 
 | Directory | Project |
 |---|---|
 | `solar_tube_cooker/` | 3D-printed and laser-cut parts for an evacuated-tube solar cooker |
-| `platonic_lampshades/` | Laser-cut and 3D-printed lamp shades shaped as Platonic solids |
+| `platonic_lampshades/` | Laser-cut lamp shades shaped as Platonic solids |
 
-Shared at the root: `flake.nix`, `.mcp.json`, `.gitignore`, `LICENSE`.
+Shared at the root: `flake.nix`, `Justfile`, `.mcp.json`, `.gitignore`, `LICENSE`.
 
 ## Environment
 The Nix flake (`flake.nix`) defines the development shell.
 - Inside an active direnv shell (`use flake`), run tools directly.
 - Otherwise, prefix commands with `nix develop -c`.
 - If you need additional tools to work effectively, ask user whether to add it to nix flake devshell.
+- The `Justfile` runs the generator scripts. List the recipes with `just --list`.
+
+## Generated Files
+- DXF files are generated and not committed (`.gitignore`). Laser DXFs are exports of the SolidCraft designs. Input DXFs (for example panel patterns imported with `sketch.insert_dxf`) come from the scripts in `<project>/tools/`.
+- Regenerate input files before you use them, so that no outdated state enters a design: run `just lamp-inputs` for `platonic_lampshades/`.
+- After a change to a generator script or to its design values, regenerate its outputs with the matching recipe.
 
 ## Documentation Style
 Use technical writing for all documentation, including READMEs, comments, and commit messages.
