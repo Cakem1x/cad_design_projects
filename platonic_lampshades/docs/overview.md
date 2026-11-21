@@ -14,7 +14,7 @@ The dodecahedron is the first shade. It tests the construction concept.
 | Shade | The 11 panels, the 50 keys and the 10 lug keys, joined permanently. Open at the top face. |
 | Key | Laser-cut plywood part in the plane perpendicular to an edge. Its two tabs pass through slots in the two panels it joins and set the dihedral angle. 2 per edge, 50 in total. See [joinery.md](joinery.md). |
 | Lug key | Key on one of the 5 top edges. One tab into the upper ring panel; its lower edge rests on the top plate; a lock tab drops into a slot of the top plate. 10 in total. |
-| Top plate | Laser-cut plywood disc with 10 notches and 10 lock slots. Bolted to the socket. Carries the shade through a bayonet. Replaces the top panel. |
+| Top plate | Laser-cut plywood plate: core disc with 10 lobes and 10 lock slots. Bolted to the socket. Carries the shade through a bayonet. Replaces the top panel. |
 | Inset `s` | Distance each panel edge moves inward from the solid's edge, so that panels with square-cut edges do not collide. `s = t · cot(δ/2)`, with `δ` the dihedral angle. |
 
 - Laser cuts are square to the sheet. Panels touch along their inner corners. Each outer seam is a V-groove.
@@ -40,20 +40,20 @@ Stack from the top, along the axis of the solid:
 ### Bulb change (bayonet)
 The shade is a closed body except for the top face. The top plate sits inside the shade, under the 10 lug keys.
 
-- Top plate: disc of radius `Rpl`. 10 notches, `wnk` wide, reach in to radius `Rnk`. They sit 36° turned against the lug keys.
+- Top plate: core disc of radius `Rnk` with 10 lobes, `wlb` wide, out to radius `Rpl`. One lobe sits under each lug key and carries its lock slot. Between the lobes the plate is open down to `Rnk`.
 - Assembled state: the lower edges of the lug keys rest on the plate. The lock tabs sit in the lock slots (clearance `clock`).
 - The plate passes the top opening of the shade with 2 mm clearance. The socket (Ø 40 mm) and the bulb (Ø 60 mm) pass too.
 - Weight holds the shade on the plate. No glue, no friction at the lock tabs.
 
 Remove the shade:
 1. Lift the shade by more than `Lpl` (2.5 mm). The lock tabs leave their slots.
-2. Turn the shade by 36° in either direction. The notches line up with the lug keys.
+2. Turn the shade by `turn` (15°) in either direction. The lobes move into the gaps between the lug keys. The turn has about ±4.5° play (free from about 10.5° to 19.5°).
 3. Lower the shade. The plate passes the lug keys and the top opening. The socket and the bulb follow.
 4. Change the bulb.
 
 Fit the shade:
-1. Lift the shade from below over the bulb. The plate enters the top opening and passes the lug keys through the notches.
-2. Turn the shade by 36°.
+1. Lift the shade from below over the bulb, turned by about 15° against its seat. The plate enters the top opening and the lobes pass between the lug keys.
+2. Turn the shade back by 15°.
 3. Lower the shade until the lug keys rest on the plate and the lock tabs drop into their slots.
 
 ### Lamp position
@@ -85,7 +85,7 @@ Design: `cad/dodecahedron/dodecahedron_kit.sc`.
 | `wtab` | 6 mm | Tab width = slot length across the edge |
 | `tabout` | 0.3 mm | Tab length beyond the outer face (sand flush) |
 | `rrel` | 1.2 mm | Key relief at the inner corner |
-| `ek` | 50 mm | Distance between the 2 keys of an edge. Target 45 mm (pattern alignment, see [joinery.md](joinery.md#open-points)). |
+| `ek` | 45 mm | Distance between the 2 keys of an edge. Each key lies on a trellis bar of the panel pattern (see [light_patterns.md](light_patterns.md#pattern)). |
 | `fitt`, `fitw` | 0 mm | Slot minus key thickness / tab width. Tune with the test coupon. |
 | `hlock` | 14 mm | Lug key lock tab centre from the inner corner |
 | `wlock` | 4 mm | Lug key lock tab width |
@@ -97,9 +97,10 @@ Design: `cad/dodecahedron/dodecahedron_kit.sc`.
 | `Db` | 60 mm | Bulb diameter (reference body only) |
 | `tp` | 3 mm | Top plate thickness (`t`) |
 | `cb` | 1 mm | Bayonet clearance |
-| `Rpl` | 72.08 mm | Top plate radius: `√((rp − Dkey·cot(δ/2) − cb)² + (ek/2)²)`, clears the lug key bodies in their planes |
-| `Rnk` | 55.16 mm | Notch bottom radius (`rp − Larm − cb`) |
-| `wnk` | 5 mm | Notch width (`tk + 2·cb`) |
+| `Rpl` | 71.25 mm | Top plate outer radius (lobe ends): `√((rp − Dkey·cot(δ/2) − cb)² + (ek/2)²)`, clears the lug key bodies in their planes |
+| `Rnk` | 55.16 mm | Top plate core radius (`rp − Larm − cb`): clears the inner ends of the lug keys |
+| `wlb` | 14 mm | Top plate lobe width. 5 mm web on each side of the lock slot. |
+| `turn` | 15° | Bayonet turn. Reference value for the checks; no geometry depends on it. |
 | `zpl` | 234 mm | Height of the top plate's upper face (`2·ri − t − Dkey`) |
 | `dn` | 10.5 mm | Nipple hole (M10 clearance) |
 | `Ln` | 18 mm | Minimum nipple length: 8 mm in the socket, `tp`, 7 mm for nut and washer |
@@ -107,13 +108,13 @@ Design: `cad/dodecahedron/dodecahedron_kit.sc`.
 Derived values:
 - Panel: regular pentagon, edge 107.77 mm, 10 key slots 3 mm × 6 mm. Outer V-groove width: 3.2 mm.
 - Key: 30.6 mm × 16.5 mm. Lug key: same outline without the top tab, with a 4 mm × 2.5 mm lock tab.
-- Top plate: Ø 144.2 mm, 10 notches 5 mm wide, 10 lock slots 4 mm × 5 mm, Ø 10.5 mm centre hole.
+- Top plate: core Ø 110.3 mm, 10 lobes 14 mm wide to Ø 142.5 mm, 10 lock slots 4 mm × 5 mm, Ø 10.5 mm centre hole.
 - Height of the solid: 246.0 mm.
 - Clearance from the bulb (Ø 60 mm) to each panel: 93 mm.
 
 Checks in the design:
 - Interference, assembled: no overlap between the 11 panels, the 50 keys, the 10 lug keys and the top plate (145 pairs).
-- Bayonet: the plate, turned 36°, moves from its seat to above the top opening without contact. Turned 18° below the lug keys, it is free. Negative check: not turned, it hits the lug keys.
+- Bayonet: the plate, 3 mm below its seat, turns from 0° to 15° without contact. Turned 15°, it moves from 3 mm below its seat to above the top opening without contact. Play at 6 mm lift: free from 10.5° to 19.5°; 7.5° and 21° hit the lug keys. Negative check: not turned, 5 mm up, it hits all 10 lug keys.
 - Parameters: `t`, `tk`, `Dkey`, `ek`, `Hs` changed together rebuild without errors; the bulb centre stays at `ri`.
 
 The design contains reference bodies for the socket, the nipple and the bulb. They are not exported.
@@ -121,7 +122,9 @@ The design contains reference bodies for the socket, the nipple and the bulb. Th
 Bill of materials:
 | Item | Count | Source |
 |---|---|---|
-| Panel, 3 mm plywood | 11 | `panel_x11.dxf` |
+| Bottom panel, 3 mm plywood, plain | 1 | `panel_x1.dxf` |
+| Upper ring panel, 3 mm plywood, Marrakech pattern | 5 | `upper_panel_x5.dxf` |
+| Lower ring panel, 3 mm plywood, Marrakech pattern | 5 | `lower_panel_x5.dxf` |
 | Key, 3 mm plywood | 50 | `key_x50.dxf` |
 | Lug key, 3 mm plywood | 10 | `lug_key_x10.dxf` |
 | Top plate, 3 mm plywood | 1 | `top_plate_x1.dxf` |
@@ -133,8 +136,9 @@ Bill of materials:
 
 ## Open points
 - Test cut: joint coupon (`joint_test_x1.dxf`) for `fitt`, `fitw`, together with pattern test pieces once the first pattern version is final.
-- Bayonet test: cut the top plate and the lug keys. Check the 36° turn and the seat of the lock tabs.
-- Top opening: the notches of the top plate are open. Light and heat escape upward. Check the look from below and the heat on the ceiling.
+- Bayonet test: cut the top plate and the lug keys. Check the 15° turn and the seat of the lock tabs.
+- Top opening: the gaps between the lobes of the top plate are open. Light and heat escape upward. Check the look from below and the heat on the ceiling.
+- Top plate shape: functional draft (core disc and 10 lobes). Adapt its look to the Marrakech pattern at the end.
 - Socket and bulb dimensions: `Hs` and `Lc` are typical values. Measure the purchased parts.
 - Light exit: the panels are closed. Requirements for cutout patterns: [light_patterns.md](light_patterns.md).
 - Heat: use LED bulbs only. Define the maximum power for plywood.

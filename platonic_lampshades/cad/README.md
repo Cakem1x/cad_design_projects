@@ -14,7 +14,7 @@ Start Claude Code from the repository root. The server resolves the paths relati
 ## Contents
 | Folder | Design | Exports |
 |---|---|---|
-| `dodecahedron/` | `dodecahedron_kit.sc`: 11 panels, 50 keys, 10 lug keys, top plate, reference solid and reference bodies for socket, nipple and bulb | `panel_x11.dxf` (sketch `PanelLaser`), `key_x50.dxf` (sketch `KeyLaser`), `lug_key_x10.dxf` (sketch `LugKeyLaser`), `top_plate_x1.dxf` (sketch `TopPlateLaser`) |
+| `dodecahedron/` | `dodecahedron_kit.sc`: 11 panels (bottom plain, 5 upper and 5 lower ring panels with the Marrakech patterns), 50 keys, 10 lug keys, top plate, reference solid and reference bodies for socket, nipple and bulb | `panel_x1.dxf` (sketch `PanelLaser`: plain panel, bottom), `upper_panel_x5.dxf`, `lower_panel_x5.dxf` (from `../tools/panel_pattern.py`: `panel_x1.dxf` + kerf cutouts), `key_x50.dxf` (sketch `KeyLaser`), `lug_key_x10.dxf` (sketch `LugKeyLaser`), `top_plate_x1.dxf` (sketch `TopPlateLaser`) |
 | `dodecahedron/` | `joint_test.sc`: wooden joint test, 2 plates and 2 cross-section keys (see `../docs/joinery.md`) | `joint_test_x1.dxf` (from `../tools/joint_keys.py`) |
 
 Export the DXFs with `sketch.export_dxf {"sketch": ..., "path": ..., "layers": "roles"}`: outline on layer `OUTLINE`, holes on layer `CUT`.

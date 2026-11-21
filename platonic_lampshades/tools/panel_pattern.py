@@ -36,6 +36,8 @@ Outputs (relative to platonic_lampshades/), <panel> = upper or lower:
   cad/dodecahedron/<panel>_pattern.dxf        nominal cutouts (3D cut)
   cad/dodecahedron/<panel>_pattern_kerf.dxf   cutouts shrunk by kerf/2 (laser sketch)
   docs/img/<panel>_panel_pattern.svg          preview with keep-outs and design zones
+  cad/dodecahedron/<panel>_panel_x5.dxf       laser file: panel_x1.dxf (outline and key slots,
+                                              export of sketch PanelLaser) + kerf cutouts on CUT
 
 Usage: python3 platonic_lampshades/tools/panel_pattern.py [upper|lower] [N_RING]
   N_RING overrides the lanterns per ring for studies (multiple of 5).
@@ -378,6 +380,24 @@ def dxf(loops, path):
         f.write("\n".join(out) + "\n")
 
 
+def laser_panel(loops, panel_path, path):
+    """Laser file: the plain panel DXF (layers OUTLINE and CUT) plus the loops on layer CUT.
+    Returns False when the plain panel DXF does not exist yet."""
+    if not os.path.exists(panel_path):
+        return False
+    lines = open(panel_path).read().split("\n")
+    end = max(i for i in range(len(lines) - 1) if lines[i].strip() == "0" and lines[i + 1].strip() == "ENDSEC")
+    ent = []
+    for p in loops:
+        for i in range(len(p)):
+            (x0, y0), (x1, y1) = p[i], p[(i + 1) % len(p)]
+            ent += ["0", "LINE", "8", "CUT", "10", f"{x0:.4f}", "20", f"{y0:.4f}", "30", "0",
+                    "11", f"{x1:.4f}", "21", f"{y1:.4f}", "31", "0"]
+    with open(path, "w") as f:
+        f.write("\n".join(lines[:end] + ent + lines[end:]))
+    return True
+
+
 def preview(holes, path, open_pct):
     fig, ax = plt.subplots(figsize=(6, 6))
     fig.patch.set_facecolor("#fcfcfb")
@@ -440,8 +460,13 @@ def main():
         print("CHECK FAILED: no DXF written")
         sys.exit(1)
     dxf(holes, os.path.join(CAD_DIR, f"{name}_pattern.dxf"))
-    dxf([offset_in(p, KERF / 2) for p in holes], os.path.join(CAD_DIR, f"{name}_pattern_kerf.dxf"))
+    kerf = [offset_in(p, KERF / 2) for p in holes]
+    dxf(kerf, os.path.join(CAD_DIR, f"{name}_pattern_kerf.dxf"))
     print(f"written: {name}_pattern.dxf, {name}_pattern_kerf.dxf")
+    if laser_panel(kerf, os.path.join(CAD_DIR, "panel_x1.dxf"), os.path.join(CAD_DIR, f"{name}_panel_x5.dxf")):
+        print(f"written: {name}_panel_x5.dxf")
+    else:
+        print("panel_x1.dxf missing (export sketch PanelLaser): no laser file written")
 
 
 if __name__ == "__main__":

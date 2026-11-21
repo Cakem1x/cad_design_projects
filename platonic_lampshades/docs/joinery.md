@@ -28,7 +28,7 @@ Parameters (names as in the SolidCraft design; values in [overview.md](overview.
 | `wtab` | 6 mm | Tab width = slot length across the edge |
 | `tabout` | 0.3 mm | Tab length beyond the outer face, sanded flush after gluing |
 | `rrel` | 1.2 mm | Relief at the inner corner: the key does not touch the panel corners |
-| `ek` | 45 mm | Distance between the 2 keys of an edge. Set by the pattern: each key lies on a trellis bar (see [light_patterns.md](light_patterns.md#pattern)). The SolidCraft design still uses 50 mm. |
+| `ek` | 45 mm | Distance between the 2 keys of an edge. Set by the pattern: each key lies on a trellis bar (see [light_patterns.md](light_patterns.md#pattern)). |
 | `fitt`, `fitw` | 0 mm | Slot size minus key thickness / tab width. Tune with the test coupon. |
 
 - Key: 30.6 mm × 16.5 mm, 3 mm plywood (same sheet as the panels).
@@ -60,19 +60,21 @@ In the model, 2 keys on the bottom edge are copied by the symmetries of the soli
 The 5 top edges have no panel on the other side. Each carries 2 lug keys: 10 lug keys.
 - Lug key: the key outline without the tab on the top side. Its lower edge, at depth `Dkey` below the inner face of the top plane, rests on the top plate.
 - Lock tab: `wlock` × `Lpl` (4 mm × 2.5 mm) on that edge, `hlock` (14 mm) from the inner corner. It sits in a lock slot of the top plate with `clock` (0.5 mm) clearance on each side.
-- Top plate: 10 notches (`wnk` = 5 mm wide, down to radius `Rnk`), 36° turned against the lug keys, and 10 lock slots under the lug keys.
+- Top plate: core disc of radius `Rnk` and 10 lobes (`wlb` = 14 mm wide, out to `Rpl`), one under each lug key, with the lock slots. The bayonet turn is `turn` = 15°: the lobes then sit in the gaps between the lug keys with about 4.5° play on each side.
+- Why lobes: with `ek` = 45 mm the lug keys sit at ±20.5° around each top edge normal. The former narrow notches (5 mm, turned 36°) came within 5° of the next lock slot and needed an exact turn.
 - The top plate sits `Dkey` below the inner top plane. Edge length formula: `ri = t + Dkey + tp + Hs + Lc`.
 - Plate radius `Rpl` = √((rp − Dkey·cot(δ/2) − cb)² + (ek/2)²): in the plane of each lug key, the plate rim stays `cb` short of the lug key body below the bearing edge. Bearing length on the plate: about 11 mm per lug key.
-- Model: sketches `LugKeySection`, `LugKeyLaser` (export `lug_key_x10.dxf`), `PlateCutSketch`, `TopPlateLaser`.
+- Model: sketches `LugKeySection`, `LugKeyLaser` (export `lug_key_x10.dxf`), `PlateCutSketch` (10 gaps between the lobes, 10 lock slots), `TopPlateLaser` (kerf-compensated outline).
 
 ## Checks in the model
 | Check | Result |
 |---|---|
 | Interference, assembled (panels, 50 keys, 10 lug keys, top plate) | none (145 pairs) |
 | Keys of different edges at a vertex | 19.5 mm apart with `ek` = 50 mm (vertex test, removed after integration); farther apart with 45 mm |
-| Bayonet: plate turned 36°, from its seat to above the top opening | no contact |
-| Bayonet: plate turned 18°, below the lug keys | no contact |
-| Negative check: plate not turned, 5 mm up | hits the lug keys |
+| Bayonet: plate 3 mm below its seat, turned 0° to 15° in 5° steps | no contact |
+| Bayonet: plate turned 15°, from 3 mm below its seat to 15 mm above it (above the top opening), 3 mm steps | no contact |
+| Bayonet play: plate 6 mm above its seat | free from 10.5° to 19.5°; 7.5° and 21° hit the lug keys |
+| Negative check: plate not turned, 5 mm up | hits all 10 lug keys |
 | Parameter change `t`, `tk`, `Dkey`, `ek`, `Hs` | rebuilds without errors |
 
 ## Test coupon
@@ -90,6 +92,5 @@ Design: `cad/dodecahedron/joint_test.sc`. Two test plates at the dihedral angle 
 - Pattern keep-outs: per key, a 3 mm × 18 mm arm footprint and a 3 mm × 6 mm slot with a web, at `ek/2` = 22.5 mm from the edge centre. `tools/panel_pattern.py` uses these keep-outs.
 
 ## Open points
-- Set `ek` = 45 mm in `dodecahedron_kit.sc` (slots, keys, lug keys, `Rpl`). Rerun the interference and bayonet checks. Re-export `panel_x11.dxf`, `top_plate_x1.dxf`.
 - Test cut: coupon for `fitt`, `fitw` and the angle, together with the pattern test pieces.
-- Bayonet test: top plate and lug keys, 36° turn, seat of the lock tabs.
+- Bayonet test: top plate and lug keys, 15° turn, seat of the lock tabs.

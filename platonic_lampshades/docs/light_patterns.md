@@ -17,7 +17,7 @@ Requirements and design zones for the cutout patterns in the panels. Applies to 
 
 ## Requirements
 1. **Top plate clearance.** Cutouts in the top plate must not change the bayonet. Keep:
-   - the outline: radius `Rpl`, the 10 notches (`Rnk`, `wnk`);
+   - the outline: core disc `Rnk`, 10 lobes `wlb` wide out to `Rpl`;
    - the 10 seats under the lug keys: from radius `Rnk` to the rim along each lug key, plus the lock slots with a web around them;
    - a solid centre for the socket face and the washer: Ø 40 mm or more;
    - enough material to carry the shade (about 0.5 kg) from the 10 seats to the centre.
@@ -106,7 +106,11 @@ The bulb is not a point source. A cutout at distance `d` from the source casts a
 ## Pattern
 Style: **Marrakech trellis in log-polar coordinates** (5-fold). Status: in design. The studies that led here are in [../prototypes/](../prototypes/README.md).
 
-The SolidCraft design still carries the first prototype (Voronoi) on the upper ring panels.
+The SolidCraft design carries both patterns: sketches `UpperPattern1Sketch` to `UpperPattern5Sketch` and `LowerPattern1Sketch` to `LowerPattern5Sketch` (one per panel, in the panel plane, pattern +x towards the tip vertex), cut by `UpperPattern<k>Cut` and `LowerPattern<k>Cut` into one panel each. The bottom panel stays plain.
+
+After a pattern change: run `just lamp-patterns`. In each of the 10 pattern sketches, delete the curves and insert the new `<panel>_pattern.dxf` (`sketch.insert_dxf`, `fixed: true`). Export `PanelLaser` as `panel_x1.dxf` first: the generator merges it with the kerf cutouts into `<panel>_panel_x5.dxf`.
+
+![Shade with both patterns](img/shade_render.png)
 
 Generator: `tools/panel_pattern.py [upper|lower]` (`just lamp-patterns`; `just lamp-inputs` before importing the DXFs into SolidCraft). Per panel type it writes `cad/dodecahedron/<panel>_pattern.dxf`, `<panel>_pattern_kerf.dxf` (shrunk by `kerf/2`) and the preview `docs/img/<panel>_panel_pattern.svg`. It writes no DXF if a check fails. A second argument overrides the lanterns per ring for studies.
 
@@ -136,7 +140,7 @@ Bridge rule (checked on the output polylines, between holes, to the panel edge a
 
 ## Open points
 - Pattern designs for the bottom panel (table zone: frame only) and the top plate (projection zone).
-- Lower ring pattern: import into SolidCraft. Choose the diffuser, or test the glare without one.
+- Lower ring: choose the diffuser, or test the glare without one.
 - Test the prototype: cut one upper panel, light it with a clear and a frosted bulb, check the ceiling projection.
 - Minimum web width and minimum cutout size: test cut.
 - Diffuser material and how to attach it, if the glare zone uses one.
