@@ -14,7 +14,7 @@ Start Claude Code from the repository root. The server resolves the paths relati
 ## Contents
 | Folder | Design | Exports |
 |---|---|---|
-| `dodecahedron/` | `dodecahedron_kit.sc`: panels, upper panels with pattern, brackets, top brackets, top plate, reference solid and reference bodies for socket, nipple and bulb | `panel_x6.dxf` (sketch `PanelLaser`), `upper_panel_x5.dxf` (sketch `UpperPanelLaser`), `top_plate_x1.dxf` (sketch `TopPlateLaser`), `fit_test_x1.dxf` (sketch `FitTestLaser`), `bracket_x25.stl` (body `Bracket`), `top_bracket_x5.stl` (body `TopBracket`) |
+| `dodecahedron/` | `dodecahedron_kit.sc`: 11 panels, 50 keys, 10 lug keys, top plate, reference solid and reference bodies for socket, nipple and bulb | `panel_x11.dxf` (sketch `PanelLaser`), `key_x50.dxf` (sketch `KeyLaser`), `lug_key_x10.dxf` (sketch `LugKeyLaser`), `top_plate_x1.dxf` (sketch `TopPlateLaser`) |
+| `dodecahedron/` | `joint_test.sc`: wooden joint test, 2 plates and 2 cross-section keys (see `../docs/joinery.md`) | `joint_test_x1.dxf` (from `../tools/joint_keys.py`) |
 
 Export the DXFs with `sketch.export_dxf {"sketch": ..., "path": ..., "layers": "roles"}`: outline on layer `OUTLINE`, holes on layer `CUT`.
-Export the STLs with `file.export {"path": ..., "bodies": [...], "lay_on_print_faces": true}`: each bracket is laid on its end face.

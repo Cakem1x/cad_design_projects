@@ -17,15 +17,16 @@ Requirements and design zones for the cutout patterns in the panels. Applies to 
 
 ## Requirements
 1. **Top plate clearance.** Cutouts in the top plate must not change the bayonet. Keep:
-   - the outline: radius `Rpl`, the 5 notches (`Rn`, `wn`);
-   - the 5 seats under the top brackets: radius `Rn` to `Rpl`, ±`Lb/2` around each lock pin, plus the lock pin holes `dlock` with a web around them;
+   - the outline: radius `Rpl`, the 10 notches (`Rnk`, `wnk`);
+   - the 10 seats under the lug keys: from radius `Rnk` to the rim along each lug key, plus the lock slots with a web around them;
    - a solid centre for the socket face and the washer: Ø 40 mm or more;
-   - enough material to carry the shade (about 0.6 kg) from the 5 seats to the centre.
+   - enough material to carry the shade (about 0.5 kg) from the 10 seats to the centre.
 2. **Panel designs.** Each panel can have its own pattern. Identical patterns are allowed.
 3. **Design zones.** Each part of a panel follows the purpose of its design zone (see [Design zones](#design-zones)).
-4. **Structure.** The brackets hold the shade together. Keep:
-   - a solid border under each bracket: `Lf` (16 mm) plus margin from the edge, over `Lb` (30 mm) plus margin around the edge centre, with the pin holes;
-   - a frame on the bottom panel, even when the panel is "almost absent": its 5 brackets close the lower ring;
+4. **Structure.** The keys hold the shade together (see [joinery.md](joinery.md)). Keep:
+   - per key: the key slot (3 mm × 6 mm, centred 10 mm from the edge) with a web around it, and the arm footprint on the inner face (3 mm wide, 18 mm from the edge), at ±25 mm from each edge centre;
+   - a solid border along the panel edges;
+   - a frame on the bottom panel, even when the panel is "almost absent": its 10 keys close the lower ring;
    - webs of at least 3 mm in 3 mm plywood (to be confirmed by a test cut).
 5. **Glare alternative.** Glare can also be controlled with a diffuser: matte paper, tracing paper or vellum glued to the inside of a panel. This scatters the light and hides the bulb. The cutouts then show as lit areas, not as sharp beams.
 6. **Bulb.** The design must work with a frosted and with a clear bulb (E27, A60).
@@ -107,9 +108,9 @@ Style: **Marrakech trellis in log-polar coordinates** (5-fold), on the upper rin
 
 The SolidCraft design still carries the first prototype (Voronoi) on the upper ring panels.
 
-Generator: `tools/panel_pattern.py`. It writes `cad/dodecahedron/upper_pattern.dxf`, `upper_pattern_kerf.dxf` (shrunk by `kerf/2`) and the preview below. It writes no DXF if a check fails.
+Generator: `tools/panel_pattern.py`. Its keep-outs and panel size still follow the bracket design (`LF`, `LB`, `TB`); update them to the key slots and `Dkey` before the next pattern version. It writes `cad/dodecahedron/upper_pattern.dxf`, `upper_pattern_kerf.dxf` (shrunk by `kerf/2`) and the preview below. It writes no DXF if a check fails.
 
-Bridge rule (checked on the output polylines, between holes, to the panel edge and to the bracket footprints):
+Bridge rule (checked on the output polylines, between holes, to the panel edge and to the keep-outs):
 
 | Larger adjacent hole | Required bridge |
 |---|---|

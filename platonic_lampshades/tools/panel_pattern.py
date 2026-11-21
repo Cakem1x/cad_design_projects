@@ -1,4 +1,4 @@
-"""Polar Marrakech trellis for the upper ring panels. Writes DXF and an SVG preview.
+"""Polar Marrakech trellis for the ring panels. Writes DXF and an SVG preview.
 
 Pattern: the Moroccan lantern trellis (diamond tiling with S-curved edges) in log-polar
 coordinates around the panel centre (conformal map). N lanterns per ring (multiple of 5), the
@@ -13,16 +13,22 @@ Pipeline (0.2 mm grid):
    4.0 mm when the larger adjacent hole measures 15 mm to 35 mm; the same rule to the panel edge
    and the bracket footprints; all cutouts above the glare zone.
 
+Panels (see PANELS):
+  upper   upper ring, 10 lanterns per ring, projection zone only (no cutout below e = +4 deg).
+  lower   lower ring, 20 lanterns per ring: smaller holes, less open area. Cut over all zones;
+          the glare zone needs a diffuser (docs/light_patterns.md, requirement 5).
+
 Coordinates: base panel frame of the design (sketch PanelLaser): regular pentagon, centre at the
 origin, a vertex on +x, the opposite edge at x = -rp. On an upper ring panel the +x vertex is the
-bottom tip (glare zone).
+bottom tip. On a lower ring panel the +x vertex is the top tip.
 
-Outputs (relative to platonic_lampshades/):
-  cad/dodecahedron/upper_pattern.dxf        nominal cutouts (3D cut, sketch UpperPatternSketch)
-  cad/dodecahedron/upper_pattern_kerf.dxf   cutouts shrunk by kerf/2 (sketch UpperPanelLaser)
-  docs/img/upper_panel_pattern.svg          preview with keep-outs and glare zone
+Outputs (relative to platonic_lampshades/), <panel> = upper or lower:
+  cad/dodecahedron/<panel>_pattern.dxf        nominal cutouts (3D cut)
+  cad/dodecahedron/<panel>_pattern_kerf.dxf   cutouts shrunk by kerf/2 (laser sketch)
+  docs/img/<panel>_panel_pattern.svg          preview with keep-outs and design zones
 
-Usage: python3 platonic_lampshades/tools/panel_pattern.py
+Usage: python3 platonic_lampshades/tools/panel_pattern.py [upper|lower] [N_RING]
+  N_RING overrides the lanterns per ring for studies (multiple of 5).
 """
 import math
 import os
@@ -51,15 +57,23 @@ S_INSET = T / math.tan(math.radians(180 - math.degrees(math.atan(2))) / 2)
 RP = A / (2 * math.tan(math.radians(36))) - S_INSET
 RV = RP / math.cos(math.radians(36))
 RING_N = math.degrees(math.atan(0.5))
+E_GLARE_LO = -46.0                   # table zone below this elevation, deg
 E_GLARE_HI = 4.0                     # projection zone above this elevation, deg
 
+# Panel types. ring: +1 upper ring (normal at e = +26.6 deg, +x vertex down),
+# -1 lower ring (normal at e = -26.6 deg, +x vertex up).
+PANELS = {
+    "upper": dict(ring=+1, n_ring=10, r0=34.0, r_hub=14.0, glare_keepout=True,
+                  title="Upper ring panel", tip="bottom tip on +x"),
+    "lower": dict(ring=-1, n_ring=20, r0=34.0, r_hub=16.0, glare_keepout=False,
+                  title="Lower ring panel", tip="top tip on +x"),
+}
+CFG = PANELS["upper"]  # set in main()
+
 # Pattern parameters
-N_RING = 10           # lanterns per ring (multiple of 5)
-R0 = 34.0             # radius of the lantern ring centred on the panel axis, mm
 STRETCH = 1.2         # lantern tile height / width
 BULGE = 0.09          # S-curve amplitude / edge length
 BAR_MARGIN = 0.3      # bar width above the bridge rule, mm
-R_HUB = 14.0          # solid hub radius, mm
 BORDER = 6.0          # solid border at the panel edge, mm
 KEEP_MARGIN = 4.5     # clearance around the bracket footprints, mm
 GLARE_CLEAR = 3.0     # clearance to the glare zone line, mm
@@ -79,10 +93,12 @@ def web_req(size):
 
 
 # ---------- panel geometry ----------
-def elevation(x, y):
-    """Elevation (deg) of a point on an upper ring panel's outer face, base frame."""
-    a = math.radians(RING_N)
-    v = -x
+def elevation(x, y, ring=None):
+    """Elevation (deg) of a point on a ring panel's outer face, base frame.
+    ring: +1 upper ring, -1 lower ring (default: current panel)."""
+    ring = CFG["ring"] if ring is None else ring
+    a = math.radians(ring * RING_N)          # face normal elevation
+    v = -ring * x                            # distance up the panel from its centre
     px = RI * np.cos(a) - v * np.sin(a)
     pz = RI * np.sin(a) + v * np.cos(a)
     return np.degrees(np.arctan2(pz, np.hypot(px, y)))
@@ -94,12 +110,12 @@ def glare_line_x():
     lo, hi = np.full_like(ys, -RP), np.full_like(ys, RV)
     for _ in range(60):
         m = (lo + hi) / 2
-        ok = elevation(m, ys) > E_GLARE_HI
+        ok = elevation(m, ys, +1) > E_GLARE_HI
         lo, hi = np.where(ok, m, lo), np.where(ok, hi, m)
     return float(lo.min())
 
 
-X_GLARE = glare_line_x()
+X_GLARE = glare_line_x()   # upper ring only
 
 
 def rect_corners(k):
@@ -162,14 +178,15 @@ def lantern_dist(U, V, p, stretch, bulge):
 
 def pattern_field(X, Y):
     """Cutout field before keep-outs: positive inside the lantern holes."""
+    n = CFG["n_ring"]
     p = 10.0                                   # tile width in map units
-    k = N_RING * p / (2 * math.pi)             # map units per radian
+    k = n * p / (2 * math.pi)                  # map units per radian
     rho = np.maximum(np.hypot(X, Y), 0.5)
     th = np.arctan2(Y, X)
-    S = lantern_dist(k * th, k * np.log(rho / R0), p, STRETCH, BULGE) * rho / k
-    hole = 2 * math.pi * rho / N_RING * STRETCH * 0.9      # approximate local hole length
+    S = lantern_dist(k * th, k * np.log(rho / CFG["r0"]), p, STRETCH, BULGE) * rho / k
+    hole = 2 * math.pi * rho / n * STRETCH * 0.9           # approximate local hole length
     w = web_req(hole) + BAR_MARGIN
-    return np.minimum(S - w / 2, rho - R_HUB)
+    return np.minimum(S - w / 2, rho - CFG["r_hub"])
 
 
 # ---------- pipeline ----------
@@ -206,8 +223,10 @@ def build():
     X, Y = np.meshgrid(xs, ys)
     border = np.min(np.stack([RP - (X * nx + Y * ny) for nx, ny in EDGE_N]), axis=0) - BORDER
     keep = np.min(np.stack([rect_sdf(X, Y, k) for k in range(5)]), axis=0) - KEEP_MARGIN
-    glare = (X_GLARE - X) - GLARE_CLEAR
-    F = blur(np.minimum.reduce([pattern_field(X, Y), border, keep, glare]), BLUR / GRID)
+    fields = [pattern_field(X, Y), border, keep]
+    if CFG["glare_keepout"]:
+        fields.append((X_GLARE - X) - GLARE_CLEAR)
+    F = blur(np.minimum.reduce(fields), BLUR / GRID)
     tmp = plt.figure()
     segs = tmp.add_subplot().contour(xs, ys, F, levels=[0.0]).allsegs[0]
     plt.close(tmp)
@@ -297,20 +316,41 @@ def preview(holes, path, open_pct):
         ax.add_patch(MplPolygon(rect_corners(k), closed=True, facecolor="#a9a8a2", alpha=0.5, edgecolor="none"))
     for p in holes:
         ax.add_patch(MplPolygon(p, closed=True, facecolor="#fcfcfb", edgecolor="#3d3c39", linewidth=0.5))
-    ax.plot([X_GLARE, X_GLARE], [-RP * 0.75, RP * 0.75], color="#eb6834", linewidth=1, linestyle=(0, (3, 2)))
-    ax.text(X_GLARE + 2, RP * 0.62, f"glare zone\n(e < {E_GLARE_HI:+.0f}°)", fontsize=7, color="#52514e")
+    if CFG["glare_keepout"]:
+        ax.plot([X_GLARE, X_GLARE], [-RP * 0.75, RP * 0.75], color="#eb6834", linewidth=1, linestyle=(0, (3, 2)))
+        ax.text(X_GLARE + 2, RP * 0.62, f"glare zone\n(e < {E_GLARE_HI:+.0f}°)", fontsize=7, color="#52514e")
+    else:
+        # design zone boundaries (curves of constant elevation), clipped to the panel
+        xs = np.linspace(-RP, RV, 300)
+        ys = np.linspace(-RV, RV, 300)
+        X, Y = np.meshgrid(xs, ys)
+        E = elevation(X, Y)
+        inside = np.min(np.stack([RP - (X * nx + Y * ny) for nx, ny in EDGE_N]), axis=0) > 0
+        E = np.where(inside, E, np.nan)
+        ax.contour(xs, ys, E, levels=[E_GLARE_LO, E_GLARE_HI], colors="#eb6834", linewidths=1,
+                   linestyles=[(0, (3, 2))])
+        ax.text(-RP + 3, RP * 0.92, f"table zone\n(e < {E_GLARE_LO:.0f}°)", fontsize=7, color="#52514e")
+        ax.text(RV - 22, RP * 0.40, f"projection\n(e > {E_GLARE_HI:+.0f}°)", fontsize=7, color="#52514e")
+        ax.text(-8, -RV * 0.88, "glare zone: diffuser", fontsize=7, color="#52514e")
     ax.set_aspect("equal")
     ax.set_xlim(-RP - 4, RV + 4)
     ax.set_ylim(-RV - 4, RV + 4)
     ax.axis("off")
-    ax.set_title(f"Upper ring panel: polar Marrakech trellis, {N_RING} lanterns per ring, open {open_pct:.0f} %. "
-                 "Bottom tip on +x.", fontsize=8, color="#0b0b0b", loc="left")
+    ax.set_title(f"{CFG['title']}: polar Marrakech trellis, {CFG['n_ring']} lanterns per ring, "
+                 f"open {open_pct:.0f} %. {CFG['tip'].capitalize()}.", fontsize=8, color="#0b0b0b", loc="left")
     fig.tight_layout()
     fig.savefig(path, facecolor="#fcfcfb")
     plt.close(fig)
 
 
 def main():
+    global CFG
+    name = sys.argv[1] if len(sys.argv) > 1 else "upper"
+    if name not in PANELS:
+        sys.exit(f"unknown panel {name!r}, use one of {sorted(PANELS)}")
+    CFG = dict(PANELS[name])
+    if len(sys.argv) > 2:
+        CFG["n_ring"] = int(sys.argv[2])
     holes = build()
     bridge, pair, edge, keep, emin = check(holes)
     panel_area = 5 * RP * RP * math.tan(math.radians(36))
@@ -321,13 +361,14 @@ def main():
           f"({100 * open_area / panel_area:.0f} %), {sum(len(p) for p in holes)} segments")
     print(f"check: bridge margin {bridge:+.2f} mm (actual {pair[0]:.2f}, required {pair[1]:.2f}), "
           f"edge margin {edge:+.2f} mm, keep-out margin {keep:+.2f} mm, min elevation {emin:+.2f} deg")
-    preview(holes, os.path.join(IMG_DIR, "upper_panel_pattern.svg"), 100 * open_area / panel_area)
-    if bridge < 0 or edge < 0 or keep < 0 or emin <= E_GLARE_HI:
+    preview(holes, os.path.join(IMG_DIR, f"{name}_panel_pattern.svg"), 100 * open_area / panel_area)
+    glare_fail = CFG["glare_keepout"] and emin <= E_GLARE_HI
+    if bridge < 0 or edge < 0 or keep < 0 or glare_fail:
         print("CHECK FAILED: no DXF written")
         sys.exit(1)
-    dxf(holes, os.path.join(CAD_DIR, "upper_pattern.dxf"))
-    dxf([offset_in(p, KERF / 2) for p in holes], os.path.join(CAD_DIR, "upper_pattern_kerf.dxf"))
-    print("written: upper_pattern.dxf, upper_pattern_kerf.dxf")
+    dxf(holes, os.path.join(CAD_DIR, f"{name}_pattern.dxf"))
+    dxf([offset_in(p, KERF / 2) for p in holes], os.path.join(CAD_DIR, f"{name}_pattern_kerf.dxf"))
+    print(f"written: {name}_pattern.dxf, {name}_pattern_kerf.dxf")
 
 
 if __name__ == "__main__":
