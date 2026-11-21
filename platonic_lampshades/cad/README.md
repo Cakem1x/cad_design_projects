@@ -14,4 +14,6 @@ Start Claude Code from the repository root. The server resolves the paths relati
 ## Contents
 | Folder | Design | Exports |
 |---|---|---|
-| `dodecahedron/` | `dodecahedron_kit.sc`: panels, brackets and a reference solid in one design | `panel_x12.dxf` (sketch `PanelLaser`), `bracket_x30.stl` (body `Bracket`) |
+| `dodecahedron/` | `dodecahedron_kit.sc`: panels, brackets, hub, reference solid and reference bodies for socket, nipple and bulb | `panel_x11.dxf` (sketch `PanelLaser`), `top_panel_x1.dxf` (sketch `TopPanelLaser`), `fit_test_x1.dxf` (sketch `FitTestLaser`), `bracket_x30.stl` (body `Bracket`), `hub_x1.stl` (body `Hub`) |
+
+Export the DXFs with `sketch.export_dxf {"sketch": ..., "path": ..., "layers": "roles"}`: outline on layer `OUTLINE`, holes on layer `CUT`.
