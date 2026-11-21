@@ -1,7 +1,14 @@
 # Agent Instructions for solar_cad
 
-## Project
-This repository contains parametric CAD models of 3D-printable parts for a solar cooker.
+## Repository
+This repository contains independent parametric CAD projects. Each project is a top-level directory.
+
+| Directory | Project |
+|---|---|
+| `solar_tube_cooker/` | 3D-printed and laser-cut parts for an evacuated-tube solar cooker |
+| `platonic_lampshades/` | Laser-cut and 3D-printed lamp shades shaped as Platonic solids |
+
+Shared at the root: `flake.nix`, `.mcp.json`, `.gitignore`, `LICENSE`.
 
 ## Environment
 The Nix flake (`flake.nix`) defines the development shell.
@@ -18,9 +25,9 @@ Use technical writing for all documentation, including READMEs, comments, and co
 - Prefer lists and tables over long paragraphs.
 
 ## Design Documentation
-Read `docs/overview.md` first. It links to the optics and component documents.
+Read `<project>/docs/overview.md` first. It links to the project's other documents.
 
 ## CAD Modelling
 - Use the SolidCraft MCP server (`.mcp.json`) to create and edit models.
 - The SolidCraft app listens for agents on `127.0.0.1:27878` (Preferences › AI). The MCP server bridges to it only while the design has no features. Check with `version` (`mode: app`) before modelling.
-- Store designs and exports in `cad/`. See `cad/README.md` for conventions.
+- Store designs and exports in `<project>/cad/`. See `<project>/cad/README.md` for conventions.

@@ -2,7 +2,11 @@
   "mcpServers": {
     "solidcraft": {
       "command": "nix",
-      "args": ["develop", ".", "-c", "solidcraft-cli", "mcp", "--allow-path", "cad"]
+      "args": [
+        "develop", ".", "-c", "solidcraft-cli", "mcp",
+        "--allow-path", "solar_tube_cooker/cad",
+        "--allow-path", "platonic_lampshades/cad"
+      ]
     }
   }
 }

@@ -1,6 +1,15 @@
 # solar_cad
 
-Parametric CAD models of 3D-printable parts for a solar cooker.
+Parametric CAD projects for 3D printing and laser cutting.
+
+## Projects
+
+| Directory | Project |
+|---|---|
+| [`solar_tube_cooker/`](solar_tube_cooker/) | Solar cooker built around an evacuated glass tube |
+| [`platonic_lampshades/`](platonic_lampshades/) | Lamp shades shaped as Platonic solids |
+
+Each project has `docs/` (design documentation, start with `docs/overview.md`) and `cad/` (SolidCraft designs).
 
 ## Development environment
 

@@ -1,5 +1,26 @@
+# Nix / direnv
 .direnv/
-# Generated meshes
+result
+result-*
+
+# Python
+__pycache__/
+*.pyc
+
+# Generated fabrication exports. Regenerate them from the SolidCraft designs.
 *.stl
 *.3mf
-__pycache__/
+*.step
+*.stp
+*/cad/**/*.dxf
+
+# SolidCraft lock files (open designs)
+.~*.lock
+
+# Local agent settings
+.claude/settings.local.json
+
+# Editors and OS
+*~
+*.swp
+.DS_Store

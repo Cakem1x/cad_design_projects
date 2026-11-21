@@ -1,5 +1,5 @@
 {
-  description = "CAD models for 3D-printed solar cooker parts";
+  description = "Parametric CAD projects for 3D printing and laser cutting";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -22,7 +22,7 @@
             # Parametric CAD application (GUI: solidcraft, CLI: solidcraft-cli)
             solidcraft.packages.${system}.solidcraft
             pkgs.glow # look at md
-            # Plot and geometry scripts in tools/
+            # Plot and geometry scripts in <project>/tools/
             (pkgs.python3.withPackages (ps: [ ps.matplotlib ]))
           ];
         };

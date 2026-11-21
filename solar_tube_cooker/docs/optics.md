@@ -62,7 +62,7 @@ Options, to decide in CAD:
 At θa = 30° and 2.5 mm clearance, G1 removes the cusp only within 4.4 mm of the centre line. A bridge arc of 8.8 mm width at r = 65 mm joins the branches.
 G2 moves the profile approx. 15 mm (bottom) to 40 mm (sides) outwards and lowers the concentration onto the real absorber.
 
-Regenerate the CPC plots: `python3 tools/plot_reflector_options.py` (requires matplotlib). Profile maths: `tools/cpc.py`.
+Regenerate the CPC plots: `python3 solar_tube_cooker/tools/plot_reflector_options.py` (requires matplotlib). Profile maths: `solar_tube_cooker/tools/cpc.py`.
 
 ## Tracking
 The tube axis is horizontal. Two sun movements are relevant:
@@ -76,7 +76,7 @@ Elevation:
 - Rate of change: up to approx. 10°/h in the morning and afternoon. Near 0°/h at noon.
 - A setting covers the day if 2·θa ≥ the daily elevation range. At 50° N with `min_sun_elevation` = 10°, the range is 53.4° in summer (10–63.4°), 30° at equinox and 6.6° in winter.
 
-Reflector settings per day (rough estimate, `tools/adjustment.py`; unit turned to face the sun azimuth):
+Reflector settings per day (rough estimate, `solar_tube_cooker/tools/adjustment.py`; unit turned to face the sun azimuth):
 
 | θa | Summer | Equinox | Winter |
 |----|--------|---------|--------|
@@ -125,4 +125,4 @@ Cooking windows for `min_sun_elevation` = 10° (maximum tilt 80°):
 - Equinox: approx. 07:05–16:55. Highest elevation 40°.
 - Winter: approx. 09:35–14:25. Highest elevation 16.6°. Tilt range 73.4–80°.
 
-Regenerate the plot and table: `python3 tools/sun_elevation.py docs/img/sun_elevation_50N.svg` (requires matplotlib).
+Regenerate the plot and table: `python3 solar_tube_cooker/tools/sun_elevation.py` (requires matplotlib).

@@ -1,6 +1,6 @@
-"""Plot the reflector shape options to docs/img/.
+"""Plot the reflector shape options to ../docs/img/ (relative to this script).
 
-Usage: python3 tools/plot_reflector_options.py
+Usage: python3 solar_tube_cooker/tools/plot_reflector_options.py
 """
 import math
 import os
@@ -25,7 +25,7 @@ CLEARANCE = 2.5
 ANGLES = (20, 25, 30, 35)
 TRUNC_HEIGHTS = (350, 450, 600)
 DEFAULT_HEIGHT = 600
-OUT_DIR = "docs/img"
+OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs", "img")
 
 # Reference palette, categorical slots 1-4 (fixed order).
 COLORS = {20: "#2a78d6", 25: "#eb6834", 30: "#1baf7a", 35: "#eda100"}

@@ -1,10 +1,13 @@
 """Plot the sun elevation over the day at a given latitude.
 
-Usage: python3 tools/sun_elevation.py [output.svg]
+Usage: python3 solar_tube_cooker/tools/sun_elevation.py [output.svg]
+
+Default output: ../docs/img/sun_elevation_50N.svg (relative to this script).
 
 Time axis: local solar time (12:00 = solar noon). The spring and autumn
 equinoxes have the same declination (0°) and therefore the same curve.
 """
+import os
 import sys
 
 import matplotlib
@@ -89,4 +92,5 @@ def main(out_path):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else "docs/img/sun_elevation_50N.svg")
+    default = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs", "img", "sun_elevation_50N.svg")
+    main(sys.argv[1] if len(sys.argv) > 1 else default)
