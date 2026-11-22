@@ -106,11 +106,11 @@ The bulb is not a point source. A cutout at distance `d` from the source casts a
 ## Pattern
 Style: **Marrakech trellis in log-polar coordinates** (5-fold). Status: in design. The studies that led here are in [../prototypes/](../prototypes/README.md).
 
+Alternative under study: Penrose tiling (P3 rhombs, P2 kites and darts), 5-fold. See [Penrose (5-fold)](../prototypes/README.md#penrose-5-fold).
+
 The SolidCraft design carries both patterns: sketches `UpperPattern1Sketch` to `UpperPattern5Sketch` and `LowerPattern1Sketch` to `LowerPattern5Sketch` (one per panel, in the panel plane, pattern +x towards the tip vertex), cut by `UpperPattern<k>Cut` and `LowerPattern<k>Cut` into one panel each. The bottom panel stays plain.
 
 After a pattern change: run `just lamp-patterns`. In each of the 10 pattern sketches, delete the curves and insert the new `<panel>_pattern.dxf` (`sketch.insert_dxf`, `fixed: true`). Export `PanelLaser` as `panel_x1.dxf` first: the generator merges it with the kerf cutouts into `<panel>_panel_x5.dxf`.
-
-![Shade with both patterns](img/shade_render.png)
 
 Generator: `tools/panel_pattern.py [upper|lower]` (`just lamp-patterns`; `just lamp-inputs` before importing the DXFs into SolidCraft). Per panel type it writes `cad/dodecahedron/<panel>_pattern.dxf`, `<panel>_pattern_kerf.dxf` (shrunk by `kerf/2`) and the preview `docs/img/<panel>_panel_pattern.svg`. It writes no DXF if a check fails. A second argument overrides the lanterns per ring for studies.
 
