@@ -56,3 +56,6 @@ Provider-specific limits, file formats and material data are in [providers/](pro
 | Provider | Document |
 |---|---|
 | cutcraft | [providers/cutcraft.md](providers/cutcraft.md) |
+| formulor | [providers/formulor.md](providers/formulor.md) |
+
+Comparison and price comparison procedure: [providers/README.md](providers/README.md).
