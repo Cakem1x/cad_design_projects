@@ -49,7 +49,7 @@ The shade is a closed body except for the top face. The top plate sits inside th
 
 Remove the shade:
 1. Lift the shade by more than `Lpl` (2.5 mm). The lock tabs leave their slots.
-2. Turn the shade by `turn` (15°) in either direction. The lobes move into the gaps between the lug keys. The turn has about ±4.5° play (free from about 10.5° to 19.5°).
+2. Turn the shade by `turn` (15°) in either direction. The lobes move into the gaps between the lug keys. The turn has about −6° / +7.5° play (free from about 9° to 22.5°).
 3. Lower the shade. The plate passes the lug keys and the top opening. The socket and the bulb follow.
 4. Change the bulb.
 
@@ -87,7 +87,7 @@ Design: `cad/dodecahedron/dodecahedron_kit.sc`.
 | `wtab` | 6 mm | Tab width = slot length across the edge |
 | `tabout` | 0.3 mm | Tab length beyond the outer face (sand flush) |
 | `rrel` | 1.2 mm | Key relief at the inner corner |
-| `ek` | 45 mm | Distance between the 2 keys of an edge. Chosen for the former Marrakech pattern; with the Penrose pattern the keys do not lie on a tile edge (see [light_patterns.md](light_patterns.md#key-alignment)). |
+| `ek` | 36 mm | Distance between the 2 keys of an edge. Each key arm lies on a tile edge of the panel pattern (see [light_patterns.md](light_patterns.md#key-alignment)). |
 | `fitt`, `fitw` | 0 mm | Slot minus key thickness / tab width. Tune with the test coupon. |
 | `hlock` | 14 mm | Lug key lock tab centre from the inner corner |
 | `wlock` | 4 mm | Lug key lock tab width |
@@ -99,7 +99,7 @@ Design: `cad/dodecahedron/dodecahedron_kit.sc`.
 | `Db` | 60 mm | Bulb diameter (reference body only) |
 | `tp` | 3 mm | Top plate thickness (`t`) |
 | `cb` | 1 mm | Bayonet clearance |
-| `Rpl` | 71.25 mm | Top plate outer radius (lobe ends): `√((rp − Dkey·cot(δ/2) − cb)² + (ek/2)²)`, clears the lug key bodies in their planes |
+| `Rpl` | 69.96 mm | Top plate outer radius (lobe ends): `√((rp − Dkey·cot(δ/2) − cb)² + (ek/2)²)`, clears the lug key bodies in their planes |
 | `Rnk` | 55.16 mm | Top plate core radius (`rp − Larm − cb`): clears the inner ends of the lug keys |
 | `wlb` | 14 mm | Top plate lobe width. 5 mm web on each side of the lock slot. |
 | `turn` | 15° | Bayonet turn. Reference value for the checks; no geometry depends on it. |
@@ -110,7 +110,7 @@ Design: `cad/dodecahedron/dodecahedron_kit.sc`.
 Derived values:
 - Panel: regular pentagon, edge 107.77 mm, 10 key slots 3 mm × 6 mm. Outer V-groove width: 3.2 mm.
 - Key: 30.6 mm × 16.5 mm. Lug key: same outline without the top tab, with a 4 mm × 2.5 mm lock tab.
-- Top plate: core Ø 110.3 mm, 10 lobes 14 mm wide to Ø 142.5 mm, 10 lock slots 4 mm × 5 mm, Ø 10.5 mm centre hole.
+- Top plate: core Ø 110.3 mm, 10 lobes 14 mm wide to Ø 139.9 mm, 10 lock slots 4 mm × 5 mm, Ø 10.5 mm centre hole.
 - Height of the solid: 246.0 mm.
 - Clearance from the bulb (Ø 60 mm) to each panel: 93 mm.
 
@@ -121,7 +121,7 @@ The design contains reference bodies for the socket, the nipple and the bulb. Th
 Bill of materials:
 | Item | Count | Source |
 |---|---|---|
-| Bottom panel, 3 mm plywood, plain | 1 | `panel_x1.dxf` |
+| Bottom panel, 3 mm plywood, Penrose P3 rim with open core | 1 | `bottom_panel_x1.dxf` |
 | Upper ring panel, 3 mm plywood, Penrose P3 pattern | 5 | `upper_panel_x5.dxf` |
 | Lower ring panel, 3 mm plywood, Penrose P3 pattern | 5 | `lower_panel_x5.dxf` |
 | Key, 3 mm plywood | 50 | `key_x50.dxf` |

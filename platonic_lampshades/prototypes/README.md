@@ -17,6 +17,7 @@ All patterns tried, in order. Upper ring panel unless noted.
 | Marrakech log-polar, lower ring, 15 / 20 / 25 per ring | [Marrakech (former target)](#marrakech-former-target) | 38 % / 34 % / 24 % (15 and 25 at `r0` = 34 mm) | 20 per ring chosen, then replaced by Penrose P3 | [`marrakech_lower.svg`](img/marrakech_lower.svg) (20 per ring) |
 | Penrose P3 (rhombs), upper and lower | [Penrose (5-fold)](#penrose-5-fold) | 35 % to 43 % upper, 15 % to 24 % lower | chosen (2026-11-22): upper 18 mm turned 36°, lower 12 mm; target pattern in `../tools/panel_pattern.py` | [`penrose_p3_upper_rot36.svg`](img/penrose_p3_upper_rot36.svg), [`penrose_p3_lower.svg`](img/penrose_p3_lower.svg) |
 | Penrose P2 (kites and darts), upper and lower | [Penrose (5-fold)](#penrose-5-fold) | 38 % to 44 % upper, 17 % to 20 % lower | rejected | [`penrose_p2_upper.svg`](img/penrose_p2_upper.svg), [`penrose_p2_lower.svg`](img/penrose_p2_lower.svg) |
+| Bottom panel: window, Marrakech lace, medallion, Penrose P3 full and with open core | [Bottom panel](#bottom-panel) | 37 % to 74 % | Penrose P3 with open core R 50 mm chosen (2026-11-22); target in `../tools/bottom_pattern.py` | [`bottom_penrose_core18_50.svg`](img/bottom_penrose_core18_50.svg) |
 
 ## Files
 
@@ -25,6 +26,7 @@ All patterns tried, in order. Upper ring panel unless noted.
 | `voronoi_pattern.py` | Organic Voronoi generator. Also holds helpers that `pattern_styles.py` imports. |
 | `pattern_styles.py` | Marrakech (flat, log-polar 10 and 15 per ring, lantern rings), latticework, geometric floral |
 | `penrose_pattern.py` | Penrose variants (P3 and P2, tile size, phase). Tilings and pipeline: `../tools/panel_pattern.py`. |
+| `bottom_pattern_study.py` | Bottom panel variants with the light on the table (`just lamp-bottom-study`). Uses `../tools/bottom_pattern.py` and `../tools/table_light.py`. |
 | `marrakech_pattern.py` | Log-polar Marrakech trellis, upper and lower ring (former target). Uses the pipeline of `../tools/panel_pattern.py`. |
 | `img/` | Previews of all studies, a render of the Voronoi pattern on the shade |
 | `dxf/` | Pattern DXFs of the studies (generated, not in git) |
@@ -32,7 +34,7 @@ All patterns tried, in order. Upper ring panel unless noted.
 - All scripts write previews to `img/` and DXFs to `dxf/`. Set other directories with `--img-dir DIR` and `--dxf-dir DIR`. Usage: `--help`.
 - Requirements, zones and the bridge rule: [../docs/light_patterns.md](../docs/light_patterns.md).
 - The chosen style (Penrose P3) continues in `../tools/panel_pattern.py`.
-- The SolidCraft design still carries the Marrakech pattern. The Voronoi model steps below refer to an earlier design state.
+- The SolidCraft design carries the Penrose pattern. The Voronoi model steps below refer to an earlier design state.
 
 ## Organic Voronoi (first prototype)
 The 5 upper ring panels carry an organic cell pattern for the projection zone: curved webs that thicken at the junctions (inspired by organic Voronoi lamp shades).
@@ -170,7 +172,7 @@ Chosen variants (2026-11-22), now the target pattern: upper ring P3, `a_t` = 18 
 ![P2 lower ring](img/penrose_p2_lower.svg)
 
 ## Marrakech (former target)
-Target pattern before the Penrose pattern: the log-polar Marrakech trellis on the upper and the lower ring. Generator: `prototypes/marrakech_pattern.py [upper|lower] [N_RING]` (`just lamp-marrakech`), pipeline of `tools/panel_pattern.py`. Outputs: `img/marrakech_<panel>.svg`, `dxf/marrakech_<panel>_pattern.dxf` and `..._kerf.dxf`. The SolidCraft design still carries this pattern.
+Target pattern before the Penrose pattern: the log-polar Marrakech trellis on the upper and the lower ring. Generator: `prototypes/marrakech_pattern.py [upper|lower] [N_RING]` (`just lamp-marrakech`), pipeline of `tools/panel_pattern.py`. Outputs: `img/marrakech_<panel>.svg`, `dxf/marrakech_<panel>_pattern.dxf` and `..._kerf.dxf`. The script uses `ek` = 45 mm (study value); the design uses 36 mm for the Penrose pattern.
 
 | Panel | Lanterns per ring | Zones cut | Holes | Open area | Worst bridge margin |
 |---|---|---|---|---|---|
@@ -187,3 +189,39 @@ Target pattern before the Penrose pattern: the log-polar Marrakech trellis on th
 ![Marrakech, upper ring](img/marrakech_upper.svg)
 
 ![Marrakech, lower ring](img/marrakech_lower.svg)
+
+## Bottom panel
+Study: bottom panel variants and the light they put on the table. Generator: `prototypes/bottom_pattern_study.py` (`just lamp-bottom-study`).
+
+- Common to all variants: frame 8 mm with the key nodes. Table 1000 mm below the shade (blue outline). Left: panel. Middle: clear filament bulb (blur 206 mm). Right: frosted bulb (blur 495 mm). Dashed line: 50 %.
+- Light through the lower ring is not included.
+
+| Variant | Holes | Open area | On the table (clear bulb) |
+|---|---|---|---|
+| Open window | 1 | 74 % | even pool |
+| Marrakech lace rim, 10 per ring | 11 | 66 % | pool with soft bright spots at the rim |
+| Medallion | 5 | 61 % | 5-petal shadow, dark centre |
+| Penrose P3 18 mm, turned 36°, full | 70 | 37 % | dim, even |
+| Penrose P3 29.1 mm, turned 36°, full | 40 | 47 % | 5-pointed star |
+| Penrose P3 18 mm, turned 36°, core R 40 mm | 51 | 46 % | star-shaped pool |
+| **Penrose P3 18 mm, turned 36°, core R 50 mm (chosen)** | 46 | 50 % | bright pentagonal pool, faint halo |
+| Penrose P3 12 mm, core R 45 mm | 41 | 39 % | pool with a toothed edge |
+| Penrose P3 12 mm, core R 50 mm | 41 | 43 % | as above, larger |
+
+![Chosen: Penrose P3 18 mm, core R 50 mm](img/bottom_penrose_core18_50.svg)
+
+![Penrose P3 18 mm, core R 40 mm](img/bottom_penrose_core18_40.svg)
+
+![Penrose P3 29.1 mm, full](img/bottom_penrose_full29.svg)
+
+![Penrose P3 18 mm, full](img/bottom_penrose_full18.svg)
+
+![Penrose P3 12 mm, core R 50 mm](img/bottom_penrose_core12_50.svg)
+
+![Penrose P3 12 mm, core R 45 mm](img/bottom_penrose_core12_45.svg)
+
+![Open window](img/bottom_window.svg)
+
+![Marrakech lace rim](img/bottom_marrakech_lace10.svg)
+
+![Medallion](img/bottom_medallion.svg)

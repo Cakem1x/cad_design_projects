@@ -30,8 +30,9 @@ slot (slot margin: bridge rule for the long tile diagonal + BAR_MARGIN) plus ARM
 the arm footprint. The bars widen locally into the node.
 
 Panels (see PANELS):
-  upper   upper ring: P3, a_t = 18 mm, rot36.
-  lower   lower ring: P3, a_t = 12 mm.
+  upper   upper ring: P3, a_t = 18.63 mm, rot36.
+  lower   lower ring: P3, a_t = 11.88 mm.
+  The tile sizes align the key arms with tile edges at ek = 36 mm (see key_alignment()).
   Both are cut over all zones (status: all open). The preview marks the glare zone.
 
 Coordinates: base panel frame of the design (sketch PanelLaser): regular pentagon, centre at the
@@ -89,10 +90,12 @@ E_EYE_TOP = -1.3                     # top of the viewer envelope (no zone margi
 
 # Panel types. ring: +1 upper ring (normal at e = +26.6 deg, +x vertex down),
 # -1 lower ring (normal at e = -26.6 deg, +x vertex up). a_t: tile edge length, mm.
+# Key alignment: with ek = 36 mm, a_t = 18.63 mm (upper) and 11.88 mm (lower) put a tile edge on
+# each key arm (offset 0.3 mm). The 10 keys form one symmetry orbit; key_alignment() reports it.
 PANELS = {
-    "upper": dict(ring=+1, tiling="p3", a_t=18.0, rot36=True,
+    "upper": dict(ring=+1, tiling="p3", a_t=18.63, rot36=True,
                   title="Upper ring panel", tip="bottom tip on +x"),
-    "lower": dict(ring=-1, tiling="p3", a_t=12.0, rot36=False,
+    "lower": dict(ring=-1, tiling="p3", a_t=11.88, rot36=False,
                   title="Lower ring panel", tip="top tip on +x"),
 }
 CFG = PANELS["upper"]  # set by run()
@@ -281,6 +284,22 @@ def seg_dist(xs, ys, segs, cap):
         t = np.clip(((X - ax) * dx + (Y - ay) * dy) / max(dx * dx + dy * dy, 1e-12), 0, 1)
         np.minimum(D[j0:j1, i0:i1], np.hypot(X - ax - t * dx, Y - ay - t * dy), out=D[j0:j1, i0:i1])
     return D
+
+
+def key_alignment(segs):
+    """Lateral offset (mm) of key arm 1 from the nearest tile edge parallel to it that spans the
+    slot (7 mm to 15 mm from the panel edge). All 10 keys are symmetric copies of key 1."""
+    k, off = KEYS[1]
+    n = np.array(EDGE_N[k])
+    t = np.array([-n[1], n[0]])
+    d = segs[:, 1] - segs[:, 0]
+    par = np.abs((d / np.hypot(d[:, 0], d[:, 1])[:, None]) @ n) > 0.9998
+    best = math.inf
+    for s in segs[par]:
+        dd = sorted(RP - s @ n)
+        if dd[0] < H_TAB - W_TAB / 2 + 1 and dd[1] > H_TAB + W_TAB / 2 + 2:
+            best = min(best, abs(float(s[0] @ t) - off))
+    return best
 
 
 def penrose_field(segs, a_t):
@@ -546,7 +565,8 @@ def run(panel, tiling=None, a_t=None, rot36=None, svg_path=None, dxf_stem=None, 
     g_max = max((sizes[i] for i in glare), default=0.0)
     print(f"{panel}: {TILING_NAMES[tiling]}{', rot36' if rot36 else ''}, a_t = {a_t:.2f} mm, "
           f"bar {bar_width(a_t):.2f} mm, slot margin {CFG['slot_margin']:.2f} mm, {len(segs)} edges")
-    print(f"a = {A:.2f} mm, rp = {RP:.2f} mm, ek = {E_KEY:.2f} mm")
+    print(f"a = {A:.2f} mm, rp = {RP:.2f} mm, ek = {E_KEY:.2f} mm, "
+          f"key arm to nearest tile edge {key_alignment(segs):.2f} mm")
     print(f"{len(holes)} holes, {min(sizes):.1f} mm to {max(sizes):.1f} mm, open area {open_area:.0f} mm^2 "
           f"({open_pct:.0f} %), {sum(len(p) for p in holes)} segments")
     print(f"check: bridge margin {bridge:+.2f} mm (actual {pair[0]:.2f}, required {pair[1]:.2f}), "

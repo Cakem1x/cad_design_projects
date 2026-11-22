@@ -8,6 +8,7 @@ Pipeline, keep-outs, checks and DXF output: tools/panel_pattern.py. Differences:
 - Solid hub of radius r_hub at the panel centre.
 - Upper ring: a hole that reaches below E_EYE_TOP (top of the viewer envelope) is dropped whole:
   only the lantern at the bottom tip. The check requires all hole points above E_EYE_TOP.
+- Key spacing: E_KEY = 45 mm (study value), not the design value.
 - Key nodes: SLOT_MARGIN = 4.3 mm around the slot (bridge rule maximum + 0.3 mm).
   Upper ring: ek = 45 mm puts each key on the trellis bar that meets the edge there. Lower ring:
   r0 = 27.4 mm puts a bar and a junction on each key.
@@ -47,6 +48,7 @@ PANELS = {
     "lower": dict(ring=-1, n_ring=20, r0=27.4, r_hub=16.0, glare_keepout=False,
                   title="Lower ring panel", tip="top tip on +x"),
 }
+E_KEY = 45.0          # key spacing of this study, mm (the design uses 36 mm for the Penrose pattern)
 STRETCH = 1.2         # lantern tile height / width
 BULGE = 0.09          # S-curve amplitude / edge length
 
@@ -150,6 +152,8 @@ def main():
     parser.add_argument("--img-dir", default=IMG_DIR, help="SVG preview directory (default: %(default)s)")
     parser.add_argument("--dxf-dir", default=DXF_DIR, help="DXF directory (default: %(default)s)")
     args = parser.parse_args()
+    pp.E_KEY = E_KEY
+    pp.KEYS[:] = [(k, sgn * E_KEY / 2) for k in range(5) for sgn in (-1, 1)]
     pp.CFG = dict(PANELS[args.panel])
     if args.n_ring:
         pp.CFG["n_ring"] = args.n_ring
