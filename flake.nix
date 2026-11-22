@@ -24,8 +24,8 @@
             pkgs.glow # look at md
             # Task runner for generated files (Justfile)
             pkgs.just
-            # Plot and geometry scripts in <project>/tools/
-            (pkgs.python3.withPackages (ps: [ ps.matplotlib ]))
+            # Plot and geometry scripts in <project>/tools/; shapely for fabrication/tools/dxf_check.py
+            (pkgs.python3.withPackages (ps: [ ps.matplotlib ps.shapely ]))
           ];
         };
 

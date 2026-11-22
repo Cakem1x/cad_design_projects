@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Parameter consistency check (fabrication/tools/param_sync.py, < 1 s) before a commit.
+# Runs for each project with fabrication.toml whose designs, tools, docs or config are staged.
+# Activate: just install-hooks. Bypass: git commit --no-verify.
+set -u
+root="$(git rev-parse --show-toplevel)"
+cd "$root" || exit 0
+run() { if python3 -c 'import shapely' 2>/dev/null; then "$@"; else DIRENV_LOG_FORMAT= direnv exec "$root" "$@"; fi; }
+
+staged="$(git diff --cached --name-only --diff-filter=ACMR)"
+rc=0
+for cfg in */fabrication.toml; do
+  project="${cfg%%/*}"
+  if grep -qE "^$project/(.*\.sc|tools/.*\.py|docs/.*\.md|fabrication\.toml)$" <<<"$staged"; then
+    run python3 fabrication/tools/param_sync.py "$project" || rc=1
+  fi
+done
+if [[ $rc -ne 0 ]]; then
+  echo "pre-commit: parameter check failed. Fix the design, the docs or fabrication.toml, or commit with --no-verify." >&2
+fi
+exit $rc

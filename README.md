@@ -22,6 +22,19 @@ The Nix flake provides the development shell. It provides [SolidCraft](https://g
 
 - With direnv: run `direnv allow` once. The shell activates when you enter the directory.
 - Without direnv: run `nix develop`.
+- Git hooks: run `just install-hooks` once per clone. It sets `core.hooksPath` to `.githooks`. Undo with `git config --unset core.hooksPath`.
+
+## Checks
+
+| Entry point | Checks |
+|---|---|
+| `just lamp-check` | Parameters (designs, doc tables) and laser DXFs. < 2 s. |
+| `just lamp-claims` | Design claims in `<project>/claims.toml`. |
+| `just lamp-release` | Strict checks, then copies the order files with `manifest.json`. |
+| `.githooks/pre-commit` | Parameter check on commit. |
+| `.claude/hooks/dxf_check.sh` | DXF check after each export through SolidCraft MCP. |
+
+Scripts: [`fabrication/tools/`](fabrication/README.md#tools). Settings: `<project>/fabrication.toml`. Tiers and triggers: [`platonic_lampshades/docs/overview.md`](platonic_lampshades/docs/overview.md#checks).
 
 ## License
 

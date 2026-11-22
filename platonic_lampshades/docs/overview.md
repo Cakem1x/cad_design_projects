@@ -20,6 +20,8 @@ The dodecahedron is the first shade. It tests the construction concept.
 - Laser cuts are square to the sheet. Panels touch along their inner corners. Each outer seam is a V-groove.
 - The DXFs are kerf-compensated: outlines are offset outward and holes inward by `kerf/2`.
 - Joint concept, assembly order and the test coupon: [joinery.md](joinery.md).
+- Design values: the parameters of the `.sc` designs are the single source. The tools read them (`tools/design.py`). The parameter tables in the docs are checked against them (`just lamp-check`).
+- Checks before export and order: [Checks](#checks). Mistakes found so far and the rules that prevent them: [lessons.md](lessons.md).
 
 ### Lamp fitting
 The lamp hangs from its cable. The top plate is clamped to the socket. The shade hangs on the top plate.
@@ -85,7 +87,7 @@ Design: `cad/dodecahedron/dodecahedron_kit.sc`.
 | `wtab` | 6 mm | Tab width = slot length across the edge |
 | `tabout` | 0.3 mm | Tab length beyond the outer face (sand flush) |
 | `rrel` | 1.2 mm | Key relief at the inner corner |
-| `ek` | 45 mm | Distance between the 2 keys of an edge. Each key lies on a trellis bar of the panel pattern (see [light_patterns.md](light_patterns.md#pattern)). |
+| `ek` | 45 mm | Distance between the 2 keys of an edge. Chosen for the former Marrakech pattern; with the Penrose pattern the keys do not lie on a tile edge (see [light_patterns.md](light_patterns.md#key-alignment)). |
 | `fitt`, `fitw` | 0 mm | Slot minus key thickness / tab width. Tune with the test coupon. |
 | `hlock` | 14 mm | Lug key lock tab centre from the inner corner |
 | `wlock` | 4 mm | Lug key lock tab width |
@@ -112,10 +114,7 @@ Derived values:
 - Height of the solid: 246.0 mm.
 - Clearance from the bulb (Ø 60 mm) to each panel: 93 mm.
 
-Checks in the design:
-- Interference, assembled: no overlap between the 11 panels, the 50 keys, the 10 lug keys and the top plate (145 pairs).
-- Bayonet: the plate, 3 mm below its seat, turns from 0° to 15° without contact. Turned 15°, it moves from 3 mm below its seat to above the top opening without contact. Play at 6 mm lift: free from 10.5° to 19.5°; 7.5° and 21° hit the lug keys. Negative check: not turned, 5 mm up, it hits all 10 lug keys.
-- Parameters: `t`, `tk`, `Dkey`, `ek`, `Hs` changed together rebuild without errors; the bulb centre stays at `ri`.
+Checks in the design: claims J1 to K4 in [joinery.md](joinery.md#claims).
 
 The design contains reference bodies for the socket, the nipple and the bulb. They are not exported.
 
@@ -123,8 +122,8 @@ Bill of materials:
 | Item | Count | Source |
 |---|---|---|
 | Bottom panel, 3 mm plywood, plain | 1 | `panel_x1.dxf` |
-| Upper ring panel, 3 mm plywood, Marrakech pattern | 5 | `upper_panel_x5.dxf` |
-| Lower ring panel, 3 mm plywood, Marrakech pattern | 5 | `lower_panel_x5.dxf` |
+| Upper ring panel, 3 mm plywood, Penrose P3 pattern | 5 | `upper_panel_x5.dxf` |
+| Lower ring panel, 3 mm plywood, Penrose P3 pattern | 5 | `lower_panel_x5.dxf` |
 | Key, 3 mm plywood | 50 | `key_x50.dxf` |
 | Lug key, 3 mm plywood | 10 | `lug_key_x10.dxf` |
 | Top plate, 3 mm plywood | 1 | `top_plate_x1.dxf` |
@@ -138,8 +137,18 @@ Bill of materials:
 - Test cut: joint coupon (`joint_test_x1.dxf`) for `fitt`, `fitw`, together with pattern test pieces once the first pattern version is final.
 - Bayonet test: cut the top plate and the lug keys. Check the 15° turn and the seat of the lock tabs.
 - Top opening: the gaps between the lobes of the top plate are open. Light and heat escape upward. Check the look from below and the heat on the ceiling.
-- Top plate shape: functional draft (core disc and 10 lobes). Adapt its look to the Marrakech pattern at the end.
+- Top plate shape: functional draft (core disc and 10 lobes). Adapt its look to the Penrose pattern at the end.
 - Socket and bulb dimensions: `Hs` and `Lc` are typical values. Measure the purchased parts.
 - Light exit: the panels are closed. Requirements for cutout patterns: [light_patterns.md](light_patterns.md).
 - Heat: use LED bulbs only. Define the maximum power for plywood.
 - Load: shade mass is about 0.5 kg (plywood 0.65 g/cm³, without pattern cutouts). Check the rating of the cable strain relief.
+
+## Checks
+| Tier | Command | Time | Trigger | Checks |
+|---|---|---|---|---|
+| 0 Generator | `just lamp-patterns`, `just lamp-joint-coupon` | with the generator | each run | pattern bridges and keep-outs, key cross-section rules |
+| 1 Fast | `just lamp-check [file.dxf] [--json]` | < 2 s | Claude Code hook after each DXF export through SolidCraft MCP; git pre-commit (parameters only) | parameters: designs agree, doc tables match the designs; laser DXFs: closed contours, duplicates, webs, hole size, islands, layers, sheet fit, BOM, staleness |
+| 2 Claims | `just lamp-claims` | headless < 1 s, kit in the app > 10 min | before an order, after a change to joints, bayonet or parameters | [joinery.md](joinery.md#claims) |
+| 3 Release | `just lamp-release` | seconds | order | tier 1 strict (warnings fail), headless claims, copy of the BOM files and `manifest.json` to `cad/dodecahedron/release/<date>/` |
+
+Settings (sheet, provider, rule limits, file sources): [../fabrication.toml](../fabrication.toml). Rules: [laser_cutting.md](../../fabrication/laser_cutting.md). Order steps: skill `laser-release` (`.claude/skills/laser-release/SKILL.md`).

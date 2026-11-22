@@ -12,8 +12,9 @@ Outputs (relative to platonic_lampshades/):
   docs/img/joint_key.svg                    cross-section, flat key, flat panel detail
   cad/dodecahedron/joint_test_x1.dxf        test coupon: 2 plates and 2 keys, kerf-compensated
 
-The shade's keys come from the SolidCraft design (sketches KeySection, KeyLaser); keep the key
-parameters here in sync with it.
+The shade's keys come from the SolidCraft design (sketches KeySection, KeyLaser). The key
+parameters come from the same design (tools/design.py); the coupon plate size and key spacing
+from cad/dodecahedron/joint_test.sc.
 
 Usage: python3 platonic_lampshades/tools/joint_keys.py
 """
@@ -33,30 +34,32 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 CAD_DIR = os.path.join(ROOT, "cad", "dodecahedron")
 IMG_DIR = os.path.join(ROOT, "docs", "img")
 
-# Design values (docs/overview.md), mm
-T = 3.0                       # panel thickness
-TK = 3.0                      # key thickness (same plywood)
-KERF = 0.15
-DELTA = 180.0 - math.degrees(math.atan(2.0))      # dihedral angle, 116.565 deg
-RP = 71.074                   # panel inradius (outer face)
+# Design values, mm and deg: read from the SolidCraft designs (tools/design.py, docs/overview.md)
+from design import JOINT_TEST, KIT  # noqa: E402
+
+T = KIT["t"]                  # panel thickness
+TK = KIT["tk"]                # key thickness (same plywood)
+KERF = KIT["kerf"]
+DELTA = KIT["delta"]          # dihedral angle, 116.565 deg
+RP = KIT["rp"]                # panel inradius (outer face)
 EDGE = 2 * RP * math.tan(math.radians(36))        # panel edge length
 
 # Key parameters, mm
-L_ARM = 18.0      # arm length on the inner face, from the inner corner P
-D_KEY = 9.0       # key depth, normal to the inner face
-H_TAB = 10.0      # tab centre distance from P (= slot centre distance from the panel edge)
-W_TAB = 6.0       # tab width along the arm
-TAB_OUT = 0.3     # tab length beyond the outer face (sand flush after gluing)
-R_REL = 1.2       # relief at P: the key does not touch the panel inner corners
-E_KEY = 45.0      # key spacing along the edge (2 keys per edge, centred)
+L_ARM = KIT["Larm"]     # arm length on the inner face, from the inner corner P
+D_KEY = KIT["Dkey"]     # key depth, normal to the inner face
+H_TAB = KIT["htab"]     # tab centre distance from P (= slot centre distance from the panel edge)
+W_TAB = KIT["wtab"]     # tab width along the arm
+TAB_OUT = KIT["tabout"] # tab length beyond the outer face (sand flush after gluing)
+R_REL = KIT["rrel"]     # relief at P: the key does not touch the panel inner corners
+E_KEY = KIT["ek"]       # key spacing along the edge (2 keys per edge, centred)
 
 # Fit parameters, mm (tune with the test coupon; slot = nominal + fit)
-FIT_T = 0.0       # slot along the edge: key thickness + FIT_T
-FIT_W = 0.0       # slot across the edge: tab width + FIT_W
+FIT_T = KIT["fitt"]     # slot along the edge: key thickness + FIT_T
+FIT_W = KIT["fitw"]     # slot across the edge: tab width + FIT_W
 
-# Test coupon
-PLATE_W = 60.0    # along the edge
-PLATE_L = 40.0    # from the edge
+# Test coupon (joint_test.sc)
+PLATE_W = JOINT_TEST["plw"]    # along the edge
+PLATE_L = JOINT_TEST["pll"]    # from the edge
 KEY_GAP = 3.0     # nesting gap on the sheet
 
 ALPHA = math.radians(90.0 - DELTA / 2)            # arm A angle from +x
@@ -164,7 +167,7 @@ def laser_plate(dx=0.0, dy=0.0):
     return [[(x + dx, y + dy) for x, y in p] for p in [outline] + slots]
 
 
-E_KEY_TEST = 30.0   # key spacing on the 60 mm test plates
+E_KEY_TEST = JOINT_TEST["ek"]   # key spacing on the test plates
 
 
 def figure(path):

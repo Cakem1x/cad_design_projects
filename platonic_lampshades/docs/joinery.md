@@ -28,7 +28,7 @@ Parameters (names as in the SolidCraft design; values in [overview.md](overview.
 | `wtab` | 6 mm | Tab width = slot length across the edge |
 | `tabout` | 0.3 mm | Tab length beyond the outer face, sanded flush after gluing |
 | `rrel` | 1.2 mm | Relief at the inner corner: the key does not touch the panel corners |
-| `ek` | 45 mm | Distance between the 2 keys of an edge. Set by the pattern: each key lies on a trellis bar (see [light_patterns.md](light_patterns.md#pattern)). |
+| `ek` | 45 mm | Distance between the 2 keys of an edge. Set by the former Marrakech pattern: each key lay on a trellis bar. Penrose pattern: see [light_patterns.md](light_patterns.md#key-alignment). |
 | `fitt`, `fitw` | 0 mm | Slot size minus key thickness / tab width. Tune with the test coupon. |
 
 - Key: 30.6 mm × 16.5 mm, 3 mm plywood (same sheet as the panels).
@@ -66,25 +66,27 @@ The 5 top edges have no panel on the other side. Each carries 2 lug keys: 10 lug
 - Plate radius `Rpl` = √((rp − Dkey·cot(δ/2) − cb)² + (ek/2)²): in the plane of each lug key, the plate rim stays `cb` short of the lug key body below the bearing edge. Bearing length on the plate: about 11 mm per lug key.
 - Model: sketches `LugKeySection`, `LugKeyLaser` (export `lug_key_x10.dxf`), `PlateCutSketch` (10 gaps between the lobes, 10 lock slots), `TopPlateLaser` (kerf-compensated outline).
 
-## Checks in the model
-| Check | Result |
-|---|---|
-| Interference, assembled (panels, 50 keys, 10 lug keys, top plate) | none (145 pairs) |
-| Keys of different edges at a vertex | 19.5 mm apart with `ek` = 50 mm (vertex test, removed after integration); farther apart with 45 mm |
-| Bayonet: plate 3 mm below its seat, turned 0° to 15° in 5° steps | no contact |
-| Bayonet: plate turned 15°, from 3 mm below its seat to 15 mm above it (above the top opening), 3 mm steps | no contact |
-| Bayonet play: plate 6 mm above its seat | free from 10.5° to 19.5°; 7.5° and 21° hit the lug keys |
-| Negative check: plate not turned, 5 mm up | hits all 10 lug keys |
-| Parameter change `t`, `tk`, `Dkey`, `ek`, `Hs` | rebuilds without errors |
+## Claims
+Claims are statements about the design that a check confirms. Definitions and check commands: [../claims.toml](../claims.toml). Run `just lamp-claims` before an order and after a change to the joints, the bayonet or the parameters. Record each result here.
+
+| Id | Claim | Check | Last result | Date |
+|---|---|---|---|---|
+| J1 | Joint test coupon: plates and keys do not interfere | headless, `just lamp-claims` (0.2 s) | OK: 0 interferences, 5 pairs | 2026-11-22 |
+| K1 | Kit assembled: no interference between panels, keys, lug keys and top plate | app, `inspect.interference` (> 10 min with the pattern panels) | Not complete: 240 s budget ran out, 122 of 165 pairs unchecked, 0 interferences in the 43 checked. Before the patterns: none (145 pairs). | 2026-11-22 |
+| K2 | Kit rebuilds with changed `t`, `tk`, `Dkey`, `ek`, `Hs`; bulb centre stays at `ri` | app, `check_parameters` | rebuilds without errors | before 2026-11-22 |
+| K3 | Key cross-section rules: tab to arm end, tab to relief, slot web, key to edge end | `just lamp-joint-coupon` (`joint_keys.py check()`, runs with the generator) | OK; key to edge end 29.88 mm (`rp` read from the design) | 2026-11-22 |
+| K4 | Bayonet: plate 3 mm below its seat turns 0° to 15° without contact; turned 15°, lifts from 3 mm below its seat to 15 mm above it without contact | manual: move and turn `TopPlate`, `inspect.interference` against the lug keys. `turn` drives no geometry, so no script. | no contact. Play at 6 mm lift: free from 10.5° to 19.5°; 7.5° and 21° hit the lug keys. Negative check (not turned, 5 mm up): hits all 10 lug keys. | before 2026-11-22 |
+
+Earlier result, removed check: keys of different edges at a vertex are 19.5 mm apart with `ek` = 50 mm (vertex test); farther apart with 45 mm.
 
 ## Test coupon
 Design: `cad/dodecahedron/joint_test.sc`. Two test plates at the dihedral angle and 2 keys, driven by parameters (`t`, `tk`, `Larm`, `Dkey`, `htab`, `wtab`, `tabout`, `rrel`, `ek`). Interference check: no overlap; the tabs fill the slots, the key arms touch the inner faces. For a cross-section, use a section through a key (plane XZ at Y = 15 mm).
 
 `cad/dodecahedron/joint_test_x1.dxf`: 2 plates (60 mm × 40 mm, 2 slots each, 30 mm apart) and 2 keys, kerf-compensated. Sheet: 123 mm × 59 mm.
-1. Measure the plywood thickness. Set `TK` and `T` in the script and `t`, `tk` in the design if it differs from 3.0 mm.
+1. Measure the plywood thickness. Enter it as `measured_thickness` in `../fabrication.toml`. If it differs from 3.0 mm, set `t` and `tk` in both designs (`dodecahedron_kit.sc`, `joint_test.sc`) and save them. `tools/joint_keys.py` reads the values from the designs.
 2. Cut the coupon. Press the keys into one plate, then press the second plate onto the keys.
 3. Check: the inner corners of the plates touch, the angle is 116.6° (outer angle 63.4°), the joint holds without glue.
-4. Adjust `FIT_T` and `FIT_W` and repeat. Copy the result to `fitt` and `fitw` in the design and re-export the DXFs.
+4. Adjust `fitt` and `fitw` in `dodecahedron_kit.sc`, save, run `just lamp-joint-coupon` and repeat. Then re-export the DXFs.
 
 
 ## Effect on the other parts

@@ -1,6 +1,6 @@
 # Pattern Prototypes
 
-Pattern studies for the ring panels. Kept for reference; not maintained. The chosen pattern (log-polar Marrakech trellis) is in [../docs/light_patterns.md](../docs/light_patterns.md#pattern).
+Pattern studies for the ring panels. Kept for reference; not maintained. The chosen pattern (Penrose P3 rhombs) is in [../docs/light_patterns.md](../docs/light_patterns.md#pattern).
 
 ## Overview
 All patterns tried, in order. Upper ring panel unless noted.
@@ -11,12 +11,12 @@ All patterns tried, in order. Upper ring panel unless noted.
 | Marrakech trellis, flat | [Style alternatives](#style-alternatives) | 38 % | chosen style; replaced by the log-polar variant | [`pattern_marrakech.svg`](img/pattern_marrakech.svg) |
 | Latticework | [Style alternatives](#style-alternatives) | 39 % | rejected | [`pattern_lattice.svg`](img/pattern_lattice.svg) |
 | Geometric floral | [Style alternatives](#style-alternatives) | 29 % | rejected | [`pattern_floral.svg`](img/pattern_floral.svg) |
-| Marrakech log-polar, 10 per ring | [Marrakech with 5-fold symmetry](#marrakech-with-5-fold-symmetry) | 38 % | chosen; continued in `../tools/panel_pattern.py` | [`pattern_marrakech_polar10.svg`](img/pattern_marrakech_polar10.svg) |
+| Marrakech log-polar, 10 per ring | [Marrakech with 5-fold symmetry](#marrakech-with-5-fold-symmetry) | 38 % | chosen, then replaced by Penrose P3; see [Marrakech (former target)](#marrakech-former-target) | [`pattern_marrakech_polar10.svg`](img/pattern_marrakech_polar10.svg) |
 | Marrakech log-polar, 15 per ring | [Marrakech with 5-fold symmetry](#marrakech-with-5-fold-symmetry) | 32 % | rejected | [`pattern_marrakech_polar15.svg`](img/pattern_marrakech_polar15.svg) |
 | Marrakech lantern rings | [Marrakech with 5-fold symmetry](#marrakech-with-5-fold-symmetry) | 36 % | rejected | [`pattern_marrakech_rings.svg`](img/pattern_marrakech_rings.svg) |
-| Marrakech log-polar, lower ring, 15 / 20 / 25 per ring | [../docs/light_patterns.md](../docs/light_patterns.md#pattern) | 38 % / 34 % / 24 % (15 and 25 at `r0` = 34 mm) | 20 per ring chosen | [`lower_panel_pattern.svg`](../docs/img/lower_panel_pattern.svg) (20 per ring) |
-| Penrose P3 (rhombs), upper and lower | [Penrose (5-fold)](#penrose-5-fold) | 35 % to 43 % upper, 15 % to 24 % lower | under study; preferred Penrose variant | [`penrose_p3_upper_rot36.svg`](img/penrose_p3_upper_rot36.svg), [`penrose_p3_lower.svg`](img/penrose_p3_lower.svg) |
-| Penrose P2 (kites and darts), upper and lower | [Penrose (5-fold)](#penrose-5-fold) | 38 % to 44 % upper, 17 % to 20 % lower | under study | [`penrose_p2_upper.svg`](img/penrose_p2_upper.svg), [`penrose_p2_lower.svg`](img/penrose_p2_lower.svg) |
+| Marrakech log-polar, lower ring, 15 / 20 / 25 per ring | [Marrakech (former target)](#marrakech-former-target) | 38 % / 34 % / 24 % (15 and 25 at `r0` = 34 mm) | 20 per ring chosen, then replaced by Penrose P3 | [`marrakech_lower.svg`](img/marrakech_lower.svg) (20 per ring) |
+| Penrose P3 (rhombs), upper and lower | [Penrose (5-fold)](#penrose-5-fold) | 35 % to 43 % upper, 15 % to 24 % lower | chosen (2026-11-22): upper 18 mm turned 36°, lower 12 mm; target pattern in `../tools/panel_pattern.py` | [`penrose_p3_upper_rot36.svg`](img/penrose_p3_upper_rot36.svg), [`penrose_p3_lower.svg`](img/penrose_p3_lower.svg) |
+| Penrose P2 (kites and darts), upper and lower | [Penrose (5-fold)](#penrose-5-fold) | 38 % to 44 % upper, 17 % to 20 % lower | rejected | [`penrose_p2_upper.svg`](img/penrose_p2_upper.svg), [`penrose_p2_lower.svg`](img/penrose_p2_lower.svg) |
 
 ## Files
 
@@ -24,14 +24,15 @@ All patterns tried, in order. Upper ring panel unless noted.
 |---|---|
 | `voronoi_pattern.py` | Organic Voronoi generator. Also holds helpers that `pattern_styles.py` imports. |
 | `pattern_styles.py` | Marrakech (flat, log-polar 10 and 15 per ring, lantern rings), latticework, geometric floral |
-| `penrose_pattern.py` | Penrose tilings P3 and P2, 5-fold. Uses the pipeline of `../tools/panel_pattern.py`. |
+| `penrose_pattern.py` | Penrose variants (P3 and P2, tile size, phase). Tilings and pipeline: `../tools/panel_pattern.py`. |
+| `marrakech_pattern.py` | Log-polar Marrakech trellis, upper and lower ring (former target). Uses the pipeline of `../tools/panel_pattern.py`. |
 | `img/` | Previews of all studies, a render of the Voronoi pattern on the shade |
 | `dxf/` | Pattern DXFs of the studies (generated, not in git) |
 
 - All scripts write previews to `img/` and DXFs to `dxf/`. Set other directories with `--img-dir DIR` and `--dxf-dir DIR`. Usage: `--help`.
 - Requirements, zones and the bridge rule: [../docs/light_patterns.md](../docs/light_patterns.md).
-- The chosen style (log-polar Marrakech trellis) continues in `../tools/panel_pattern.py`.
-- The SolidCraft design carries the Marrakech pattern. The Voronoi model steps below refer to an earlier design state.
+- The chosen style (Penrose P3) continues in `../tools/panel_pattern.py`.
+- The SolidCraft design still carries the Marrakech pattern. The Voronoi model steps below refer to an earlier design state.
 
 ## Organic Voronoi (first prototype)
 The 5 upper ring panels carry an organic cell pattern for the projection zone: curved webs that thicken at the junctions (inspired by organic Voronoi lamp shades).
@@ -121,7 +122,7 @@ Quick prototypes: the lantern pattern arranged around the panel centre, with the
 
 
 ## Penrose (5-fold)
-Study: a Penrose tiling patch centred on the panel, with exact 5-fold symmetry. Generator: `prototypes/penrose_pattern.py` (`just lamp-penrose`). It reuses the pipeline of `tools/panel_pattern.py`. The outputs go to `prototypes/img/` and `prototypes/dxf/`. The current pattern and the SolidCraft design are not changed.
+Study: a Penrose tiling patch centred on the panel, with exact 5-fold symmetry. Result: P3 is the target pattern ([../docs/light_patterns.md](../docs/light_patterns.md#pattern)). Variants: `prototypes/penrose_pattern.py` (`just lamp-penrose`). The tilings and the pipeline are in `tools/panel_pattern.py`. The outputs go to `prototypes/img/` and `prototypes/dxf/`.
 
 Method:
 1. Robinson-triangle deflation from a D5-symmetric start wheel at the panel centre. Each deflation keeps the symmetry. One mirror axis lies on +x, as on the panel. `--rot36` turns the patch by 36° (the other symmetric phase, equal to a point reflection).
@@ -149,7 +150,7 @@ Method:
 
 Bold rows: the script defaults, shown in the previews below. Size: largest extent along x or y.
 
-Preferred variants (2026-11-22): upper ring P3, `a_t` = 18 mm, `--rot36` (39 % open). Lower ring P3, `a_t` = 12 mm (24 % open).
+Chosen variants (2026-11-22), now the target pattern: upper ring P3, `a_t` = 18 mm, `--rot36` (39 % open). Lower ring P3, `a_t` = 12 mm (24 % open). Since then the slot margin follows the bar width (was 4.3 mm); the lower ring result is unchanged.
 
 - Upper ring: P3 at 18 mm and P2 at 22 mm give 37 % to 38 % open area. The Marrakech pattern gives 50 %. The bar width is constant, so the bar share of the area is the same at the panel centre as at the edge.
 - Upper ring, glare: in every run, 5 or more holes > 15 mm reach into the glare zone at the bottom tip. Symmetry does not allow a hole to be dropped there without dropping its whole orbit of 5.
@@ -167,3 +168,22 @@ Preferred variants (2026-11-22): upper ring P3, `a_t` = 18 mm, `--rot36` (39 % o
 ![P3 lower ring](img/penrose_p3_lower.svg)
 
 ![P2 lower ring](img/penrose_p2_lower.svg)
+
+## Marrakech (former target)
+Target pattern before the Penrose pattern: the log-polar Marrakech trellis on the upper and the lower ring. Generator: `prototypes/marrakech_pattern.py [upper|lower] [N_RING]` (`just lamp-marrakech`), pipeline of `tools/panel_pattern.py`. Outputs: `img/marrakech_<panel>.svg`, `dxf/marrakech_<panel>_pattern.dxf` and `..._kerf.dxf`. The SolidCraft design still carries this pattern.
+
+| Panel | Lanterns per ring | Zones cut | Holes | Open area | Worst bridge margin |
+|---|---|---|---|---|---|
+| Upper ring | 10 | projection zone; complete holes reach down to `e` = −1.1° (see below) | 49, 6 mm to 33 mm | 50 % | +0.29 mm |
+| Lower ring | 20 | all; glare zone needs a diffuser (requirement 5) | 105, 6 mm to 15 mm | 34 % | +0.29 mm |
+
+- Lower ring: more visible from the room. 20 lanterns per ring give smaller holes and less open area. The lanterns shrink towards the centre; below about 31 mm radius they fall under the minimum hole size and the centre stays solid (Ø 62 mm). The solid centre lies on the face normal (`e` = −26.6°), in the line of sight of seated viewers.
+- Lower ring studies (`r0` = 34 mm, before the key alignment): 15 lanterns per ring: 80 holes, 38 % open. 25 lanterns per ring: 105 holes, 24 % open, solid centre about Ø 60 mm.
+- Keep-outs: border 6 mm and the keys (`tk` × `Larm` = 3 mm × 18 mm footprint with the slot, at ±`ek/2` from the edge centre, see [joinery.md](joinery.md)).
+  - Key nodes (both rings). Upper ring: `ek` = 45 mm puts each key on the trellis bar that meets the edge there; the slot sits next to a bar junction. Lower ring: with `ek` fixed, the radial phase `r0` = 27.4 mm (was 34 mm) moves a bar and a junction onto each key. With `r0` = 34 mm the keys sat in the middle of a lantern (79 % of the arm centreline open); now 24 % of the arm band is open before the keep-out. On both rings the bar widens to a rounded node around the slot: 4.3 mm around the slot (bridge rule maximum + 0.3 mm), 1.5 mm around the arm footprint. The lanterns next to a key stay unclipped. The check measures the bridge from each hole to each slot by the bridge rule (slot size 6 mm) and keeps the arm footprints solid.
+- Upper ring, glare zone: the zone does not clip the holes. A hole that reaches below `e` = −1.3° (top of the viewer envelope, no margin) is dropped whole: only the lantern at the bottom tip (lowest point −7.8°). The lanterns next to it stay complete. They reach into the 5° margin of the glare zone: lowest points +1.4° (2 lanterns beside the axis) and −1.1° (2 lanterns at the lower edges). Check: no hole point below −1.3°.
+- Panel size: `ri = t + Dkey + tp + Hs + Lc`. Keep the constants at the top of the script in sync with the design.
+
+![Marrakech, upper ring](img/marrakech_upper.svg)
+
+![Marrakech, lower ring](img/marrakech_lower.svg)

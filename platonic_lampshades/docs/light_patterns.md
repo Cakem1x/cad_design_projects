@@ -1,6 +1,6 @@
 # Light Patterns
 
-Requirements and design zones for the cutout patterns in the panels. Applies to the dodecahedron prototype (see [overview](overview.md)). Status: zones final. Pattern style chosen; upper and lower ring patterns in design (2D); bottom panel and top plate plain.
+Requirements and design zones for the cutout patterns in the panels. Applies to the dodecahedron prototype (see [overview](overview.md)). Status: zones final. Pattern style chosen (Penrose P3); upper and lower ring patterns in design (2D), all holes open; bottom panel and top plate plain.
 
 ## Terms
 | Term | Definition |
@@ -104,29 +104,44 @@ The bulb is not a point source. A cutout at distance `d` from the source casts a
 - The upper ring is closer to the ceiling in some directions and farther in others, so its projections change in size and blur across the ceiling.
 
 ## Pattern
-Style: **Marrakech trellis in log-polar coordinates** (5-fold). Status: in design. The studies that led here are in [../prototypes/](../prototypes/README.md).
+Style: **Penrose tiling, P3 rhombs** (5-fold). Status: in design, all holes open. The studies that led here are in [../prototypes/](../prototypes/README.md); the former pattern (log-polar Marrakech trellis) is in [Marrakech (former target)](../prototypes/README.md#marrakech-former-target).
 
-Alternative under study: Penrose tiling (P3 rhombs, P2 kites and darts), 5-fold. See [Penrose (5-fold)](../prototypes/README.md#penrose-5-fold).
-
-The SolidCraft design carries both patterns: sketches `UpperPattern1Sketch` to `UpperPattern5Sketch` and `LowerPattern1Sketch` to `LowerPattern5Sketch` (one per panel, in the panel plane, pattern +x towards the tip vertex), cut by `UpperPattern<k>Cut` and `LowerPattern<k>Cut` into one panel each. The bottom panel stays plain.
+The SolidCraft design still carries the Marrakech pattern: sketches `UpperPattern1Sketch` to `UpperPattern5Sketch` and `LowerPattern1Sketch` to `LowerPattern5Sketch` (one per panel, in the panel plane, pattern +x towards the tip vertex), cut by `UpperPattern<k>Cut` and `LowerPattern<k>Cut` into one panel each. The bottom panel stays plain.
 
 After a pattern change: run `just lamp-patterns`. In each of the 10 pattern sketches, delete the curves and insert the new `<panel>_pattern.dxf` (`sketch.insert_dxf`, `fixed: true`). Export `PanelLaser` as `panel_x1.dxf` first: the generator merges it with the kerf cutouts into `<panel>_panel_x5.dxf`.
 
-Generator: `tools/panel_pattern.py [upper|lower]` (`just lamp-patterns`; `just lamp-inputs` before importing the DXFs into SolidCraft). Per panel type it writes `cad/dodecahedron/<panel>_pattern.dxf`, `<panel>_pattern_kerf.dxf` (shrunk by `kerf/2`) and the preview `docs/img/<panel>_panel_pattern.svg`. It writes no DXF if a check fails. A second argument overrides the lanterns per ring for studies.
+Generator: `tools/panel_pattern.py [upper|lower]` (`just lamp-patterns`; `just lamp-inputs` before importing the DXFs into SolidCraft). Per panel type it writes `cad/dodecahedron/<panel>_pattern.dxf`, `<panel>_pattern_kerf.dxf` (shrunk by `kerf/2`), `<panel>_panel_x5.dxf` and the preview `docs/img/<panel>_panel_pattern.svg`. It writes no DXF if a check fails. Variants for studies: `prototypes/penrose_pattern.py`.
 
-| Panel | Lanterns per ring | Zones cut | Holes | Open area | Worst bridge margin |
-|---|---|---|---|---|---|
-| Upper ring | 10 | projection zone; complete holes reach down to `e` = −1.1° (see below) | 49, 6 mm to 33 mm | 50 % | +0.29 mm |
-| Lower ring | 20 | all; glare zone needs a diffuser (requirement 5) | 105, 6 mm to 15 mm | 34 % | +0.29 mm |
+Method:
+1. Robinson-triangle deflation from a D5-symmetric start wheel at the panel centre (P3: sun of 10 half-rhombs). One mirror axis lies on +x, as on the panel. "Turned 36°" is the other symmetric phase of the patch.
+2. The tile edges are the bar centrelines. Rhomb diagonals are not bars. Bar width: bridge rule for the long rhomb diagonal (1.902 × tile edge `a_t`) + 0.3 mm. The bar width is constant.
+3. Border 6 mm. Key nodes: the bar widens to a rounded node around each key slot (slot margin = bar width) and keeps 1.5 mm around the arm footprint.
+4. Glare: no hole is dropped (status: all open). The preview marks the zone boundaries (dashed) and colours the holes in the glare zone: light orange ≤ 15 mm, red > 15 mm. Upper ring: holes below `e` = −1.3° (bulb visible to a viewer) are hatched.
+5. Checks: bridge rule (below), border, key slots and arm footprints, 5-fold symmetry (hole centroids within 0.2 mm under 72° rotation and mirror).
 
-- Lower ring: more visible from the room. 20 lanterns per ring give smaller holes and less open area. The lanterns shrink towards the centre; below about 31 mm radius they fall under the minimum hole size and the centre stays solid (Ø 62 mm). The solid centre lies on the face normal (`e` = −26.6°), in the line of sight of seated viewers.
-- Lower ring studies (`r0` = 34 mm, before the key alignment): 15 lanterns per ring: 80 holes, 38 % open. 25 lanterns per ring: 105 holes, 24 % open, solid centre about Ø 60 mm.
-- Keep-outs: border 6 mm and the keys (`tk` × `Larm` = 3 mm × 18 mm footprint with the slot, at ±`ek/2` from the edge centre, see [joinery.md](joinery.md)).
-  - Key nodes (both rings). Upper ring: `ek` = 45 mm puts each key on the trellis bar that meets the edge there; the slot sits next to a bar junction. Lower ring: with `ek` fixed, the radial phase `r0` = 27.4 mm (was 34 mm) moves a bar and a junction onto each key. With `r0` = 34 mm the keys sat in the middle of a lantern (79 % of the arm centreline open); now 24 % of the arm band is open before the keep-out. On both rings the bar widens to a rounded node around the slot: 4.3 mm around the slot (bridge rule maximum + 0.3 mm), 1.5 mm around the arm footprint. The lanterns next to a key stay unclipped. The check measures the bridge from each hole to each slot by the bridge rule (slot size 6 mm) and keeps the arm footprints solid.
-- Upper ring, glare zone: the zone does not clip the holes. A hole that reaches below `e` = −1.3° (top of the viewer envelope, no margin) is dropped whole: only the lantern at the bottom tip (lowest point −7.8°). The lanterns next to it stay complete. They reach into the 5° margin of the glare zone: lowest points +1.4° (2 lanterns beside the axis) and −1.1° (2 lanterns at the lower edges). Check: no hole point below −1.3°.
-- Panel size: `ri = t + Dkey + tp + Hs + Lc`. Keep the constants at the top of the script in sync with the design.
+| Panel | Tiling | `a_t` | Phase | Holes | Size | Open area | Bridge margin | Glare zone holes (> 15 mm) | Below −1.3° |
+|---|---|---|---|---|---|---|---|---|---|
+| Upper ring | P3 | 18 mm | turned 36° | 70 | 9 mm to 21 mm | 39 % | +0.97 mm | 9 (5) | 3 |
+| Lower ring | P3 | 12 mm | — | 80 | 9 mm to 12 mm | 24 % | +0.69 mm | 73 (0) | — |
 
-Bridge rule (checked on the output polylines, between holes, to the panel edge and to the key footprints):
+- Upper ring: 5 holes > 15 mm reach into the glare zone at the bottom tip; 3 holes (lowest point −5.5°) show the bulb to standing viewers. Symmetry does not allow one hole to be dropped without its whole orbit of 5.
+- Lower ring: the thin rhombs fall under the minimum hole width (2.4 mm). Only the thick rhombs are cut. Most holes lie in the glare zone; use a diffuser (requirement 5) or test without one.
+- Keys: `ek` = 45 mm was chosen for the Marrakech pattern. With the Penrose pattern the keys do not lie on a tile edge: the nodes clip the holes next to them. See [Key alignment](#key-alignment).
+- Panel size and key positions come from the design (`tools/design.py`).
+
+### Key alignment
+Goal: each key arm lies on a tile edge, as on the Marrakech pattern. The tiling has edges parallel to the key arms (tile edge directions are multiples of 36°). The 10 keys form one symmetry orbit: aligning one key aligns all 10.
+
+| Option | Change | Arm offset from the nearest tile edge (upper / lower) | Result |
+|---|---|---|---|
+| Current | none (`ek` = 45 mm, `a_t` 18 mm / 12 mm) | 5.4 mm / 4.0 mm | nodes clip the neighbouring holes |
+| Scale only | `a_t` within ±10 % | ≥ 3.7 mm / ≥ 2.7 mm | not aligned |
+| Local warp | tile vertices near each key moved by 5.4 mm / 4.0 mm, smooth falloff over 14 mm to 18 mm | 0 mm | aligned; the rhombs next to the keys shear visibly |
+| Key spacing | `ek` = 36 mm, `a_t` = 18.63 mm (+3.5 %) / 11.88 mm (−1.0 %) | 0.3 mm / 0.3 mm | aligned without distortion. Upper: 70 holes, 40 %; lower: 90 holes, 26 %. One hole per key on the upper ring keeps a small notch. |
+
+`ek` = 36 mm moves the keys 4.5 mm towards the edge centre: farther from the vertices (see [joinery.md](joinery.md)). It changes the lug key positions, `Rpl` and the bayonet play: rerun claims K1 to K4 before an order.
+
+Bridge rule (checked on the output polylines, between holes, to the panel edge and to the key slots):
 
 | Larger adjacent hole | Required bridge |
 |---|---|
@@ -139,6 +154,9 @@ Bridge rule (checked on the output polylines, between holes, to the panel edge a
 ![Lower ring panel pattern](img/lower_panel_pattern.svg)
 
 ## Open points
+- Key alignment: choose an option (see [Key alignment](#key-alignment)).
+- SolidCraft design: replace the Marrakech pattern in the 10 pattern sketches by the Penrose DXFs (after the key alignment decision).
+- Glare: all holes are open. Decide per panel: drop or close the glare zone holes, or use a diffuser.
 - Pattern designs for the bottom panel (table zone: frame only) and the top plate (projection zone).
 - Lower ring: choose the diffuser, or test the glare without one.
 - Test the prototype: cut one upper panel, light it with a clear and a frosted bulb, check the ceiling projection.

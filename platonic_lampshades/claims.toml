@@ -1,0 +1,47 @@
+# Design claims of platonic_lampshades (tier 2). Run: just lamp-claims.
+# Record each result in the Claims table of docs/joinery.md.
+#
+# where = "headless": fabrication/tools/claims.py runs `commands` with solidcraft-cli on `design`
+#                     and compares the last result with `expect` (key: value, all must match).
+# where = "app":      run in the open SolidCraft app through MCP (the kit takes > 5 min headless).
+#                     `bodies` globs: expand them with inspect_design {bodies: "names"}.
+# where = "manual":   no scripted check yet; `how` says what to do.
+
+[[claim]]
+id = "J1"
+title = "Joint test coupon: plates and keys do not interfere"
+where = "headless"
+design = "cad/dodecahedron/joint_test.sc"
+commands = [{ command = "inspect.interference", params = {} }]
+expect = { count = 0, pairs_not_checked = 0, budget_exceeded = false }
+
+[[claim]]
+id = "K1"
+title = "Kit assembled: no interference between panels, keys, lug keys and top plate"
+where = "app"
+design = "cad/dodecahedron/dodecahedron_kit.sc"
+command = "inspect.interference"
+bodies = ["Panel*", "Key*", "LugKey*", "TopPlate"]
+# Cost: 165 candidate pairs; pattern panel pairs take up to 180 s each (about 1500 s CPU total on
+# 8 threads, 2026-11-22). The default 240 s budget left 122 pairs unchecked. Run it before an order only.
+params = { budget_s = 1800 }
+expect = { count = 0, pairs_not_checked = 0, budget_exceeded = false }
+
+[[claim]]
+id = "K2"
+title = "Kit rebuilds with changed t, tk, Dkey, ek, Hs; bulb centre stays at ri"
+where = "app"
+design = "cad/dodecahedron/dodecahedron_kit.sc"
+how = "check_parameters {set: {t: '3.3 mm', tk: '3.3 mm', Dkey: '10 mm', ek: '44 mm', Hs: '62 mm'}}: no feature errors"
+
+[[claim]]
+id = "K3"
+title = "Key cross-section rules (tab to arm end, slot web, key to edge end)"
+where = "manual"
+how = "just lamp-joint-coupon: every line of joint_keys.py check() ends in OK (tier 0, runs with the generator)"
+
+[[claim]]
+id = "K4"
+title = "Bayonet: plate turns 0-15 deg 3 mm below its seat and lifts out at 15 deg without contact"
+where = "manual"
+how = "Move and turn TopPlate in steps, inspect.interference against LugKey* (docs/joinery.md). Not scriptable: turn drives no geometry."

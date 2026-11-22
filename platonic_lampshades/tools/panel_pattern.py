@@ -1,32 +1,38 @@
-"""Polar Marrakech trellis for the ring panels. Writes DXF and an SVG preview.
+"""Penrose tiling patterns for the ring panels. Writes DXF and an SVG preview.
 
-Pattern: the Moroccan lantern trellis (diamond tiling with S-curved edges) in log-polar
-coordinates around the panel centre (conformal map). N lanterns per ring (multiple of 5), the
-lanterns point outwards and grow with the radius. The bar width in mm follows the local hole size.
+Pattern: a Penrose tiling patch centred on the panel, with exact 5-fold symmetry (D5). The tile
+edges are bars of constant width; the tiles are the holes.
+
+Tilings:
+  p3   thick rhombs (72 deg / 108 deg) and thin rhombs (36 deg / 144 deg)
+  p2   kites (72 / 72 / 72 / 144 deg) and darts (36 / 72 / 36 / 216 deg)
 
 Pipeline (0.2 mm grid):
-1. Skeleton distance S in map units, converted to mm with the local scale rho / k of the map.
-2. Cutout field F = min(S - w(rho)/2, hub, border, key keep-outs), blurred lightly (inner
-   corner radius about 1 mm).
-3. Cutouts: closed contours F = 0; holes thinner than 2.4 mm or smaller than 15 mm^2 are dropped.
-   Upper ring: the glare zone does not clip the holes. A hole that reaches below E_EYE_TOP (top of
-   the viewer envelope) is dropped whole: only the lantern at the bottom tip. The lanterns next to
-   it stay complete and may reach into the glare zone margin (E_EYE_TOP to E_GLARE_HI).
-4. Check on the output polylines (no DXF if it fails): bridge >= 3.0 mm, rising linearly to
+1. Robinson-triangle deflation from a D5-symmetric start wheel around the panel centre
+   (p3: sun of 10 half-rhombs, p2: sun of 5 kites). Deflation keeps the D5 symmetry.
+   One mirror axis lies on +x, like the panel. rot36 turns the patch by 36 deg (the other
+   symmetric phase, equal to a point reflection).
+2. Tile edges (no rhomb diagonals, no kite or dart axes) are the bar centrelines.
+   Field S = distance to the edges. Bar width w = web_req(long tile diagonal 1.902 a_t) + BAR_MARGIN.
+3. Cutout field F = min(S - w/2, border, key keep-outs), blurred lightly (inner corner radius
+   about 1 mm). Cutouts: closed contours F = 0; holes thinner than 2.4 mm or smaller than
+   15 mm^2 are dropped. No hole is dropped for glare: the preview marks the design zones and
+   colours the holes that reach into the glare zone.
+4. Checks on the output polylines (no DXF if one fails): bridge >= 3.0 mm, rising linearly to
    4.0 mm when the larger adjacent hole measures 15 mm to 35 mm; the same rule to the panel edge
-   and to the key slots; solid arm footprints; upper ring: all hole points above E_EYE_TOP.
+   and to the key slots; solid arm footprints; symmetry: each hole centroid rotated by 72 deg and
+   mirrored about the x axis matches a hole centroid within SYM_TOL.
 
 Joints: cross-section keys (docs/joinery.md), 2 per edge, 10 per panel. Key footprint on the
 inner face: TK along the edge x L_ARM from the edge, centred E_KEY / 2 from the edge centre. It
-contains the slot (TK x W_TAB, centred H_TAB from the edge). E_KEY = 45 mm puts each key on the
-trellis bar that meets the edge there. With key_nodes (PANELS), the keep-out is a rounded node
-around the slot (SLOT_MARGIN, bridge rule) plus ARM_MARGIN around the arm footprint: the bar
-widens locally instead of clipping the lanterns.
+contains the slot (TK x W_TAB, centred H_TAB from the edge). Keep-out: a rounded node around the
+slot (slot margin: bridge rule for the long tile diagonal + BAR_MARGIN) plus ARM_MARGIN around
+the arm footprint. The bars widen locally into the node.
 
 Panels (see PANELS):
-  upper   upper ring, 10 lanterns per ring, projection zone only (no cutout below e = +4 deg).
-  lower   lower ring, 20 lanterns per ring: smaller holes, less open area. Cut over all zones;
-          the glare zone needs a diffuser (docs/light_patterns.md, requirement 5).
+  upper   upper ring: P3, a_t = 18 mm, rot36.
+  lower   lower ring: P3, a_t = 12 mm.
+  Both are cut over all zones (status: all open). The preview marks the glare zone.
 
 Coordinates: base panel frame of the design (sketch PanelLaser): regular pentagon, centre at the
 origin, a vertex on +x, the opposite edge at x = -rp. On an upper ring panel the +x vertex is the
@@ -39,9 +45,11 @@ Outputs (relative to platonic_lampshades/), <panel> = upper or lower:
   cad/dodecahedron/<panel>_panel_x5.dxf       laser file: panel_x1.dxf (outline and key slots,
                                               export of sketch PanelLaser) + kerf cutouts on CUT
 
-Usage: python3 platonic_lampshades/tools/panel_pattern.py [upper|lower] [N_RING]
-  N_RING overrides the lanterns per ring for studies (multiple of 5).
+Usage: python3 platonic_lampshades/tools/panel_pattern.py [upper|lower]
+The prototypes (prototypes/penrose_pattern.py, prototypes/marrakech_pattern.py) import the
+pipeline from here.
 """
+import cmath
 import math
 import os
 import sys
@@ -59,20 +67,20 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 CAD_DIR = os.path.join(ROOT, "cad", "dodecahedron")
 IMG_DIR = os.path.join(ROOT, "docs", "img")
 
-# Design parameters (docs/overview.md), mm. Keep in sync with the design.
-T, TP, HS, LC = 3.0, 3.0, 60.0, 48.0
-KERF = 0.15
+# Design parameters, mm: read from the SolidCraft design (tools/design.py, docs/overview.md)
+from design import KIT  # noqa: E402
+
+T = KIT["t"]
+KERF = KIT["kerf"]
 # Key parameters (docs/joinery.md), mm
-TK = 3.0              # key thickness
-D_KEY = 9.0           # key depth, normal to the inner face
-L_ARM = 18.0          # arm length on the inner face, from the panel edge
-H_TAB = 10.0          # slot centre from the panel edge
-W_TAB = 6.0           # slot length across the edge
-E_KEY = 45.0          # distance between the 2 keys of an edge
-RI = T + D_KEY + TP + HS + LC
-A = RI / (math.sqrt((25 + 11 * math.sqrt(5)) / 10) / 2)
-S_INSET = T / math.tan(math.radians(180 - math.degrees(math.atan(2))) / 2)
-RP = A / (2 * math.tan(math.radians(36))) - S_INSET
+TK = KIT["tk"]        # key thickness
+L_ARM = KIT["Larm"]   # arm length on the inner face, from the panel edge
+H_TAB = KIT["htab"]   # slot centre from the panel edge
+W_TAB = KIT["wtab"]   # slot length across the edge
+E_KEY = KIT["ek"]     # distance between the 2 keys of an edge
+RP = KIT["rp"]        # panel inradius (outer face)
+RI = KIT["ri"]        # inradius of the solid (outer face)
+A = KIT["a"]          # edge length of the solid
 RV = RP / math.cos(math.radians(36))
 RING_N = math.degrees(math.atan(0.5))
 E_GLARE_LO = -46.0                   # table zone below this elevation, deg
@@ -80,33 +88,33 @@ E_GLARE_HI = 4.0                     # projection zone above this elevation, deg
 E_EYE_TOP = -1.3                     # top of the viewer envelope (no zone margin), deg
 
 # Panel types. ring: +1 upper ring (normal at e = +26.6 deg, +x vertex down),
-# -1 lower ring (normal at e = -26.6 deg, +x vertex up).
-# r0 sets the radial phase of the rings. Lower ring: r0 = 27.4 mm puts a bar and a junction on
-# each key (E_KEY is fixed by the upper ring); r0 = 34 mm put the keys inside lanterns.
+# -1 lower ring (normal at e = -26.6 deg, +x vertex up). a_t: tile edge length, mm.
 PANELS = {
-    "upper": dict(ring=+1, n_ring=10, r0=34.0, r_hub=14.0, glare_keepout=True, key_nodes=True,
+    "upper": dict(ring=+1, tiling="p3", a_t=18.0, rot36=True,
                   title="Upper ring panel", tip="bottom tip on +x"),
-    "lower": dict(ring=-1, n_ring=20, r0=27.4, r_hub=16.0, glare_keepout=False, key_nodes=True,
+    "lower": dict(ring=-1, tiling="p3", a_t=12.0, rot36=False,
                   title="Lower ring panel", tip="top tip on +x"),
 }
-CFG = PANELS["upper"]  # set in main()
+CFG = PANELS["upper"]  # set by run()
+TILING_NAMES = {"p3": "Penrose P3 rhombs", "p2": "Penrose P2 kites and darts"}
 
 # Pattern parameters
-STRETCH = 1.2         # lantern tile height / width
-BULGE = 0.09          # S-curve amplitude / edge length
+PHI = (1 + 5 ** 0.5) / 2
 BAR_MARGIN = 0.3      # bar width above the bridge rule, mm
 BORDER = 6.0          # solid border at the panel edge, mm
-KEEP_MARGIN = 4.5     # clearance around the key footprints, mm (panels without key_nodes)
-SLOT_MARGIN = 4.3     # node around the key slot: bridge rule maximum + 0.3 mm (key_nodes)
-ARM_MARGIN = 1.5      # solid wood around the key arm footprint, mm (key_nodes)
+SLOT_MARGIN = 4.3     # default node around the key slot: bridge rule maximum + 0.3 mm
+ARM_MARGIN = 1.5      # solid wood around the key arm footprint, mm
 BLUR = 0.5            # Gaussian blur sigma, mm
 GRID = 0.2
 R_HOLE_MIN = 1.2      # drop holes narrower than 2 * R_HOLE_MIN
 A_MIN = 15.0          # drop holes smaller than this, mm^2
 SIMPLIFY = 0.03       # polyline simplification tolerance, mm
+SYM_TOL = 0.2         # centroid mismatch under rotation and mirror, mm
+GLARE_BIG = 15.0      # glare zone holes above this size are marked red, mm
 
 PANEL = [(RV * math.cos(math.radians(72 * k)), RV * math.sin(math.radians(72 * k))) for k in range(5)]
 EDGE_N = [(math.cos(math.radians(36 + 72 * k)), math.sin(math.radians(36 + 72 * k))) for k in range(5)]
+PANEL_AREA = 5 * RP * RP * math.tan(math.radians(36))
 
 
 def web_req(size):
@@ -124,20 +132,6 @@ def elevation(x, y, ring=None):
     px = RI * np.cos(a) - v * np.sin(a)
     pz = RI * np.sin(a) + v * np.cos(a)
     return np.degrees(np.arctan2(pz, np.hypot(px, y)))
-
-
-def glare_line_x():
-    """Largest x such that the line x = const lies above E_GLARE_HI inside the panel."""
-    ys = np.linspace(-RP, RP, 81)
-    lo, hi = np.full_like(ys, -RP), np.full_like(ys, RV)
-    for _ in range(60):
-        m = (lo + hi) / 2
-        ok = elevation(m, ys, +1) > E_GLARE_HI
-        lo, hi = np.where(ok, m, lo), np.where(ok, hi, m)
-    return float(lo.min())
-
-
-X_GLARE = glare_line_x()   # upper ring only
 
 
 # Key footprints: (edge index, offset along the edge from its centre, mm)
@@ -188,64 +182,114 @@ def slot_sdf(X, Y, i):
 
 
 def key_keepout(X, Y):
-    """Keep-out field of all keys (positive where cutouts are allowed)."""
+    """Keep-out field of all keys (positive where cutouts are allowed): a node of
+    CFG["slot_margin"] around each slot, ARM_MARGIN around each arm footprint."""
     n = range(len(KEYS))
-    if CFG.get("key_nodes"):
-        return np.minimum(np.min(np.stack([slot_sdf(X, Y, i) for i in n]), axis=0) - SLOT_MARGIN,
-                          np.min(np.stack([rect_sdf(X, Y, i) for i in n]), axis=0) - ARM_MARGIN)
-    return np.min(np.stack([rect_sdf(X, Y, i) for i in n]), axis=0) - KEEP_MARGIN
+    slot_margin = CFG.get("slot_margin", SLOT_MARGIN)
+    return np.minimum(np.min(np.stack([slot_sdf(X, Y, i) for i in n]), axis=0) - slot_margin,
+                      np.min(np.stack([rect_sdf(X, Y, i) for i in n]), axis=0) - ARM_MARGIN)
 
 
-# ---------- lantern trellis ----------
-def dist_to_points(U, V, P):
-    out = np.empty(U.size)
-    u, v = U.ravel(), V.ravel()
-    for i in range(0, u.size, 4000):
-        du = u[i:i + 4000, None] - P[None, :, 0]
-        dv = v[i:i + 4000, None] - P[None, :, 1]
-        out[i:i + 4000] = np.sqrt((du * du + dv * dv).min(axis=1))
-    return out.reshape(U.shape)
+# ---------- Penrose tilings ----------
+def p3_tiles(n):
+    """P3: half-rhombs as edge pairs. Half-rhomb (kind, A, B, C), A = apex, kind 0 thin (36 deg),
+    1 thick (108 deg). Edges AB and AC; BC is the rhomb diagonal shared with the mirror half."""
+    ts = []
+    for i in range(10):
+        b, c = cmath.rect(1, (2 * i - 1) * math.pi / 10), cmath.rect(1, (2 * i + 1) * math.pi / 10)
+        if i % 2 == 0:
+            b, c = c, b
+        ts.append((0, 0j, b, c))
+    for _ in range(n):
+        out = []
+        for k, a, b, c in ts:
+            if k == 0:
+                p = a + (b - a) / PHI
+                out += [(0, c, p, b), (1, p, c, a)]
+            else:
+                q = b + (a - b) / PHI
+                r = b + (c - b) / PHI
+                out += [(1, r, c, a), (1, q, r, b), (0, r, q, a)]
+        ts = out
+    # mirror axes of the sun lie at odd multiples of 18 deg: turn one onto +x
+    rot = cmath.rect(1, -math.pi / 10)
+    return [((a * rot, b * rot), (a * rot, c * rot)) for _, a, b, c in ts]
 
 
-def lantern_dist(U, V, p, stretch, bulge):
-    """Distance from (U, V) to the lantern trellis: diamond tiling (width p, height p * stretch)
-    whose edges are S-curves, point-symmetric about the edge midpoints, so the tiles stay
-    congruent. A lantern is centred on the origin, its points along V."""
-    hu, hv = p / 2, p / 2 * stretch
-    vt, vr, vl = np.array([0, hv]), np.array([hu, 0]), np.array([-hu, 0])
-    t = np.linspace(0, 1, 140)
-
-    def s_curve(a, b, inward):
-        e = b - a
-        L = np.hypot(*e)
-        n = np.array([-e[1], e[0]]) / L
-        if np.dot(n, inward) < 0:
-            n = -n
-        off = bulge * L * np.sin(2 * np.pi * t)
-        return a[None] + t[:, None] * e[None] + off[:, None] * n[None]
-
-    fam_a = s_curve(vt, vr, -(vt + vr) / 2)
-    fam_b = s_curve(vt, vl, -(vt + vl) / 2)
-    a1, a2 = np.array([hu, hv]), np.array([hu, -hv])
-    M = np.array([a1, a2]).T
-    c = np.linalg.inv(M) @ np.vstack([U.ravel(), V.ravel()])
-    c -= np.floor(c)
-    f = (M @ c).T
-    P = np.vstack([fam + i * a1 + j * a2 for i in (-1, 0, 1, 2) for j in (-1, 0, 1, 2) for fam in (fam_a, fam_b)])
-    return dist_to_points(f[:, 0], f[:, 1], P).reshape(U.shape)
+def p2_tiles(n):
+    """P2: half-kites ('K', apex, side, corner) and half-darts ('D', reflex, side, tip) as edge
+    pairs. Kite edges apex-side (long) and side-corner (short); axis apex-corner.
+    Dart edges reflex-side (short) and side-tip (long); axis reflex-tip."""
+    ts = []
+    for k in range(5):
+        c = PHI * cmath.rect(1, math.radians(72 * k))
+        for s in (-1, 1):
+            ts.append(("K", 0j, PHI * cmath.rect(1, math.radians(72 * k + 36 * s)), c))
+    for _ in range(n):
+        out = []
+        for kind, a, b, c in ts:
+            if kind == "K":
+                p = a + (b - a) / PHI ** 2
+                r = a + (c - a) / PHI
+                out += [("D", p, r, a), ("K", b, p, r), ("K", b, c, r)]
+            else:
+                u = c + (b - c) / PHI
+                out += [("K", c, u, a), ("D", u, a, b)]
+        ts = out
+    scale = 1 / PHI     # start radius 1 (kite edge phi)
+    return [((a * scale, b * scale), (b * scale, c * scale)) for _, a, b, c in ts]
 
 
-def pattern_field(X, Y):
-    """Cutout field before keep-outs: positive inside the lantern holes."""
-    n = CFG["n_ring"]
-    p = 10.0                                   # tile width in map units
-    k = n * p / (2 * math.pi)                  # map units per radian
-    rho = np.maximum(np.hypot(X, Y), 0.5)
-    th = np.arctan2(Y, X)
-    S = lantern_dist(k * th, k * np.log(rho / CFG["r0"]), p, STRETCH, BULGE) * rho / k
-    hole = 2 * math.pi * rho / n * STRETCH * 0.9           # approximate local hole length
-    w = web_req(hole) + BAR_MARGIN
-    return np.minimum(S - w / 2, rho - CFG["r_hub"])
+def tile_edges(tiling, a_t, rot36):
+    """Unique tile edges (N x 2 x 2 array, mm) covering the panel, tile edge a_t."""
+    n = 0
+    while a_t * PHI ** n < (RV + 3 * a_t) / 0.9:
+        n += 1
+    gen = p3_tiles if tiling == "p3" else p2_tiles
+    radius = a_t * PHI ** n
+    rot = cmath.rect(1, math.pi / 5) if rot36 else 1
+    seen, segs = set(), []
+    for e in (e for tri in gen(n) for e in tri):
+        p, q = (z * radius * rot for z in e)
+        key = tuple(sorted([(round(p.real, 4), round(p.imag, 4)), (round(q.real, 4), round(q.imag, 4))]))
+        if key in seen or min(abs(p), abs(q)) > RV + 2 * a_t:
+            continue
+        seen.add(key)
+        segs.append([[p.real, p.imag], [q.real, q.imag]])
+    return np.array(segs)
+
+
+def bar_width(a_t):
+    """Bar width (mm): bridge rule for the long tile diagonal (1.902 a_t) + BAR_MARGIN."""
+    return float(web_req(2 * a_t * math.cos(math.radians(18)))) + BAR_MARGIN
+
+
+def seg_dist(xs, ys, segs, cap):
+    """Distance from the grid (xs, ys) to the nearest segment, capped at cap. Each segment
+    updates only the grid window within cap of it."""
+    D = np.full((len(ys), len(xs)), float(cap))
+    gx, gy = xs[1] - xs[0], ys[1] - ys[0]
+    for (ax, ay), (bx, by) in segs:
+        i0 = max(int((min(ax, bx) - cap - xs[0]) / gx), 0)
+        i1 = min(int((max(ax, bx) + cap - xs[0]) / gx) + 2, len(xs))
+        j0 = max(int((min(ay, by) - cap - ys[0]) / gy), 0)
+        j1 = min(int((max(ay, by) + cap - ys[0]) / gy) + 2, len(ys))
+        if i0 >= i1 or j0 >= j1:
+            continue
+        X, Y = np.meshgrid(xs[i0:i1], ys[j0:j1])
+        dx, dy = bx - ax, by - ay
+        t = np.clip(((X - ax) * dx + (Y - ay) * dy) / max(dx * dx + dy * dy, 1e-12), 0, 1)
+        np.minimum(D[j0:j1, i0:i1], np.hypot(X - ax - t * dx, Y - ay - t * dy), out=D[j0:j1, i0:i1])
+    return D
+
+
+def penrose_field(segs, a_t):
+    """Cutout field before keep-outs (positive inside the tiles), for build()."""
+    w = bar_width(a_t)
+
+    def field(xs, ys):
+        return seg_dist(xs, ys, segs, a_t) - w / 2   # cap a_t > inradius of every tile
+    return field
 
 
 # ---------- pipeline ----------
@@ -284,12 +328,14 @@ def simplify(p, tol):
     return np.array([a, b])
 
 
-def build():
+def build(field):
+    """Hole polylines. field(xs, ys): cutout field on the grid (positive inside the holes).
+    CFG["glare_keepout"] (Marrakech prototype only): drop holes that reach below E_EYE_TOP."""
     xs = np.arange(-RP - 2, RV + 2, GRID)
     ys = np.arange(-RV - 2, RV + 2, GRID)
     X, Y = np.meshgrid(xs, ys)
     border = np.min(np.stack([RP - (X * nx + Y * ny) for nx, ny in EDGE_N]), axis=0) - BORDER
-    F = blur(np.minimum.reduce([pattern_field(X, Y), border, key_keepout(X, Y)]), BLUR / GRID)
+    F = blur(np.minimum.reduce([field(xs, ys), border, key_keepout(X, Y)]), BLUR / GRID)
     tmp = plt.figure()
     segs = tmp.add_subplot().contour(xs, ys, F, levels=[0.0]).allsegs[0]
     plt.close(tmp)
@@ -307,7 +353,7 @@ def build():
         sub = F[np.ix_((ys >= y0) & (ys <= y1), (xs >= x0) & (xs <= x1))]
         if sub.size == 0 or sub.max() < R_HOLE_MIN:
             continue
-        if CFG["glare_keepout"] and elevation(p[:, 0], p[:, 1]).min() <= E_EYE_TOP:
+        if CFG.get("glare_keepout") and elevation(p[:, 0], p[:, 1]).min() <= E_EYE_TOP:
             continue                     # bulb visible to a viewer: drop the hole whole
         h = len(p) // 2
         holes.append(np.vstack([simplify(p[:h + 1], SIMPLIFY)[:-1], simplify(np.vstack([p[h:], p[:1]]), SIMPLIFY)[:-1]]))
@@ -335,9 +381,9 @@ def size(p):
 
 
 def check(holes):
-    """Worst margins (actual - required) between holes, to the edge, to the key footprints
-    (key_nodes: to the slots by the bridge rule, to the arm footprints by ARM_MARGIN);
-    lowest elevation of a hole centroid and of any hole point."""
+    """Worst margins (actual - required) between holes, to the edge, to the keys (to the slots
+    by the bridge rule, to the arm footprints by ARM_MARGIN); lowest elevation of a hole
+    centroid and of any hole point."""
     sizes = [size(p) for p in holes]
     bridge, pair = 1e9, None
     for i in range(len(holes)):
@@ -357,17 +403,41 @@ def check(holes):
         for i in range(len(KEYS)):
             rc = np.array(rect_corners(i))
             d_arm = seg_point_dist(p, rc, np.roll(rc, -1, axis=0)).min()
-            if CFG.get("key_nodes"):
-                sc = np.array(slot_corners(i))
-                d_slot = seg_point_dist(p, sc, np.roll(sc, -1, axis=0)).min()
-                keep = min(keep, d_slot - web_req(max(sz, W_TAB)), d_arm - (ARM_MARGIN - 0.1))
-            else:
-                keep = min(keep, d_arm - req)
+            sc = np.array(slot_corners(i))
+            d_slot = seg_point_dist(p, sc, np.roll(sc, -1, axis=0)).min()
+            keep = min(keep, d_slot - web_req(max(sz, W_TAB)), d_arm - (ARM_MARGIN - 0.1))
     allp = np.vstack(holes)
     e_cent = min(float(elevation(*centroid(p))) for p in holes)
     return bridge, pair, edge, keep, e_cent, float(elevation(allp[:, 0], allp[:, 1]).min())
 
 
+def symmetry(holes):
+    """Worst centroid mismatch (mm) under rotation by 72 deg and under the x-axis mirror."""
+    c = np.array([centroid(p) for p in holes])
+    z = c[:, 0] + 1j * c[:, 1]
+    worst = []
+    for zt in (z * cmath.rect(1, math.radians(72)), np.conj(z)):
+        worst.append(float(np.abs(zt[:, None] - z[None, :]).min(1).max()))
+    return worst
+
+
+def glare_holes(holes):
+    """Indices of holes that reach into the glare zone; for the upper ring also those below
+    E_EYE_TOP (bulb visible to a viewer)."""
+    glare, eye = [], []
+    for i, p in enumerate(holes):
+        e = elevation(p[:, 0], p[:, 1])
+        if CFG["ring"] > 0:
+            if e.min() < E_GLARE_HI:
+                glare.append(i)
+            if e.min() < E_EYE_TOP:
+                eye.append(i)
+        elif np.any((e > E_GLARE_LO) & (e < E_GLARE_HI)):
+            glare.append(i)
+    return glare, eye
+
+
+# ---------- output ----------
 def dxf(loops, path):
     out = ["0", "SECTION", "2", "ENTITIES"]
     for p in loops:
@@ -398,75 +468,124 @@ def laser_panel(loops, panel_path, path):
     return True
 
 
-def preview(holes, path, open_pct):
-    fig, ax = plt.subplots(figsize=(6, 6))
-    fig.patch.set_facecolor("#fcfcfb")
-    ax.set_facecolor("#fcfcfb")
+def draw_panel(ax, holes, colours=None, hatched=()):
+    """Panel, key footprints, slots and holes. colours: hole index -> face colour."""
+    bg = "#fcfcfb"
     ax.add_patch(MplPolygon(PANEL, closed=True, facecolor="#d8b07a", edgecolor="#3d3c39", linewidth=1.2))
     for i in range(len(KEYS)):
         ax.add_patch(MplPolygon(rect_corners(i), closed=True, facecolor="#a9a8a2", alpha=0.6, edgecolor="none"))
-        ax.add_patch(MplPolygon(slot_corners(i), closed=True, facecolor="#fcfcfb", edgecolor="#3d3c39", linewidth=0.5))
-    for p in holes:
-        ax.add_patch(MplPolygon(p, closed=True, facecolor="#fcfcfb", edgecolor="#3d3c39", linewidth=0.5))
-    # design zone boundaries (curves of constant elevation), clipped to the panel
+        ax.add_patch(MplPolygon(slot_corners(i), closed=True, facecolor=bg, edgecolor="#3d3c39", linewidth=0.5))
+    for i, p in enumerate(holes):
+        ax.add_patch(MplPolygon(p, closed=True, facecolor=(colours or {}).get(i, bg), edgecolor="#3d3c39",
+                                linewidth=0.5, hatch="////" if i in hatched else None))
+
+
+def elevation_grid():
+    """Elevation of the panel points (NaN outside the panel) for the zone contours."""
     xs = np.linspace(-RP, RV, 300)
     ys = np.linspace(-RV, RV, 300)
     X, Y = np.meshgrid(xs, ys)
-    E = elevation(X, Y)
     inside = np.min(np.stack([RP - (X * nx + Y * ny) for nx, ny in EDGE_N]), axis=0) > 0
-    E = np.where(inside, E, np.nan)
-    if CFG["glare_keepout"]:
-        ax.contour(xs, ys, E, levels=[E_GLARE_HI], colors="#eb6834", linewidths=1, linestyles=[(0, (3, 2))])
-        ax.text(X_GLARE + 4, RP * 0.62, f"glare zone\n(e < {E_GLARE_HI:+.0f}°)", fontsize=7, color="#52514e")
+    return xs, ys, np.where(inside, elevation(X, Y), np.nan)
+
+
+def preview(holes, glare, eye, path, title):
+    """Preview with the design zones (dashed) and the glare zone holes coloured."""
+    bg = "#fcfcfb"
+    fig, ax = plt.subplots(figsize=(6, 6.3))
+    fig.patch.set_facecolor(bg)
+    ax.set_facecolor(bg)
+    colours = {i: "#e0392b" if size(holes[i]) > GLARE_BIG else "#f6c48f" for i in glare}
+    draw_panel(ax, holes, colours, eye)
+    xs, ys, E = elevation_grid()
+    if CFG["ring"] > 0:
+        levels = [E_EYE_TOP, E_GLARE_HI]
+        ax.text(RV - 24, RP * 0.62, f"glare zone\n(e < {E_GLARE_HI:+.0f}°)", fontsize=7, color="#52514e")
+        ax.text(-RP + 3, RP * 0.92, f"projection zone\n(e > {E_GLARE_HI:+.0f}°)", fontsize=7, color="#52514e")
     else:
-        ax.contour(xs, ys, E, levels=[E_GLARE_LO, E_GLARE_HI], colors="#eb6834", linewidths=1,
-                   linestyles=[(0, (3, 2))])
+        levels = [E_GLARE_LO, E_GLARE_HI]
         ax.text(-RP + 3, RP * 0.92, f"table zone\n(e < {E_GLARE_LO:.0f}°)", fontsize=7, color="#52514e")
         ax.text(RV - 22, RP * 0.40, f"projection\n(e > {E_GLARE_HI:+.0f}°)", fontsize=7, color="#52514e")
-        ax.text(-8, -RV * 0.88, "glare zone: diffuser", fontsize=7, color="#52514e")
+        ax.text(-8, -RV * 0.88, "glare zone", fontsize=7, color="#52514e")
+    ax.contour(xs, ys, E, levels=levels, colors="#eb6834", linewidths=1, linestyles=[(0, (3, 2))])
     ax.set_aspect("equal")
     ax.set_xlim(-RP - 4, RV + 4)
     ax.set_ylim(-RV - 4, RV + 4)
     ax.axis("off")
-    ax.set_title(f"{CFG['title']}: polar Marrakech trellis, {CFG['n_ring']} lanterns per ring, "
-                 f"open {open_pct:.0f} %. {CFG['tip'].capitalize()}.", fontsize=8, color="#0b0b0b", loc="left")
-    fig.tight_layout()
-    fig.savefig(path, facecolor="#fcfcfb")
+    legend = (f"Glare zone holes: light orange <= {GLARE_BIG:.0f} mm, red > {GLARE_BIG:.0f} mm"
+              + (f", hatched: below e = {E_EYE_TOP:+.1f}° (bulb visible)" if CFG["ring"] > 0 else "")
+              + f". Dashed: e = {', '.join(f'{v:+.1f}°' for v in levels)}.")
+    ax.set_title(title, fontsize=8, color="#0b0b0b", loc="left")
+    fig.text(0.02, 0.015, legend, fontsize=6.5, color="#52514e")
+    fig.tight_layout(rect=(0, 0.03, 1, 1))
+    fig.savefig(path, facecolor=bg)
     plt.close(fig)
 
 
-def main():
+def run(panel, tiling=None, a_t=None, rot36=None, svg_path=None, dxf_stem=None, kerf_dxf=True, laser=True):
+    """Build, check and write one Penrose panel pattern. Defaults: PANELS[panel] and the target
+    outputs (see the module docstring). Returns 0, or 1 when a check fails (no DXF written)."""
     global CFG
-    name = sys.argv[1] if len(sys.argv) > 1 else "upper"
-    if name not in PANELS:
-        sys.exit(f"unknown panel {name!r}, use one of {sorted(PANELS)}")
-    CFG = dict(PANELS[name])
-    if len(sys.argv) > 2:
-        CFG["n_ring"] = int(sys.argv[2])
-    holes = build()
-    bridge, pair, edge, keep, e_cent, emin = check(holes)
-    panel_area = 5 * RP * RP * math.tan(math.radians(36))
+    CFG = dict(PANELS[panel])
+    for k, v in (("tiling", tiling), ("a_t", a_t), ("rot36", rot36)):
+        if v is not None:
+            CFG[k] = v
+    tiling, a_t, rot36 = CFG["tiling"], CFG["a_t"], CFG["rot36"]
+    CFG["slot_margin"] = bar_width(a_t)
+    svg_path = svg_path or os.path.join(IMG_DIR, f"{panel}_panel_pattern.svg")
+    dxf_stem = dxf_stem or os.path.join(CAD_DIR, f"{panel}_pattern")
+
+    segs = tile_edges(tiling, a_t, rot36)
+    holes = build(penrose_field(segs, a_t))
+    bridge, pair, edge, keep, _, emin = check(holes)
+    rot_err, mir_err = symmetry(holes)
+    glare, eye = glare_holes(holes)
     open_area = sum(polygon_area(p) for p in holes)
+    open_pct = 100 * open_area / PANEL_AREA
     sizes = [size(p) for p in holes]
-    print(f"a = {A:.2f} mm, rp = {RP:.2f} mm, glare line x = {X_GLARE:.2f} mm")
+    g_max = max((sizes[i] for i in glare), default=0.0)
+    print(f"{panel}: {TILING_NAMES[tiling]}{', rot36' if rot36 else ''}, a_t = {a_t:.2f} mm, "
+          f"bar {bar_width(a_t):.2f} mm, slot margin {CFG['slot_margin']:.2f} mm, {len(segs)} edges")
+    print(f"a = {A:.2f} mm, rp = {RP:.2f} mm, ek = {E_KEY:.2f} mm")
     print(f"{len(holes)} holes, {min(sizes):.1f} mm to {max(sizes):.1f} mm, open area {open_area:.0f} mm^2 "
-          f"({100 * open_area / panel_area:.0f} %), {sum(len(p) for p in holes)} segments")
+          f"({open_pct:.0f} %), {sum(len(p) for p in holes)} segments")
     print(f"check: bridge margin {bridge:+.2f} mm (actual {pair[0]:.2f}, required {pair[1]:.2f}), "
           f"edge margin {edge:+.2f} mm, key margin {keep:+.2f} mm")
-    print(f"elevation: lowest hole centroid {e_cent:+.2f} deg, lowest hole point {emin:+.2f} deg")
-    preview(holes, os.path.join(IMG_DIR, f"{name}_panel_pattern.svg"), 100 * open_area / panel_area)
-    glare_fail = CFG["glare_keepout"] and emin <= E_EYE_TOP
-    if bridge < 0 or edge < 0 or keep < 0 or glare_fail:
+    print(f"symmetry: rotation 72 deg {rot_err:.3f} mm, mirror {mir_err:.3f} mm (limit {SYM_TOL} mm)")
+    print(f"glare zone: {len(glare)} holes, largest {g_max:.1f} mm, "
+          f"{sum(sizes[i] > GLARE_BIG for i in glare)} above {GLARE_BIG:.0f} mm"
+          + (f"; {len(eye)} holes below e = {E_EYE_TOP:+.1f} deg (lowest point {emin:+.1f} deg)"
+             if CFG["ring"] > 0 else ""))
+    title = (f"{CFG['title']}: {TILING_NAMES[tiling]}, edge {a_t:g} mm{', turned 36°' if rot36 else ''}, "
+             f"{len(holes)} holes, open {open_pct:.0f} %. {CFG['tip'].capitalize()}.")
+    os.makedirs(os.path.dirname(svg_path), exist_ok=True)
+    preview(holes, glare, eye, svg_path, title)
+    print(f"written: {os.path.relpath(svg_path)}")
+    if bridge < 0 or edge < 0 or keep < 0 or max(rot_err, mir_err) > SYM_TOL:
         print("CHECK FAILED: no DXF written")
-        sys.exit(1)
-    dxf(holes, os.path.join(CAD_DIR, f"{name}_pattern.dxf"))
+        return 1
+    os.makedirs(os.path.dirname(dxf_stem), exist_ok=True)
+    dxf(holes, f"{dxf_stem}.dxf")
+    print(f"written: {os.path.relpath(dxf_stem)}.dxf")
+    if not kerf_dxf:
+        return 0
     kerf = [offset_in(p, KERF / 2) for p in holes]
-    dxf(kerf, os.path.join(CAD_DIR, f"{name}_pattern_kerf.dxf"))
-    print(f"written: {name}_pattern.dxf, {name}_pattern_kerf.dxf")
-    if laser_panel(kerf, os.path.join(CAD_DIR, "panel_x1.dxf"), os.path.join(CAD_DIR, f"{name}_panel_x5.dxf")):
-        print(f"written: {name}_panel_x5.dxf")
-    else:
-        print("panel_x1.dxf missing (export sketch PanelLaser): no laser file written")
+    dxf(kerf, f"{dxf_stem}_kerf.dxf")
+    print(f"written: {os.path.relpath(dxf_stem)}_kerf.dxf")
+    if laser:
+        out = os.path.join(CAD_DIR, f"{panel}_panel_x5.dxf")
+        if laser_panel(kerf, os.path.join(CAD_DIR, "panel_x1.dxf"), out):
+            print(f"written: {os.path.relpath(out)}")
+        else:
+            print("panel_x1.dxf missing (export sketch PanelLaser): no laser file written")
+    return 0
+
+
+def main():
+    name = sys.argv[1] if len(sys.argv) > 1 else "upper"
+    if name not in PANELS or len(sys.argv) > 2:
+        sys.exit(f"usage: panel_pattern.py [{'|'.join(PANELS)}]")
+    sys.exit(run(name))
 
 
 if __name__ == "__main__":

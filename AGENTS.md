@@ -21,6 +21,14 @@ The Nix flake (`flake.nix`) defines the development shell.
 - DXF files are generated and not committed (`.gitignore`). Laser DXFs are exports of the SolidCraft designs. Input DXFs (for example panel patterns imported with `sketch.insert_dxf`) come from the scripts in `<project>/tools/`.
 - Regenerate input files before you use them, so that no outdated state enters a design: run `just lamp-inputs` for `platonic_lampshades/`.
 - After a change to a generator script or to its design values, regenerate its outputs with the matching recipe.
+- After a DXF export, run `just <prefix>-check` (`lamp-check` for `platonic_lampshades/`). A Claude Code hook runs it after each export through SolidCraft MCP. Fix FAILED results. NOT CHECKED is never a pass.
+
+## Design Values and Checks
+- The parameters of the `.sc` designs are the single source of design values. Tools read them with `fabrication/tools/scparams.py`; do not copy values into scripts or docs tables without the check (`just <prefix>-check`).
+- Non-geometry values (sheet, provider, rule limits) live in `<project>/fabrication.toml`. Design claims live in `<project>/claims.toml`.
+- Before an order, follow the skill `laser-release` (`.claude/skills/laser-release/SKILL.md`).
+- Record each mistake a check or test cut finds in `<project>/docs/lessons.md`.
+- Activate the git hooks once per clone: `just install-hooks`.
 
 ## Documentation Style
 Use technical writing for all documentation, including READMEs, comments, and commit messages.
