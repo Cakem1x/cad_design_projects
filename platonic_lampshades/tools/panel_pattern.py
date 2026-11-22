@@ -111,7 +111,7 @@ BLUR = 0.5            # Gaussian blur sigma, mm
 GRID = 0.2
 R_HOLE_MIN = 1.2      # drop holes narrower than 2 * R_HOLE_MIN
 A_MIN = 15.0          # drop holes smaller than this, mm^2
-SIMPLIFY = 0.03       # polyline simplification tolerance, mm
+SIMPLIFY = 0.1        # polyline simplification tolerance, mm
 SYM_TOL = 0.2         # centroid mismatch under rotation and mirror, mm
 GLARE_BIG = 15.0      # glare zone holes above this size are marked red, mm
 

@@ -106,9 +106,15 @@ The bulb is not a point source. A cutout at distance `d` from the source casts a
 ## Pattern
 Style: **Penrose tiling, P3 rhombs** (5-fold). Status: in design, all holes open. The studies that led here are in [../prototypes/](../prototypes/README.md); the former pattern (log-polar Marrakech trellis) is in [Marrakech (former target)](../prototypes/README.md#marrakech-former-target).
 
-The SolidCraft design carries the Penrose pattern: sketches `UpperPattern1Sketch` to `UpperPattern5Sketch` and `LowerPattern1Sketch` to `LowerPattern5Sketch` (one per panel, in the panel plane, pattern +x towards the tip vertex), cut by `UpperPattern<k>Cut` and `LowerPattern<k>Cut` into one panel each. The bottom panel carries `bottom_pattern.dxf`: sketch `BottomPatternSketch` on XY (the base panel frame), cut by `BottomPatternCut` into body `Panel`.
+The SolidCraft design carries the Penrose pattern. The 5 panels of a ring are identical, so each ring pattern is cut once and copied:
+- `UpperPattern4Sketch` (in the plane of body `Panel (2) (2)`, pattern +x towards the tip vertex) and `UpperPattern4Cut` cut the upper pattern into `Panel (2) (2)`.
+- `LowerPattern3Sketch` and `LowerPattern3Cut` cut the lower pattern into `Panel (2)`.
+- Both cuts lie between `PanelFlipHalf` and `PanelRing`. `PanelRing` copies the cut panels to the other 4 positions of each ring.
+- The bottom panel carries `bottom_pattern.dxf`: sketch `BottomPatternSketch` on XY (the base panel frame), cut by `BottomPatternCut` into body `Panel`. Keep it after `PanelFlipEdge` and `PanelFlipHalf`: they copy `Panel` to the ring positions.
 
-After a pattern change: run `just lamp-patterns`. In each of the 11 pattern sketches, delete the curves and insert the new `<panel>_pattern.dxf` (`sketch.insert_dxf`, `fixed: true`). Export `PanelLaser` as `panel_x1.dxf` first: the generators merge it with the kerf cutouts into `<panel>_panel_x5.dxf` and `bottom_panel_x1.dxf`.
+Do not cut a pattern into each ring panel separately: a cut takes 10 s to 70 s, and 10 cuts made the rebuild take 8 min.
+
+After a pattern change: run `just lamp-patterns`. In each of the 3 pattern sketches, delete the curves and insert the new `<panel>_pattern.dxf` (`sketch.insert_dxf`, `fixed: true`). Export `PanelLaser` as `panel_x1.dxf` first: the generators merge it with the kerf cutouts into `<panel>_panel_x5.dxf` and `bottom_panel_x1.dxf`.
 
 Generator: `tools/panel_pattern.py [upper|lower]` (`just lamp-patterns`; `just lamp-inputs` before importing the DXFs into SolidCraft). Per panel type it writes `cad/dodecahedron/<panel>_pattern.dxf`, `<panel>_pattern_kerf.dxf` (shrunk by `kerf/2`), `<panel>_panel_x5.dxf` and the preview `docs/img/<panel>_panel_pattern.svg`. It writes no DXF if a check fails. Variants for studies: `prototypes/penrose_pattern.py`.
 
