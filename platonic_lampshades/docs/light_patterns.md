@@ -106,9 +106,9 @@ The bulb is not a point source. A cutout at distance `d` from the source casts a
 ## Pattern
 Style: **Penrose tiling, P3 rhombs** (5-fold). Status: in design, all holes open. The studies that led here are in [../prototypes/](../prototypes/README.md); the former pattern (log-polar Marrakech trellis) is in [Marrakech (former target)](../prototypes/README.md#marrakech-former-target).
 
-The SolidCraft design carries the Penrose pattern: sketches `UpperPattern1Sketch` to `UpperPattern5Sketch` and `LowerPattern1Sketch` to `LowerPattern5Sketch` (one per panel, in the panel plane, pattern +x towards the tip vertex), cut by `UpperPattern<k>Cut` and `LowerPattern<k>Cut` into one panel each. The bottom panel is still plain in the design.
+The SolidCraft design carries the Penrose pattern: sketches `UpperPattern1Sketch` to `UpperPattern5Sketch` and `LowerPattern1Sketch` to `LowerPattern5Sketch` (one per panel, in the panel plane, pattern +x towards the tip vertex), cut by `UpperPattern<k>Cut` and `LowerPattern<k>Cut` into one panel each. The bottom panel carries `bottom_pattern.dxf`: sketch `BottomPatternSketch` on XY (the base panel frame), cut by `BottomPatternCut` into body `Panel`.
 
-After a pattern change: run `just lamp-patterns`. In each of the 10 pattern sketches, delete the curves and insert the new `<panel>_pattern.dxf` (`sketch.insert_dxf`, `fixed: true`). Export `PanelLaser` as `panel_x1.dxf` first: the generator merges it with the kerf cutouts into `<panel>_panel_x5.dxf`.
+After a pattern change: run `just lamp-patterns`. In each of the 11 pattern sketches, delete the curves and insert the new `<panel>_pattern.dxf` (`sketch.insert_dxf`, `fixed: true`). Export `PanelLaser` as `panel_x1.dxf` first: the generators merge it with the kerf cutouts into `<panel>_panel_x5.dxf` and `bottom_panel_x1.dxf`.
 
 Generator: `tools/panel_pattern.py [upper|lower]` (`just lamp-patterns`; `just lamp-inputs` before importing the DXFs into SolidCraft). Per panel type it writes `cad/dodecahedron/<panel>_pattern.dxf`, `<panel>_pattern_kerf.dxf` (shrunk by `kerf/2`), `<panel>_panel_x5.dxf` and the preview `docs/img/<panel>_panel_pattern.svg`. It writes no DXF if a check fails. Variants for studies: `prototypes/penrose_pattern.py`.
 
@@ -178,7 +178,6 @@ Variants (window, Marrakech, medallion, Penrose): [Bottom panel study](../protot
 ## Open points
 - Glare: all holes are open. Decide per panel: drop or close the glare zone holes, or use a diffuser.
 - Pattern design for the top plate (projection zone).
-- SolidCraft design: cut `bottom_pattern.dxf` into the bottom panel (sketch `BottomPatternSketch`, cut `BottomPatternCut`), together with the Penrose reimport of the ring panels.
 - Bottom panel: test-cut the 8 mm frame for stiffness. Check whether the bulb can be changed through the open core (106.7 mm) without the bayonet.
 - Lower ring: choose the diffuser, or test the glare without one.
 - Test the prototype: cut one upper panel, light it with a clear and a frosted bulb, check the ceiling projection.
