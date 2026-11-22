@@ -24,11 +24,11 @@ All patterns tried, in order. Upper ring panel unless noted.
 |---|---|
 | `voronoi_pattern.py` | Organic Voronoi generator. Also holds helpers that `pattern_styles.py` imports. |
 | `pattern_styles.py` | Marrakech (flat, log-polar 10 and 15 per ring, lantern rings), latticework, geometric floral |
-| `penrose_pattern.py` | Penrose tilings P3 and P2, 5-fold. Uses the pipeline of `../tools/panel_pattern.py`. Writes to `img/` and `dxf/` only. |
+| `penrose_pattern.py` | Penrose tilings P3 and P2, 5-fold. Uses the pipeline of `../tools/panel_pattern.py`. |
 | `img/` | Previews of all studies, a render of the Voronoi pattern on the shade |
 | `dxf/` | Pattern DXFs of the studies (generated, not in git) |
 
-- `voronoi_pattern.py` and `pattern_styles.py` write into `../docs/img/` and `../cad/dodecahedron/`. `voronoi_pattern.py` overwrites the current `../docs/img/upper_panel_pattern.svg`. Move their outputs to `img/` and `dxf/` after a run.
+- All scripts write previews to `img/` and DXFs to `dxf/`. Set other directories with `--img-dir DIR` and `--dxf-dir DIR`. Usage: `--help`.
 - Requirements, zones and the bridge rule: [../docs/light_patterns.md](../docs/light_patterns.md).
 - The chosen style (log-polar Marrakech trellis) continues in `../tools/panel_pattern.py`.
 - The SolidCraft design carries the Marrakech pattern. The Voronoi model steps below refer to an earlier design state.
@@ -65,7 +65,7 @@ Generator: `prototypes/voronoi_pattern.py` (distance field on a 0.25 mm grid):
 Model (earlier design state, before the key joints): body `UpperPanel` (built flat from `Panel`, cut by sketch `UpperPatternSketch`, then turned into the upper ring position, patterned 5×). Laser: sketch `UpperPanelLaser`, export `upper_panel_x5.dxf`.
 
 Update after a parameter change:
-1. Run `python3 platonic_lampshades/prototypes/voronoi_pattern.py <seed>`. It writes `cad/dodecahedron/upper_pattern.dxf` (nominal) and `upper_pattern_kerf.dxf` (shrunk by `kerf/2`).
+1. Run `python3 platonic_lampshades/prototypes/voronoi_pattern.py <seed> --dxf-dir platonic_lampshades/cad/dodecahedron`. It writes `upper_pattern.dxf` (nominal) and `upper_pattern_kerf.dxf` (shrunk by `kerf/2`), and the preview `img/voronoi_panel.svg`.
 2. In `UpperPatternSketch`, delete the pattern curves and insert `upper_pattern.dxf` (`sketch.insert_dxf`, `fixed: true`).
 3. In `UpperPanelLaser`, delete the pattern curves and insert `upper_pattern_kerf.dxf`. Keep the outline and the pin holes.
 4. Export `upper_panel_x5.dxf`.
@@ -98,7 +98,7 @@ Bridge rule (checked on the output polylines, between holes and to the border an
 - All patterns stay in the projection zone (lowest point `e` ≥ +5.7°).
 - Periodic styles (Marrakech, latticework) are centred on the panel axis and cut by the border and the bracket footprints. Partial holes at the edges are part of the look.
 - The floral style has 5-fold symmetry about the panel centre; the bracket footprints and the glare zone cut its outer ring.
-- Each style writes `cad/dodecahedron/upper_pattern_<style>.dxf` and `..._kerf.dxf` for the import into SolidCraft (see the update steps above).
+- Each style writes `dxf/upper_pattern_<style>.dxf` and `..._kerf.dxf` for the import into SolidCraft (see the update steps above). Use `--dxf-dir platonic_lampshades/cad/dodecahedron` to write them next to the design.
 
 ## Marrakech with 5-fold symmetry
 Quick prototypes: the lantern pattern arranged around the panel centre, with the holes growing outwards. Styles `marrakech_polar10`, `marrakech_polar15` and `marrakech_rings` in `prototypes/pattern_styles.py`.
