@@ -14,13 +14,14 @@ Coordinates: the base panel frame of the SolidCraft design (sketch PanelLaser): 
 centre at the origin, a vertex on +x, the edge opposite at x = -rp. For an upper ring panel the
 +x vertex is the bottom tip (glare zone) and the edge at -x is the top edge.
 
-Outputs (relative to platonic_lampshades/):
-  cad/dodecahedron/upper_pattern.dxf        nominal cutouts (3D cut)
-  cad/dodecahedron/upper_pattern_kerf.dxf   cutouts shrunk by kerf/2 (laser)
-  docs/img/upper_panel_pattern.svg          preview with keep-outs and glare zone
+Usage: python3 platonic_lampshades/prototypes/voronoi_pattern.py [seed] [--img-dir DIR] [--dxf-dir DIR]
 
-Usage: python3 platonic_lampshades/tools/voronoi_pattern.py [seed]
+Outputs (default directories: prototypes/img/ and prototypes/dxf/):
+  <dxf-dir>/upper_pattern.dxf        nominal cutouts (3D cut)
+  <dxf-dir>/upper_pattern_kerf.dxf   cutouts shrunk by kerf/2 (laser)
+  <img-dir>/voronoi_panel.svg        preview with keep-outs and glare zone
 """
+import argparse
 import math
 import os
 import sys
@@ -34,9 +35,23 @@ matplotlib.rcParams["svg.fonttype"] = "path"
 import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.patches import Polygon as MplPolygon  # noqa: E402
 
-ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-CAD_DIR = os.path.join(ROOT, "cad", "dodecahedron")
-IMG_DIR = os.path.join(ROOT, "docs", "img")
+HERE = os.path.dirname(os.path.abspath(__file__))
+IMG_DIR = os.path.join(HERE, "img")    # default output directories; override with --img-dir, --dxf-dir
+DXF_DIR = os.path.join(HERE, "dxf")
+
+
+def add_output_args(parser):
+    """Add --img-dir and --dxf-dir (defaults: prototypes/img/, prototypes/dxf/)."""
+    parser.add_argument("--img-dir", default=IMG_DIR, help="SVG preview directory (default: %(default)s)")
+    parser.add_argument("--dxf-dir", default=DXF_DIR, help="DXF directory (default: %(default)s)")
+
+
+def set_output_dirs(args):
+    """Set IMG_DIR and DXF_DIR from parsed args and create the directories."""
+    global IMG_DIR, DXF_DIR
+    IMG_DIR, DXF_DIR = os.path.abspath(args.img_dir), os.path.abspath(args.dxf_dir)
+    os.makedirs(IMG_DIR, exist_ok=True)
+    os.makedirs(DXF_DIR, exist_ok=True)
 
 # Design parameters (docs/overview.md), mm
 T, TB, TP, HS, LC = 3.0, 4.0, 3.0, 60.0, 48.0
@@ -303,7 +318,12 @@ def preview(loops, path, seed, open_pct):
 
 
 def main():
-    seed = int(sys.argv[1]) if len(sys.argv) > 1 else 7
+    parser = argparse.ArgumentParser(description="Organic Voronoi pattern for an upper ring panel.")
+    parser.add_argument("seed", nargs="?", type=int, default=7, help="random seed (default: %(default)s)")
+    add_output_args(parser)
+    args = parser.parse_args()
+    set_output_dirs(args)
+    seed = args.seed
     xs, ys, F, _ = field(seed)
     loops = contours(xs, ys, F)
     kerf_loops = [offset_in(p, KERF / 2) for p in loops]
@@ -316,12 +336,12 @@ def main():
     print(f"check: min web {web:.2f} mm (need {WEB_MIN}), to panel edge {edge:.2f} mm, "
           f"to bracket footprints {keep:.2f} mm (need {KEEP_MIN}), min elevation {emin:+.2f} deg "
           f"(need > {E_GLARE_HI:+.0f})")
-    preview(loops, os.path.join(IMG_DIR, "upper_panel_pattern.svg"), seed, 100 * open_area / panel_area)
+    preview(loops, os.path.join(IMG_DIR, "voronoi_panel.svg"), seed, 100 * open_area / panel_area)
     if web < WEB_MIN or keep < KEEP_MIN or emin <= E_GLARE_HI:
         print("CHECK FAILED: no DXF written")
         sys.exit(1)
-    dxf(loops, os.path.join(CAD_DIR, "upper_pattern.dxf"))
-    dxf(kerf_loops, os.path.join(CAD_DIR, "upper_pattern_kerf.dxf"))
+    dxf(loops, os.path.join(DXF_DIR, "upper_pattern.dxf"))
+    dxf(kerf_loops, os.path.join(DXF_DIR, "upper_pattern_kerf.dxf"))
 
 
 if __name__ == "__main__":

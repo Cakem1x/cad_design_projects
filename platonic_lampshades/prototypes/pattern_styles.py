@@ -12,15 +12,16 @@ Shared pipeline (same keep-outs and checks as voronoi_pattern.py):
 Coordinates: base panel frame (see voronoi_pattern.py). Panel axis: local u = y (horizontal),
 v = -x (up an upper ring panel).
 
-Outputs (relative to platonic_lampshades/):
-  cad/dodecahedron/upper_pattern_<style>.dxf and ..._kerf.dxf
-  docs/img/pattern_<style>.svg
-  docs/img/pattern_styles.svg    (comparison, includes the Voronoi pattern)
-
-Usage: python3 platonic_lampshades/tools/pattern_styles.py [style ...]
+Usage: python3 platonic_lampshades/prototypes/pattern_styles.py [style ...] [--img-dir DIR] [--dxf-dir DIR]
 Styles: marrakech, marrakech_polar10, marrakech_polar15, marrakech_rings, lattice, floral (default: all).
-With marrakech, marrakech_polar10 and marrakech_rings: also docs/img/pattern_marrakech_polar.svg.
+
+Outputs (default directories: prototypes/img/ and prototypes/dxf/):
+  <dxf-dir>/upper_pattern_<style>.dxf and ..._kerf.dxf
+  <img-dir>/pattern_<style>.svg
+  <img-dir>/pattern_styles.svg            with marrakech, lattice, floral (comparison, includes Voronoi)
+  <img-dir>/pattern_marrakech_polar.svg   with marrakech, marrakech_polar10, marrakech_rings
 """
+import argparse
 import math
 import os
 import sys
@@ -317,7 +318,15 @@ def panel_area():
 
 
 def main():
-    styles = sys.argv[1:] or list(STYLES)
+    parser = argparse.ArgumentParser(description="Alternative panel pattern styles.")
+    parser.add_argument("styles", nargs="*", metavar="style", help=f"one of {', '.join(STYLES)} (default: all)")
+    vp.add_output_args(parser)
+    args = parser.parse_args()
+    unknown = [st for st in args.styles if st not in STYLES]
+    if unknown:
+        parser.error(f"unknown style: {', '.join(unknown)}")
+    vp.set_output_dirs(args)
+    styles = args.styles or list(STYLES)
     results = {}
     for st in styles:
         name, w, holes = build(st)
@@ -336,9 +345,9 @@ def main():
         fig.savefig(os.path.join(vp.IMG_DIR, f"pattern_{st}.svg"), facecolor="#fcfcfb")
         plt.close(fig)
         if ok:
-            vp.dxf(holes, os.path.join(vp.CAD_DIR, f"upper_pattern_{st}.dxf"))
+            vp.dxf(holes, os.path.join(vp.DXF_DIR, f"upper_pattern_{st}.dxf"))
             vp.dxf([vp.offset_in(p, vp.KERF / 2) for p in holes],
-                   os.path.join(vp.CAD_DIR, f"upper_pattern_{st}_kerf.dxf"))
+                   os.path.join(vp.DXF_DIR, f"upper_pattern_{st}_kerf.dxf"))
         results[st] = (name, holes, open_pct)
     main_styles = ["marrakech", "lattice", "floral"]
     if set(main_styles) <= set(results):
@@ -356,6 +365,8 @@ def main():
         fig.tight_layout(rect=(0, 0.02, 1, 1))
         fig.savefig(os.path.join(vp.IMG_DIR, "pattern_styles.svg"), facecolor="#fcfcfb")
         plt.close(fig)
+    if set(styles) >= {"marrakech", "marrakech_polar10", "marrakech_rings"}:
+        polar_comparison()
 
 
 def polar_comparison():
@@ -373,5 +384,3 @@ def polar_comparison():
 
 if __name__ == "__main__":
     main()
-    if set(sys.argv[1:]) >= {"marrakech", "marrakech_polar10", "marrakech_rings"}:
-        polar_comparison()

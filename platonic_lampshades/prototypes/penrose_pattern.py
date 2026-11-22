@@ -1,6 +1,6 @@
 """Penrose tiling study for the ring panels (5-fold symmetric). Writes an SVG preview and a DXF.
 
-Study only: the outputs go to prototypes/img/ and prototypes/dxf/. The current pattern
+Study only: the outputs go to prototypes/img/ and prototypes/dxf/ by default. The current pattern
 (tools/panel_pattern.py) and its outputs stay unchanged.
 
 Tilings:
@@ -21,11 +21,13 @@ Method:
    match a hole centroid within SYM_TOL. No DXF if it fails.
 
 Usage: python3 platonic_lampshades/prototypes/penrose_pattern.py [p3|p2] [upper|lower] [A_T] [--rot36]
+       [--img-dir DIR] [--dxf-dir DIR]
   A_T: tile edge length, mm (default: P3 upper 18, lower 12; P2 upper 22, lower 14).
-Outputs (relative to platonic_lampshades/):
-  prototypes/img/penrose_<tiling>_<panel>.svg
-  prototypes/dxf/penrose_<tiling>_<panel>_pattern.dxf
+Outputs (default directories: prototypes/img/ and prototypes/dxf/):
+  <img-dir>/penrose_<tiling>_<panel>.svg
+  <dxf-dir>/penrose_<tiling>_<panel>_pattern.dxf
 """
+import argparse
 import cmath
 import math
 import os
@@ -206,13 +208,19 @@ def preview(holes, glare, eye, path, title):
 
 
 def main():
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    rot36 = "--rot36" in sys.argv
-    tiling = args[0] if args else "p3"
-    panel = args[1] if len(args) > 1 else "upper"
-    if tiling not in ("p3", "p2") or panel not in pp.PANELS:
-        sys.exit(__doc__)
-    a_t = float(args[2]) if len(args) > 2 else A_T_DEFAULT[tiling, panel]
+    parser = argparse.ArgumentParser(description="Penrose tiling study for the ring panels.")
+    parser.add_argument("tiling", nargs="?", default="p3", choices=["p3", "p2"])
+    parser.add_argument("panel", nargs="?", default="upper", choices=list(pp.PANELS))
+    parser.add_argument("a_t", nargs="?", type=float, metavar="A_T",
+                        help="tile edge length, mm (default: P3 upper 18, lower 12; P2 upper 22, lower 14)")
+    parser.add_argument("--rot36", action="store_true", help="turn the patch by 36 deg")
+    parser.add_argument("--img-dir", default=IMG_DIR, help="SVG preview directory (default: %(default)s)")
+    parser.add_argument("--dxf-dir", default=DXF_DIR, help="DXF directory (default: %(default)s)")
+    args = parser.parse_args()
+    tiling, panel, rot36 = args.tiling, args.panel, args.rot36
+    a_t = args.a_t if args.a_t is not None else A_T_DEFAULT[tiling, panel]
+    img_dir, dxf_dir = os.path.abspath(args.img_dir), os.path.abspath(args.dxf_dir)
+    os.makedirs(img_dir, exist_ok=True)
     pp.CFG = dict(pp.PANELS[panel], glare_keepout=False)
     segs = tile_edges(tiling, a_t, rot36)
     pp.pattern_field, w = make_field(segs, a_t)
@@ -239,14 +247,16 @@ def main():
     tname = {"p3": "Penrose P3 rhombs", "p2": "Penrose P2 kites and darts"}[tiling]
     title = (f"{pp.CFG['title']}: {tname}, edge {a_t:.0f} mm, {len(holes)} holes, open {open_pct:.0f} %. "
              f"{pp.CFG['tip'].capitalize()}.")
-    preview(holes, glare, eye, os.path.join(IMG_DIR, f"{name}.svg"), title)
-    print(f"written: prototypes/img/{name}.svg")
+    svg = os.path.join(img_dir, f"{name}.svg")
+    preview(holes, glare, eye, svg, title)
+    print(f"written: {svg}")
     if bridge < 0 or edge < 0 or keep < 0 or max(rot_err, mir_err) > SYM_TOL:
         print("CHECK FAILED: no DXF written")
         sys.exit(1)
-    os.makedirs(DXF_DIR, exist_ok=True)
-    pp.dxf(holes, os.path.join(DXF_DIR, f"{name}_pattern.dxf"))
-    print(f"written: prototypes/dxf/{name}_pattern.dxf")
+    os.makedirs(dxf_dir, exist_ok=True)
+    out = os.path.join(dxf_dir, f"{name}_pattern.dxf")
+    pp.dxf(holes, out)
+    print(f"written: {out}")
 
 
 if __name__ == "__main__":
