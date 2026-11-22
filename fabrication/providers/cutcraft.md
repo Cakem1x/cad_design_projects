@@ -87,21 +87,39 @@ Source: material data of the product pages, for example https://cutcraft.de/page
 | Thickness tolerance | 0.3 mm (all thicknesses) |
 | Kerf value | 0.2 mm (all thicknesses). See the note below. |
 
-| Nominal thickness | Plies | Material price per sheet |
-|---|---|---|
-| 1 mm | 3 | 25.57 € |
-| 2 mm | 3 | 20.88 € |
-| 3 mm | 4 | 24.28 € |
-| 4 mm | 5 | 29.39 € |
-| 5 mm | 6 | 29.82 € |
-| 6 mm | 7 | 40.99 € |
-| 8 mm | 9 | 42.48 € |
+| Nominal thickness | Plies | Material price per sheet | Per m² (derived) | Cutting speed factor |
+|---|---|---|---|---|
+| 1 mm | 3 | 25.57 € | 35.51 €/m² | 2.0 |
+| 2 mm | 3 | 20.88 € | 29.00 €/m² | 1.95 |
+| 3 mm | 4 | 24.28 € | 33.72 €/m² | 2.0 |
+| 4 mm | 5 | 29.39 € | 40.82 €/m² | 1.65 |
+| 5 mm | 6 | 29.82 € | 41.42 €/m² | 1.1 |
+| 6 mm | 7 | 40.99 € | 56.93 €/m² | 0.82 |
+| 8 mm | 9 | 42.48 € | 59.00 €/m² | 0.57 |
 
-- Prices are the listed material price only. Cutting time and setup cost are extra. The configurator gives the binding price.
-- Thicker sheets cut slower. Cutting speed factor: 2.0 (1 mm, 3 mm), 1.65 (4 mm), 1.1 (5 mm), 0.82 (6 mm), 0.57 (8 mm).
+- Prices are the listed material price per 1200 × 600 mm sheet (field `materialSellingPricePerPlate`). VAT status not stated. Cutting time and setup cost are extra. The configurator gives the binding price.
+- Cutting speed factor: relative speed (field `cuttingSpeed`). Lower is slower and costs more laser time.
 - Options: smoke protection film (reduces smoke marks; 3 €/m² plus setup cost), double-sided adhesive film (3M 468MP).
 
 Kerf note: the field is labelled "kerf". The help text on the same page calls the listed value a per-side offset, which means a total cut width of 0.4 mm. That is more than a typical CO2 kerf in birch (0.15–0.25 mm), so 0.2 mm may be the total width instead. Cut a test coupon before you fix the kerf compensation of a fitted joint.
+
+## Pricing
+The configurator shows the price after upload. cutcraft does not publish its formula. The site data (`globalPricingSettings` in the material data, updated 2026-09-10) names these cost items:
+
+| Item | Value in the site data |
+|---|---|
+| Laser time | 1.76 €/min base rate, falls towards 1.30 €/min for longer jobs (discount from 5 min) |
+| Laser setup | 6 € per job |
+| Material setup | 4 € per material plus 1 € per sheet |
+| Material | Area used, plus scrap (5 %) and remnant (30 %) rates for birch plywood |
+| Margin, safety | 12 %, 3 % |
+| Payment fee | 1.9 % |
+| VAT | 19 % |
+| Shipping (Germany) | 9.95 € per order. Source: https://cutcraft.de/policies/shipping-policy |
+| Production priority | FlexPrio to SameDayPrio. Surcharges not published. |
+
+- Use these values only for rough estimates. The configurator price is binding.
+- Delivery in Germany: 3–5 working days. Also ships to AT, FR, NL, BE, IT.
 
 ## Ordering
 1. Upload the file in the configurator. It detects dimensions and operations. Check them.
