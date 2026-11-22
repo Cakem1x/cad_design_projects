@@ -8,7 +8,7 @@ This repository contains independent parametric CAD projects. Each project is a 
 | `solar_tube_cooker/` | 3D-printed and laser-cut parts for an evacuated-tube solar cooker |
 | `platonic_lampshades/` | Laser-cut lamp shades shaped as Platonic solids |
 
-Shared at the root: `flake.nix`, `Justfile`, `.mcp.json`, `.gitignore`, `LICENSE`.
+Shared at the root: `flake.nix`, `Justfile`, `.mcp.json`, `.gitignore`, `LICENSE`, `fabrication/`.
 
 ## Environment
 The Nix flake (`flake.nix`) defines the development shell.
@@ -33,6 +33,12 @@ Use technical writing for all documentation, including READMEs, comments, and co
 
 ## Design Documentation
 Read `<project>/docs/overview.md` first. It links to the project's other documents.
+
+## Fabrication
+- `fabrication/` holds reference data per fabrication method (limits, operations, design rules). Index: `fabrication/README.md`.
+- Read `fabrication/<method>.md` before you design a part for that method.
+- Treat its values as rough defaults, not fixed requirements. Adapt them to the machine and material. Project docs take precedence.
+- `fabrication/providers/` holds provider-specific data. Read it only at the end of the design process, before export and order.
 
 ## CAD Modelling
 - Use the SolidCraft MCP server (`.mcp.json`) to create and edit models.

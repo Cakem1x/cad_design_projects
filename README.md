@@ -11,6 +11,8 @@ Parametric CAD projects for 3D printing and laser cutting.
 
 Each project has `docs/` (design documentation, start with `docs/overview.md`) and `cad/` (SolidCraft designs).
 
+[`fabrication/`](fabrication/) holds shared reference data for the fabrication methods (for example, laser cutting limits).
+
 ## Development environment
 
 The Nix flake provides the development shell. It provides [SolidCraft](https://github.com/tangency-labs/solidcraft) (`solidcraft`, `solidcraft-cli`).

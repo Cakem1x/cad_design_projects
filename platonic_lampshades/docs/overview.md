@@ -2,7 +2,7 @@
 
 ## Goal
 Design lamp shades shaped as Platonic solids.
-Fabrication method: laser cutting (plywood). No 3D-printed parts.
+Fabrication method: laser cutting (plywood), see [laser_cutting.md](../../fabrication/laser_cutting.md). No 3D-printed parts.
 AI agents build the models in SolidCraft through its MCP server.
 
 The dodecahedron is the first shade. It tests the construction concept.

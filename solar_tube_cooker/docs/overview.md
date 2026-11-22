@@ -2,7 +2,7 @@
 
 ## Goal
 Design fabrication-ready CAD models for a solar cooker built around an existing evacuated glass tube with a sliding tray.
-Fabrication methods: FDM 3D printing and laser cutting (plywood).
+Fabrication methods: FDM 3D printing and laser cutting (plywood). Reference data: [fabrication/](../../fabrication/README.md).
 AI agents build the models in SolidCraft through its MCP server.
 
 ## Components

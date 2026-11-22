@@ -12,6 +12,9 @@ Reference data for the fabrication methods used in this repository.
 - A project's own docs take precedence. Values a design chooses (for example, sheet thickness or kerf) belong in `<project>/docs/`.
 - The names in these documents describe the operations. They are not required terms. Use the terms of the project or the provider when they differ.
 
+## Providers
+[providers/](providers/README.md) holds one file per provider: limits, file formats and material data. A provider can offer several methods. Read a provider file only at the end of the design process, before you export and order.
+
 ## Add a method
 1. Create `<method>.md` in this directory. Use [laser_cutting.md](laser_cutting.md) as a template.
 2. Record the source and date of each value.
