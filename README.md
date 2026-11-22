@@ -2,6 +2,9 @@
 
 Parametric CAD projects for 3D printing and laser cutting.
 
+Heavily AI driven, use with caution.
+This repo is a hobby project and somewhat of an experiment on how current AI can be used to interface with software and services to create material stuff via 3D printing and lasercutting.
+
 ## Projects
 
 | Directory | Project |
