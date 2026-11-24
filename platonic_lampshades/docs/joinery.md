@@ -1,6 +1,6 @@
 # Wooden Joinery
 
-Joints of the panels with laser-cut plywood parts only. Status: integrated in `cad/dodecahedron/dodecahedron_kit.sc` (50 keys, 10 lug keys). The 3D-printed brackets are removed.
+Joints of the panels with laser-cut plywood parts only. Status: integrated in `cad/dodecahedron/dodecahedron_kit.sc` (60 keys: 50 `Key` bodies, 10 `TopKey` bodies on the top edges). The 3D-printed brackets are removed.
 
 ## Constraint
 - The laser cuts square to the sheet. It cannot bevel an edge.
@@ -37,7 +37,7 @@ Parameters (names as in the SolidCraft design; values in [overview.md](overview.
 - The tab ends show on the outer face as 3 mm × 6 mm end-grain rectangles, 2 per edge side.
 - Keys stay 27.6 mm from the edge ends, so keys of adjacent edges do not meet at the vertices.
 
-Model: sketch `KeySection` (cross-section, 3D keys) and `KeyLaser` (flat, kerf-compensated by `sketch.offset`, export `key_x50.dxf`). `tools/joint_keys.py` draws the figure above and the test coupon; it checks the minimum webs (≥ 3 mm), the clearance between a tab and the other panel and the distance to the edge ends.
+Model: sketch `KeySection` (cross-section, 3D keys) and `KeyLaser` (flat, kerf-compensated by `sketch.offset`, export `key_x60.dxf`). `tools/joint_keys.py` draws the figure above and the test coupon; it checks the minimum webs (≥ 3 mm), the clearance between a tab and the other panel and the distance to the edge ends.
 
 ## Stability
 - **Angle:** the key outline sets δ. A panel on its keys needs no jig. The key arms lie on both inner faces; the tabs fix the key in the slots.
@@ -50,21 +50,19 @@ Model: sketch `KeySection` (cross-section, 3D keys) and `KeyLaser` (flat, kerf-c
 2. Lower ring, panel 1: press it along its normal onto the 2 keys of its bottom edge. Press 2 keys into one free side edge.
 3. Lower ring, panels 2 to 5: same. Each panel also lands on the keys of its placed neighbour. Panel 5 closes the ring and lands on keys on both sides.
 4. Upper ring, panels 1 to 5: same, onto the keys in the lower ring and in the placed neighbour.
-5. Glue: apply wood glue to each slot before a tab enters it, and along the key arms. Sand the tab ends flush.
+5. Top panel: press 2 keys into each top edge of the upper ring (10 keys). Press the top panel along its normal onto them.
+6. Glue: apply wood glue to each slot before a tab enters it, and along the key arms. Sand the tab ends flush.
 
-Count: 25 inner edges × 2 = 50 keys.
+Count: 30 edges × 2 = 60 keys.
 
 In the model, 2 keys on the bottom edge are copied by the symmetries of the solid: 3 rotations about the axis of a lower ring panel (its other edges), a half turn to the upper ring side edges, and 5 turns about the vertical axis.
 
-## Top edges (bayonet)
-The 5 top edges have no panel on the other side. Each carries 2 lug keys: 10 lug keys.
-- Lug key: the key outline without the tab on the top side. Its lower edge, at depth `Dkey` below the inner face of the top plane, rests on the top plate.
-- Lock tab: `wlock` × `Lpl` (4 mm × 2.5 mm) on that edge, `hlock` (14 mm) from the inner corner. It sits in a lock slot of the top plate with `clock` (0.5 mm) clearance on each side.
-- Top plate: core disc of radius `Rnk` and 10 lobes (`wlb` = 14 mm wide, out to `Rpl`), one under each lug key, with the lock slots. The bayonet turn is `turn` = 15°: the lobes then sit in the gaps between the lug keys, free from about 9° to 22.5° (`ek` = 36 mm).
-- Why lobes: the lug keys sit at ±16.7° around each top edge normal (`ek` = 36 mm; ±20.5° with 45 mm). The former narrow notches (5 mm, turned 36°) came within 5° of the next lock slot and needed an exact turn.
-- The top plate sits `Dkey` below the inner top plane. Edge length formula: `ri = t + Dkey + tp + Hs + Lc`.
-- Plate radius `Rpl` = √((rp − Dkey·cot(δ/2) − cb)² + (ek/2)²): in the plane of each lug key, the plate rim stays `cb` short of the lug key body below the bearing edge. Bearing length on the plate: about 11 mm per lug key.
-- Model: sketches `LugKeySection`, `LugKeyLaser` (export `lug_key_x10.dxf`), `PlateCutSketch` (10 gaps between the lobes, 10 lock slots), `TopPlateLaser` (kerf-compensated outline).
+## Top edges
+The 5 top edges carry normal keys, as all other edges: 10 keys (`TopKey` bodies). The top panel is a normal panel of the shade; it carries the hub bayonet in its central hole (see [overview.md](overview.md#bulb-change-bayonet)).
+
+- Model: `TopKeyBlank` extrudes `KeySection`; `TopKeyPlace`, `TopKeyPlace2`, `TopKeyFlip` and `TopKeyRing` place the 10 copies. Export: `key_x60.dxf` (sketch `KeyLaser`).
+- The hub's lower layer turns under the top panel inside the key depth. `tools/top_panel.py` keeps it 1.5 mm clear of the key footprints over the whole turn (r ≤ 57.0 mm; key inner ends at r = 58.5 mm).
+- History: until 2026-11-24 the top edges carried 10 lug keys that hung the shade on a bayonet top plate below the top face. Its pass window was 9° to 22.5°; a lug key could rest on a lobe corner beside its lock tab (false seat).
 
 ## Claims
 Claims are statements about the design that a check confirms. Definitions and check commands: [../claims.toml](../claims.toml). Run `just lamp-claims` before an order and after a change to the joints, the bayonet or the parameters. Record each result here.
@@ -72,10 +70,10 @@ Claims are statements about the design that a check confirms. Definitions and ch
 | Id | Claim | Check | Last result | Date |
 |---|---|---|---|---|
 | J1 | Joint test coupon: plates and keys do not interfere | headless, `just lamp-claims` (0.2 s) | OK: 0 interferences, 5 pairs | 2026-11-22 |
-| K1 | Kit assembled: no interference between panels, keys, lug keys and top plate | app, `inspect.interference` (> 10 min with the pattern panels) | Not run with the Penrose patterns. Partial check with `ek` = 36 mm (bottom panel, top plate, 50 keys, 10 lug keys; pattern panels left out): 0 interferences, 20 pairs. Earlier, Marrakech patterns: 240 s budget ran out, 122 of 165 pairs unchecked, 0 interferences in the 43 checked. | 2026-11-22 |
+| K1 | Kit assembled: no interference between panels, keys, hub and spacer | app, `inspect.interference` (> 10 min with the pattern panels) | Partial check, top of the kit (top panel with pattern, 10 `TopKey`, `HubLower`, `HubUpper`, `Spacer`, socket, 6 neighbouring panels): 0 interferences, 24 pairs checked; `HubLower`–`Spacer` not checked (boolean failed; they only touch at z = 240 mm). Full kit not run with the Penrose patterns. | 2026-11-24 |
 | K2 | Kit rebuilds with changed `t`, `tk`, `Dkey`, `ek`, `Hs`; bulb centre stays at `ri` | app, `check_parameters` | rebuilds without errors | before 2026-11-22 |
 | K3 | Key cross-section rules: tab to arm end, tab to relief, slot web, key to edge end | `just lamp-joint-coupon` (`joint_keys.py check()`, runs with the generator) | OK; key to edge end 34.38 mm (`ek` = 36 mm) | 2026-11-22 |
-| K4 | Bayonet: plate 3 mm below its seat turns 0° to 15° without contact; turned 15°, lifts from 3 mm below its seat to 15 mm above it without contact | manual: move and turn `TopPlate`, `inspect.interference` against the lug keys. `turn` drives no geometry, so no script. | no contact (turned +15° and −15°, lift −3 mm to +15 mm in 2 mm steps). Play at 6 mm lift: free from 9° to 22.5°; 7.5° and 24° hit the lug keys. Negative check (not turned, 5 mm up): hits all 10 lug keys. Method: `solid.move` copy of `TopPlate`, `inspect.interference` against the 10 lug keys, undo. | 2026-11-22 (`ek` = 36 mm) |
+| K4 | Hub bayonet: the hub passes the top panel hole turned 36° ± 4°, seats at 0° ± 4° and turns under the panel clear of the keys | `just lamp-patterns` (`top_panel.py`, 2D) and app: copies of `HubLower`, `HubUpper` moved and turned, `inspect.interference` against `Panel (3)` and `TopKey*` | 2D: pass window ±5.9°, seat window ±6.7°, hub 1.5 mm clear of the keys over ±36°. App: seated, turned 36° in the panel layer, and turned 18° 3 mm below the seat: 0 interferences with `Panel (3)` and the 10 `TopKey`. Negative check (turned 18° in the panel layer): `HubLower` hits `Panel (3)`, 2502 mm³. Method: `solid.move` copies, `inspect.interference`, restore checkpoint. | 2026-11-24 |
 
 Earlier result, removed check: keys of different edges at a vertex are 19.5 mm apart with `ek` = 50 mm (vertex test); farther apart with 45 mm and 36 mm.
 
@@ -95,4 +93,4 @@ Design: `cad/dodecahedron/joint_test.sc`. Two test plates at the dihedral angle 
 
 ## Open points
 - Test cut: coupon for `fitt`, `fitw` and the angle, together with the pattern test pieces.
-- Bayonet test: top plate and lug keys, 15° turn, seat of the lock tabs.
+- Bayonet test: top panel and hub, 36° turn, pass window, seat of `U` in `H`.

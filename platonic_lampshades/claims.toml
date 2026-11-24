@@ -17,11 +17,11 @@ expect = { count = 0, pairs_not_checked = 0, budget_exceeded = false }
 
 [[claim]]
 id = "K1"
-title = "Kit assembled: no interference between panels, keys, lug keys and top plate"
+title = "Kit assembled: no interference between panels, keys, hub and spacer"
 where = "app"
 design = "cad/dodecahedron/dodecahedron_kit.sc"
 command = "inspect.interference"
-bodies = ["Panel*", "Key*", "LugKey*", "TopPlate"]
+bodies = ["Panel*", "Key*", "TopKey*", "HubLower", "HubUpper", "Spacer"]
 # Cost: 165 candidate pairs; pattern panel pairs take up to 180 s each (about 1500 s CPU total on
 # 8 threads, 2026-11-22). The default 240 s budget left 122 pairs unchecked. Run it before an order only.
 params = { budget_s = 1800 }
@@ -42,6 +42,6 @@ how = "just lamp-joint-coupon: every line of joint_keys.py check() ends in OK (t
 
 [[claim]]
 id = "K4"
-title = "Bayonet: plate turns 0-15 deg 3 mm below its seat and lifts out at 15 deg without contact"
+title = "Hub bayonet: hub passes the top panel hole turned 36 deg +- 4 deg, seats at 0 deg +- 4 deg, locks the turn"
 where = "manual"
-how = "Move and turn TopPlate in steps, inspect.interference against LugKey* (docs/joinery.md). Not scriptable: turn drives no geometry."
+how = "just lamp-patterns: the 'bayonet:' line of top_panel.py (pass window, seat window, play, bearing) and no CHECK FAILED. In the app: inspect.interference of HubLower, HubUpper, Spacer against Panel (3) and TopKey* (seated: 0 interferences)."

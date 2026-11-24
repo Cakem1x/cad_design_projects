@@ -25,12 +25,12 @@ allow_islands = []                  # files in which a loop inside a hole is int
 # Each laser file is checked for staleness against these sources (warning when older).
 [dxf.sources]
 "panel_x1.dxf" = ["cad/dodecahedron/dodecahedron_kit.sc"]
-"key_x50.dxf" = ["cad/dodecahedron/dodecahedron_kit.sc"]
-"lug_key_x10.dxf" = ["cad/dodecahedron/dodecahedron_kit.sc"]
-"top_plate_x1.dxf" = ["cad/dodecahedron/dodecahedron_kit.sc"]
+"key_x60.dxf" = ["cad/dodecahedron/dodecahedron_kit.sc"]
 "upper_panel_x5.dxf" = ["cad/dodecahedron/panel_x1.dxf", "tools/panel_pattern.py", "cad/dodecahedron/dodecahedron_kit.sc"]
 "lower_panel_x5.dxf" = ["cad/dodecahedron/panel_x1.dxf", "tools/panel_pattern.py", "cad/dodecahedron/dodecahedron_kit.sc"]
 "bottom_panel_x1.dxf" = ["cad/dodecahedron/panel_x1.dxf", "tools/bottom_pattern.py", "tools/panel_pattern.py", "cad/dodecahedron/dodecahedron_kit.sc"]
+"top_panel_x1.dxf" = ["cad/dodecahedron/panel_x1.dxf", "tools/top_panel.py", "tools/panel_pattern.py", "cad/dodecahedron/dodecahedron_kit.sc"]
+"hub_x1.dxf" = ["tools/top_panel.py", "tools/panel_pattern.py", "cad/dodecahedron/dodecahedron_kit.sc"]
 "joint_test_x1.dxf" = ["tools/joint_keys.py", "cad/dodecahedron/joint_test.sc", "cad/dodecahedron/dodecahedron_kit.sc"]
 
 [params]

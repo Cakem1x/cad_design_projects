@@ -1,6 +1,6 @@
 # Light Patterns
 
-Requirements and design zones for the cutout patterns in the panels. Applies to the dodecahedron prototype (see [overview](overview.md)). Status: zones final. Pattern style chosen (Penrose P3); upper and lower ring patterns in design (2D), all holes open; bottom panel: Penrose P3 rim with an open core (2D); top plate plain.
+Requirements and design zones for the cutout patterns in the panels. Applies to the dodecahedron prototype (see [overview](overview.md)). Status: zones final. Pattern style chosen (Penrose P3); upper and lower ring patterns in design (2D), all holes open; bottom panel: Penrose P3 rim with an open core (2D); top panel: Penrose P3 of the lower ring with the hub hole (2D and in the design).
 
 ## Terms
 | Term | Definition |
@@ -11,16 +11,15 @@ Requirements and design zones for the cutout patterns in the panels. Applies to 
 | Bottom panel | The panel on the bottom face. |
 | Lower ring | The 5 panels next to the bottom panel. Face normals at `e = −26.6°`. |
 | Upper ring | The 5 panels next to the top face. Face normals at `e = +26.6°`. |
-| Top plate | The bayonet plate in the top face (see [overview](overview.md#bulb-change-bayonet)). |
+| Top panel | The panel in the top face, with the hub hole `H` (see [overview](overview.md#bulb-change-bayonet)). |
 | Viewer envelope | Range of eye positions (distance from the lamp axis, eye height) for one kind of viewer. |
 | Web | Material left between two cutouts, or between a cutout and the panel edge. |
 
 ## Requirements
-1. **Top plate clearance.** Cutouts in the top plate must not change the bayonet. Keep:
-   - the outline: core disc `Rnk`, 10 lobes `wlb` wide out to `Rpl`;
-   - the 10 seats under the lug keys: from radius `Rnk` to the rim along each lug key, plus the lock slots with a web around them;
-   - a solid centre for the socket face and the washer: Ø 40 mm or more;
-   - enough material to carry the shade (about 0.5 kg) from the 10 seats to the centre.
+1. **Top panel and hub.** Cutouts must not change the hub bayonet. `tools/top_panel.py` keeps:
+   - the hole `H` and the hub outlines (`L`, `U`) with their pass and seat windows;
+   - a solid hub centre for the washer and the spacer: Ø `Dsp` (34 mm) or more;
+   - bars under the points of `L` that carry the shade (bearing area ≥ 300 mm²).
 2. **Panel designs.** Each panel can have its own pattern. Identical patterns are allowed.
 3. **Design zones.** Each part of a panel follows the purpose of its design zone (see [Design zones](#design-zones)).
 4. **Structure.** The keys hold the shade together (see [joinery.md](joinery.md)). Keep:
@@ -68,7 +67,7 @@ Mapping onto the panels:
 | Bottom panel | all | — | — |
 | Lower ring | bottom band: up to 29 mm above the bottom edge (centre line) | middle | top tip: 18 mm below the top vertex (centre line) |
 | Upper ring | — | bottom tip: up to 39 mm above the bottom vertex (centre line) | rest |
-| Top plate | — | — | all |
+| Top panel | — | — | all |
 
 Panel height (edge to opposite vertex): 158.9 mm. The zone boundaries are curved on the panels; see the figure below.
 
@@ -86,14 +85,14 @@ Regenerate the figures with `just lamp-figures` (inside the Nix shell). The scri
 | Bottom panel | −90° to −52.6° / −58.3° |
 | Lower ring | −52.6° to +10.8° |
 | Upper ring | −10.8° to +52.6° |
-| Top plate | +52.6° / +58.3° to +90° |
+| Top panel | +52.6° / +58.3° to +90° |
 
 The rings overlap between −10.8° and +10.8°: the face edges zigzag around the equator.
 
 ## Projection sharpness
 The bulb is not a point source. A cutout at distance `d` from the source casts a pattern at distance `L`:
 
-| Quantity | Formula | Top plate (`d` = 0.111 m, `L` = 0.632 m) |
+| Quantity | Formula | Top panel (`d` = 0.111 m, `L` = 0.632 m) |
 |---|---|---|
 | Magnification | `L / d` | 5.7× |
 | Blur width | source size × (`L` − `d`) / `d` | 4.7 × source size |
@@ -145,7 +144,7 @@ Goal: each key arm lies on a tile edge, as on the Marrakech pattern. Chosen (202
 | Local warp | tile vertices near each key moved by 5.4 mm / 4.0 mm, smooth falloff over 14 mm to 18 mm | 0 mm | aligned; the rhombs next to the keys shear visibly |
 | **Key spacing (chosen)** | `ek` = 36 mm, `a_t` = 18.63 mm (+3.5 %) / 11.88 mm (−1.0 %) | 0.3 mm / 0.3 mm | aligned without distortion. Upper: 70 holes, 40 %; lower: 90 holes, 26 %. One hole per key on the upper ring keeps a small notch. |
 
-`ek` = 36 mm moves the keys 4.5 mm towards the edge centre: farther from the vertices (see [joinery.md](joinery.md)). It changes the lug key positions, `Rpl` and the bayonet play (see [joinery.md](joinery.md#claims)).
+`ek` = 36 mm moves the keys 4.5 mm towards the edge centre: farther from the vertices (see [joinery.md](joinery.md)).
 
 Bridge rule (checked on the output polylines, between holes, to the panel edge and to the key slots):
 
@@ -181,9 +180,25 @@ Variants (window, Marrakech, medallion, Penrose): [Bottom panel study](../protot
 
 ![Bottom panel pattern and light on the table](img/bottom_panel_pattern.svg)
 
+### Top panel
+The top panel lies in the projection zone. Its pattern and the hub show on the ceiling.
+
+| Item | Value |
+|---|---|
+| Tiling | P3, tile edge and phase of the lower ring (11.88 mm, bar 3.68 mm). The keys sit on tile edges as on the lower ring. |
+| Hole `H` | Round core R 34 mm, 5 rhombus petals to R 68 mm (rhomb edge 30.14 mm = 18.63 mm × φ) towards the vertices, 5 rhombus petals to R 48 mm (rhomb edge 18.63 mm) towards the edges. The petal sides are parallel to the tile edges. |
+| Holes | Every tile outside `H` is a hole: shrunk by up to 3 mm beyond the bar to fit, else clipped when ≥ 40 % of it remains. The hub carries the tiles inside it as holes (web 3.4 mm, solid within R 17 mm). |
+| Result | 35 panel holes, 5 hub holes, 27 % of the top open seen from the ceiling (holes, the 5 large petals of `H` and the seam around `U`). |
+| Bayonet | Pass window ±5.9°, seat window ±6.7°, clearance 1.5 mm, lock play ±6.6°, bearing 1181 mm², bulb passage Ø 68 mm. |
+
+Generator: `tools/top_panel.py` (part of `just lamp-patterns`). It writes `cad/dodecahedron/top_pattern.dxf`, `top_pattern_kerf.dxf`, `top_panel_x1.dxf`, `hub_lower.dxf`, `hub_upper.dxf`, `hub_x1.dxf` and the preview `docs/img/top_panel_pattern.svg`. The design imports `top_pattern.dxf` (sketch `TopPatternSketch`, cut `TopPatternCut` into `Panel (3)`), `hub_lower.dxf` and `hub_upper.dxf` (sketches `HubLowerSketch`, `HubUpperSketch`), each turned by 36° into the kit frame.
+
+Design history: hole `H` from the tiles within R 52 mm (upper ring tiles, then lower ring tiles) gave a pass window of only ±1.1°: the many short tooth edges of `H` limit the turn to clearance ÷ radius. The drawn petals give wide teeth; the hub is cut to fit over the whole window.
+
+![Top panel pattern and hub](img/top_panel_pattern.svg)
+
 ## Open points
 - Glare: all holes are open. Decide per panel: drop or close the glare zone holes, or use a diffuser.
-- Pattern design for the top plate (projection zone).
 - Bottom panel: test-cut the 8 mm frame for stiffness. Check whether the bulb can be changed through the open core (106.7 mm) without the bayonet.
 - Lower ring: choose the diffuser, or test the glare without one.
 - Test the prototype: cut one upper panel, light it with a clear and a frosted bulb, check the ceiling projection.

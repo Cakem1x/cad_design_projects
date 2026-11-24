@@ -11,12 +11,13 @@ default:
 [group('platonic_lampshades')]
 lamp-inputs: lamp-patterns
 
-# platonic_lampshades: panel pattern DXFs and previews (upper ring, lower ring, bottom panel)
+# platonic_lampshades: panel pattern DXFs and previews (upper ring, lower ring, bottom panel, top panel and hub)
 [group('platonic_lampshades')]
 lamp-patterns:
     python3 {{lamp}}/tools/panel_pattern.py upper
     python3 {{lamp}}/tools/panel_pattern.py lower
     python3 {{lamp}}/tools/bottom_pattern.py
+    python3 {{lamp}}/tools/top_panel.py
 
 # platonic_lampshades: former Marrakech pattern (prototypes/img/marrakech_*.svg)
 [group('platonic_lampshades')]

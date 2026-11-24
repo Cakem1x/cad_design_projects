@@ -10,11 +10,12 @@ The dodecahedron is the first shade. It tests the construction concept.
 ## Construction
 | Term | Definition |
 |---|---|
-| Panel | Laser-cut plywood plate. One per face of the solid except the top face. 11 identical panels. |
-| Shade | The 11 panels, the 50 keys and the 10 lug keys, joined permanently. Open at the top face. |
+| Panel | Laser-cut plywood plate. One per face of the solid: 12 panels with identical outlines and key slots. |
+| Shade | The 12 panels and the 60 keys, joined permanently. The top panel has a central hole `H` for the hub. |
 | Key | Laser-cut plywood part in the plane perpendicular to an edge. Its two tabs pass through slots in the two panels it joins and set the dihedral angle. 2 per edge, 50 in total. See [joinery.md](joinery.md). |
-| Lug key | Key on one of the 5 top edges. One tab into the upper ring panel; its lower edge rests on the top plate; a lock tab drops into a slot of the top plate. 10 in total. |
-| Top plate | Laser-cut plywood plate: core disc with 10 lobes and 10 lock slots. Bolted to the socket. Carries the shade through a bayonet. Replaces the top panel. |
+| Top panel | The panel in the top face. Penrose P3 pattern of the lower ring with a central hole `H`: round core, 5 rhombus petals towards the vertices, 5 smaller rhombus petals towards the edges. |
+| Hub | Two glued plywood layers on the nipple, clamped between the nut and the spacer. Lower layer `L`: carries the shade under the top panel. Upper layer `U`: sits in `H` and locks the turn. Carries the shade through a bayonet. |
+| Spacer | 3 laser-cut plywood rings (Ø `Dsp`) between the hub and the socket, `Hsp` high. |
 | Inset `s` | Distance each panel edge moves inward from the solid's edge, so that panels with square-cut edges do not collide. `s = t · cot(δ/2)`, with `δ` the dihedral angle. |
 
 - Laser cuts are square to the sheet. Panels touch along their inner corners. Each outer seam is a V-groove.
@@ -24,46 +25,49 @@ The dodecahedron is the first shade. It tests the construction concept.
 - Checks before export and order: [Checks](#checks). Mistakes found so far and the rules that prevent them: [lessons.md](lessons.md).
 
 ### Lamp fitting
-The lamp hangs from its cable. The top plate is clamped to the socket. The shade hangs on the top plate.
+The lamp hangs from its cable. The hub is clamped to the socket. The shade hangs on the hub.
 
 Stack from the top, along the axis of the solid:
 
 | Part | Type |
 |---|---|
-| Strain relief (Zugentlastung) or M10x1 nut with washer | Standard lamp part, on top of the top plate. Use a large washer (Ø ≥ 30 mm). |
-| Top plate | Laser-cut, `tp` |
-| E27 socket | Thermoplastic, M10x1 internal thread at the top, screwed onto the nipple and tightened against the top plate |
+| Strain relief (Zugentlastung) or M10x1 nut with washer | Standard lamp part, on top of the hub. Use a washer of Ø 30 mm. |
+| Hub, upper layer `U` | Laser-cut, `t`, in the hole `H` of the top panel |
+| Hub, lower layer `L` | Laser-cut, `tp`, under the top panel |
+| Spacer | 3 laser-cut rings, `Hsp` |
+| E27 socket | Thermoplastic, M10x1 internal thread at the top, screwed onto the nipple and tightened against the spacer |
 | A60 bulb | E27 |
 
-- The nipple (Gewindenippel or Gewinderohr M10x1) runs through the top plate. The cable runs through the nipple.
+- The nipple (Gewindenippel or Gewinderohr M10x1, ≥ `Ln`) runs through the hub and the spacer. The cable runs through the nipple.
 - Ceiling attachment: a standard ceiling canopy (Baldachin) holds the cable. It is not part of the shade.
-- The cable load passes through the socket, the nipple and the nut into the top plate.
+- The cable load passes through the socket, the nipple and the nut into the hub. The shade rests on the points of `L`.
 
 ### Bulb change (bayonet)
-The shade is a closed body except for the top face. The top plate sits inside the shade, under the 10 lug keys.
+The shade is a closed body. The hub sits in the top panel: `U` in the hole `H`, `L` under the panel.
 
-- Top plate: core disc of radius `Rnk` with 10 lobes, `wlb` wide, out to radius `Rpl`. One lobe sits under each lug key and carries its lock slot. Between the lobes the plate is open down to `Rnk`.
-- Assembled state: the lower edges of the lug keys rest on the plate. The lock tabs sit in the lock slots (clearance `clock`).
-- The plate passes the top opening of the shade with 2 mm clearance. The socket (Ø 40 mm) and the bulb (Ø 60 mm) pass too.
-- Weight holds the shade on the plate. No glue, no friction at the lock tabs.
+- `H`: round core (R 34 mm), 5 rhombus petals to R 68 mm towards the vertices, 5 rhombus petals to R 48 mm towards the edges. The petal sides run parallel to the tile edges.
+- `L`: the part of `H` turned by 36° that stays inside it for every turn from 32° to 40°, shrunk by 1.5 mm, and within the inner ends of the keys (r ≤ 57.0 mm). Its 5 points lie under the panel, between the 2 keys of each top edge, and carry the shade. It turns under the panel without touching the keys.
+- `U`: the part of `H` that stays inside `H` both at 0° ± 4° and at 36° ± 4°, shrunk by 1.5 mm. Seated, its 10 teeth sit in the petals of `H` and stop the turn (play ±6.6°).
+- Play: the hub passes `H` from 30.1° to 41.9° (±5.9°) and drops into its seat from −6.7° to +6.7°. Clearance 1.5 mm all round. No force, no friction: weight holds the shade.
+- Generator and checks: `tools/top_panel.py` (part of `just lamp-patterns`).
 
 Remove the shade:
-1. Lift the shade by more than `Lpl` (2.5 mm). The lock tabs leave their slots.
-2. Turn the shade by `turn` (15°) in either direction. The lobes move into the gaps between the lug keys. The turn has about −6° / +7.5° play (free from about 9° to 22.5°).
-3. Lower the shade. The plate passes the lug keys and the top opening. The socket and the bulb follow.
+1. Lift the shade by more than `t` (3 mm). `U` leaves `H`.
+2. Turn the shade by 36° in either direction. The points of `L` move under the 5 large petals of `H`.
+3. Lower the shade. The hub passes up through `H`. The socket and the bulb follow (`H` passes Ø 68 mm).
 4. Change the bulb.
 
 Fit the shade:
-1. Lift the shade from below over the bulb, turned by about 15° against its seat. The plate enters the top opening and the lobes pass between the lug keys.
-2. Turn the shade back by 15°.
-3. Lower the shade until the lug keys rest on the plate and the lock tabs drop into their slots.
+1. Lift the shade from below over the bulb, turned by about 36° against its seat. The hub passes down through `H`.
+2. Lift the shade until `L` is clear of the panel, more than `t + tp` (6 mm) above the seat. Turn the shade back by 36°.
+3. Lower the shade. The panel lands on the points of `L`. Turn it until `U` drops into `H` (±6.7°).
 
 ### Lamp position
 The edge length follows from the socket, so that the bulb centre sits at the centre of the solid:
 
-`ri = t + Dkey + tp + Hs + Lc`, `a = ri / (½·√((25 + 11√5)/10)) = ri / 1.11352`
+`ri = t + tp + Hsp + Hs + Lc`, `a = ri / (½·√((25 + 11√5)/10)) = ri / 1.11352`
 
-- `t + Dkey`: the top plate sits under the lug keys, `t + Dkey` below the outer top face.
+- `t + tp + Hsp`: the socket top lies below the top panel (`t`), the lower hub layer (`tp`) and the spacer (`Hsp`).
 - Measure the socket and the bulb before cutting. Set `Hs` and `Lc`. The shade, the keys and the DXFs follow.
 - `Hs`: socket height from its top face to its rim.
 - `Lc`: distance from the socket rim to the bulb centre, with the bulb screwed in.
@@ -89,34 +93,27 @@ Design: `cad/dodecahedron/dodecahedron_kit.sc`.
 | `rrel` | 1.2 mm | Key relief at the inner corner |
 | `ek` | 36 mm | Distance between the 2 keys of an edge. Each key arm lies on a tile edge of the panel pattern (see [light_patterns.md](light_patterns.md#key-alignment)). |
 | `fitt`, `fitw` | 0 mm | Slot minus key thickness / tab width. Tune with the test coupon. |
-| `hlock` | 14 mm | Lug key lock tab centre from the inner corner |
-| `wlock` | 4 mm | Lug key lock tab width |
-| `Lpl` | 2.5 mm | Lock tab length (`tp − 0.5 mm`) |
-| `clock` | 0.5 mm | Lock tab clearance in the top plate slot |
 | `Hs` | 60 mm | E27 socket height (assumed, measure) |
 | `Ds` | 40 mm | E27 socket diameter (reference body only) |
 | `Lc` | 48 mm | Socket rim to bulb centre, A60 bulb (assumed, measure) |
 | `Db` | 60 mm | Bulb diameter (reference body only) |
-| `tp` | 3 mm | Top plate thickness (`t`) |
-| `cb` | 1 mm | Bayonet clearance |
-| `Rpl` | 69.96 mm | Top plate outer radius (lobe ends): `√((rp − Dkey·cot(δ/2) − cb)² + (ek/2)²)`, clears the lug key bodies in their planes |
-| `Rnk` | 55.16 mm | Top plate core radius (`rp − Larm − cb`): clears the inner ends of the lug keys |
-| `wlb` | 14 mm | Top plate lobe width. 5 mm web on each side of the lock slot. |
-| `turn` | 15° | Bayonet turn. Reference value for the checks; no geometry depends on it. |
-| `zpl` | 234 mm | Height of the top plate's upper face (`2·ri − t − Dkey`) |
+| `tp` | 3 mm | Hub layer thickness (`t`) |
+| `Hsp` | 9 mm | Spacer height between hub and socket (`3·t`, 3 plywood rings) |
+| `Dsp` | 34 mm | Spacer ring diameter |
+| `zpl` | 243 mm | Hub seat: inner face of the top panel, top face of `L` (`2·ri − t`) |
 | `dn` | 10.5 mm | Nipple hole (M10 clearance) |
-| `Ln` | 18 mm | Minimum nipple length: 8 mm in the socket, `tp`, 7 mm for nut and washer |
+| `Ln` | 30 mm | Minimum nipple length: 8 mm in the socket, `Hsp`, `tp`, `t`, 7 mm for nut and washer |
 
 Derived values:
 - Panel: regular pentagon, edge 107.77 mm, 10 key slots 3 mm × 6 mm. Outer V-groove width: 3.2 mm.
-- Key: 30.6 mm × 16.5 mm. Lug key: same outline without the top tab, with a 4 mm × 2.5 mm lock tab.
-- Top plate: core Ø 110.3 mm, 10 lobes 14 mm wide to Ø 139.9 mm, 10 lock slots 4 mm × 5 mm, Ø 10.5 mm centre hole.
+- Key: 30.6 mm × 16.5 mm. The 10 keys of the top edges are normal keys (`TopKey` bodies).
+- Top panel: hole `H` with round core Ø 68 mm, petals to Ø 136 mm (vertices) and Ø 96 mm (edges). Hub: `L` 104.5 mm × 109.7 mm, `U` 82.0 mm × 78.1 mm, 5 rhombus holes, Ø 10.5 mm centre hole. Values from `tools/top_panel.py`.
 - Height of the solid: 246.0 mm.
 - Clearance from the bulb (Ø 60 mm) to each panel: 93 mm.
 
 Checks in the design: claims J1 to K4 in [joinery.md](joinery.md#claims).
 
-The design contains reference bodies for the socket, the nipple and the bulb. They are not exported.
+The design contains reference bodies for the socket, the nipple and the bulb. They are not exported. The bodies `HubLower`, `HubUpper` and `Spacer` are laser parts (`hub_x1.dxf`, written by `tools/top_panel.py`).
 
 Bill of materials:
 | Item | Count | Source |
@@ -124,20 +121,19 @@ Bill of materials:
 | Bottom panel, 3 mm plywood, Penrose P3 rim with open core | 1 | `bottom_panel_x1.dxf` |
 | Upper ring panel, 3 mm plywood, Penrose P3 pattern | 5 | `upper_panel_x5.dxf` |
 | Lower ring panel, 3 mm plywood, Penrose P3 pattern | 5 | `lower_panel_x5.dxf` |
-| Key, 3 mm plywood | 50 | `key_x50.dxf` |
-| Lug key, 3 mm plywood | 10 | `lug_key_x10.dxf` |
-| Top plate, 3 mm plywood | 1 | `top_plate_x1.dxf` |
-| Wood glue | — | For the keys of the shade, not for the lug key lock tabs |
-| M10x1 nipple, ≥ 20 mm | 1 | Lamp parts |
-| M10x1 nut and washer Ø ≥ 30 mm, or M10x1 strain relief | 1 | Lamp parts |
+| Top panel, 3 mm plywood, Penrose P3 pattern with hub hole | 1 | `top_panel_x1.dxf` |
+| Key, 3 mm plywood | 60 | `key_x60.dxf` |
+| Hub (`L`, `U`) and 3 spacer rings, 3 mm plywood | 1 set | `hub_x1.dxf` |
+| Wood glue | — | For the keys of the shade and to glue `U` onto `L` |
+| M10x1 nipple, ≥ 30 mm | 1 | Lamp parts |
+| M10x1 nut and washer Ø 30 mm, or M10x1 strain relief | 1 | Lamp parts |
 | E27 socket, thermoplastic, M10x1 internal thread | 1 | Lamp parts |
 | Pendant cable and ceiling canopy | 1 | Lamp parts |
 
 ## Open points
 - Test cut: joint coupon (`joint_test_x1.dxf`) for `fitt`, `fitw`, together with pattern test pieces once the first pattern version is final.
-- Bayonet test: cut the top plate and the lug keys. Check the 15° turn and the seat of the lock tabs.
-- Top opening: the gaps between the lobes of the top plate are open. Light and heat escape upward. Check the look from below and the heat on the ceiling.
-- Top plate shape: functional draft (core disc and 10 lobes). Adapt its look to the Penrose pattern at the end.
+- Bayonet test: cut the top panel and the hub. Check the 36° turn, the ±5.9° pass window and the seat of `U` in `H`.
+- Top opening: 26 % of the top is open (pattern, petals of `H`). Light and heat escape upward. Check the heat on the ceiling.
 - Socket and bulb dimensions: `Hs` and `Lc` are typical values. Measure the purchased parts.
 - Light exit: the panels are closed. Requirements for cutout patterns: [light_patterns.md](light_patterns.md).
 - Heat: use LED bulbs only. Define the maximum power for plywood.
