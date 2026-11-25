@@ -2,7 +2,7 @@
 
 Lamp shades shaped as Platonic solids. Laser-cut plywood panels joined by laser-cut plywood keys.
 
-![Dodecahedron shade with the Marrakech pattern](docs/img/shade_render.png)
+![Dodecahedron shade with the Penrose P3 pattern](docs/img/shade_render.png)
 
 | Path | Contents |
 |---|---|
